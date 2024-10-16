@@ -823,7 +823,7 @@ targets."
   ;; Enable full-featured Dirvish over TRAMP on certain connections
   ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
   (add-to-list 'tramp-connection-properties
-               (list (regexp-quote "/ssh:YOUR_HOSTNAME:")
+               (list (regexp-quote "/ssh:antlers@192\\.168\\.0\\.[0-9]+:")
                      "direct-async-process" t))
   ;; Tips to speed up connections
   (setq tramp-verbose 0)
