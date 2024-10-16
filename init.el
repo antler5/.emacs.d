@@ -71,8 +71,8 @@
 
 ;;; Use-Package
 '(:guix (emacs-use-package ; This refers to my fork with :custom-face <string> [...]
-          ; --with-git-url=emacs-use-package=file:///home/maddhappy/projects/jwiegley/use-package
-          ; --with-branch=emacs-use-package=hotfix/revert-texi-setfilename
+          --with-git-url=emacs-use-package=https://github.com/antler5/use-package
+          --with-branch=emacs-use-package=feature/custom-face-with-doc-string-backport-2.4.4
           ))
 (eval-when-compile
   (require 'use-package))
