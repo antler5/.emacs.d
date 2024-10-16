@@ -801,17 +801,17 @@ targets."
             "TAB" #'dirvish-toggle-subtree)
            (:states 'motion
             "-" #'dired-jump
-            "_"   #'dirvish-layout-toggle)
+            "_" #'dirvish-layout-toggle)
   :custom
-  ;; "Don't worry, Dirvish is still performant even if you enable all these attributes"
   (dirvish-attributes
-    ; vc-state subtree-state all-the-icons collapse git-msg file-time file-size
-    '(subtree-state all-the-icons collapse git-msg file-size))
-    ; '(subtree-state all-the-icons collapse git-msg file-time file-size))
+    '(subtree-state
+      all-the-icons
+      git-msg
+      file-size))
   (dirvish-quick-access-entries
-   '(("d" "~/"                          "Home")
-     ("p" "~/projects"                  "Projects")
-     ("s" "~/Sync"                      "Sync")
+   '(("d" "~/"         "Home")
+     ("p" "~/projects" "Projects")
+     ("s" "~/Sync"     "Sync")
      ))
   (dired-listing-switches
     "-l --almost-all --human-readable --group-directories-first --no-group")
