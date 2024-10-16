@@ -146,6 +146,7 @@
 (use-package emacs
   :guix gzip
   :custom
+  (scroll-bar-mode nil)
   (tool-bar-mode nil)
   (menu-bar-mode nil)
   (cursor-in-non-selected-windows nil)  ; Hide the cursor in inactive windows
