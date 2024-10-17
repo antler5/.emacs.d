@@ -947,6 +947,10 @@ targets."
             "j" #'evil-next-line
             "k" #'evil-previous-line))
 
+(use-package org-super-agenda
+  :guix emacs-org-super-agenda
+  :after org)
+
 (use-package ob
   :after org
   :custom (org-src-preserve-indentation t)
