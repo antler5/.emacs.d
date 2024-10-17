@@ -1185,14 +1185,20 @@ targets."
           (whitespace-style '(face lines-tail missing-newline-at-eof tab-mark))
   :custom-face (whitespace-line ((t :background unspecified :foreground "#555"))))
 
-(use-package git-gutter
-  :guix emacs-git-gutter
-  :commands (git-gutter-mode)
+(use-package git-gutter-fringe
+  :guix emacs-git-gutter-fringe
   :ghook ('prog-mode-hook #'git-gutter-mode)
   :custom-face
-  (git-gutter:added ((t :foreground "#cae682")))
-  (git-gutter:deleted ((t :foreground "#e5786d")))
-  (git-gutter:modified ((t :foreground "#8ac6f2"))))
+  (git-gutter-fr:added ((t :foreground "#cae682" :background "#333")))
+  (git-gutter-fr:deleted ((t :foreground "#e5786d" :background "#333")))
+  (git-gutter-fr:modified ((t :foreground "#8ac6f2" :background "#333")))
+  :config
+  (fringe-helper-define 'git-gutter-fr:modified nil
+    ".XXX...X"
+    "X...XXX."
+    "........"
+    ".XXX...X"
+    "X...XXX."))
 
 (use-package rainbow-mode
   :delight
