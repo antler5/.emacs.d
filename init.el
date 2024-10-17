@@ -876,6 +876,7 @@ targets."
 (use-package org
   :guix emacs-org
   :custom
+  (org-startup-indented      t)
   (org-default-priority      ?C)
   (org-lowest-priority       ?D)
   (org-agenda-files          '("~/Sync/org"))
@@ -965,52 +966,6 @@ targets."
 (use-package ox-haunt
   :guix emacs-ox-haunt
   :after ox)
-
-(use-package svg-lib)
-
-(use-package org-margin
-  :guix (emacs-org-margin
-         font-hack)
-  :after org svg-lib
-  :ghook 'org-mode-hook
-  :init
-  (defun antlers/margin-marker (family icon raise)
-    (propertize
-      (funcall (intern (concat "all-the-icons-" (symbol-name family)))
-        icon
-        :face 'all-the-icons-dsilver)
-        'display `(raise ,raise)))
-  (defun antlers/permute-margin-marker (family marker icon raise)
-    (list (cons (concat "\\(#\\+" marker "\\)")
-                (antlers/margin-marker family icon raise))
-          (cons (concat "\\(#\\+" (upcase marker) "\\)")
-                (antlers/margin-marker family icon raise))))
-  :custom
-  (org-margin-headers-set 'H-txt-min)
-  (org-margin-markers
-    (append
-      (antlers/permute-margin-marker 'faicon "begin_src" "code" 0.05)
-      (antlers/permute-margin-marker 'faicon "begin_quote" "quote-right" -0.1)
-      (antlers/permute-margin-marker 'octicon "begin_comment" "comment" -0.1)
-      (antlers/permute-margin-marker 'faicon "begin_example" "map-o" -0.1)
-      (antlers/permute-margin-marker 'faicon "begin_music" "music" -0.1)
-      (list
-        (cons "\\(SCHEDULED:\\)" (antlers/margin-marker 'faicon "calendar" 0))
-        (cons "\\(DEADLINE:\\)" (antlers/margin-marker 'faicon "calendar-times-o" 0))
-        )))
-  :config
-  (add-to-list 'org-margin-headers
-    (cons 'H-txt-min
-      (-map (lambda (i)
-              (let* ((i* (number-to-string i))
-                     (face (intern (concat "org-level-" i*))))
-                (svg-lib-tag i* nil
-                  :padding 1.6
-                  :font-family "Hack"
-                  :font-weight 'bold
-                  :foreground (face-background 'default nil t)
-                  :background (face-foreground face nil t))))
-            (-iota 6 1)))))
 
 
 ;; Roam
