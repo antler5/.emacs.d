@@ -184,8 +184,7 @@
       (concat (getenv "HOME")
               "/.emacs.d/init.el")))
 
-  :general (evil-leader-map
-            "e" #'antlers/edit-init-el)
+  :general (evil-leader-map "e" #'antlers/edit-init-el)
            ("C-x x T" #'visual-line-mode)
 
   :config
@@ -252,8 +251,7 @@
 ;; ;; TODO: Make "r" into an avy-line-like command?
 ;; (use-package dashboard
 ;;   :guix emacs-dashboard
-;;   :general (evil-leader-map
-;;             "\\" #'dashboard-open)
+;;   :general (evil-leader-map "\\" #'dashboard-open)
 ;;   :config
 ;;   (dashboard-setup-startup-hook)
 ;;   :init
@@ -980,8 +978,7 @@ targets."
 (use-package org-roam-ui
   :guix    emacs-org-roam-ui
   :after   org-roam
-  :general (evil-leader-map
-            "u" #'org-roam-ui-open)
+  :general (evil-leader-map "u" #'org-roam-ui-open)
   :custom
   (org-roam-ui-sync-theme t)
   (org-roam-ui-open-on-start nil))
@@ -1062,8 +1059,7 @@ targets."
 
 ;; Eshell
 (use-package eshell
-  :general (evil-leader-map
-            "q" #'eshell)
+  :general (evil-leader-map "q" #'eshell)
 
   :config
   ;; Clever rebinding of nvim/emacs -> :edit
