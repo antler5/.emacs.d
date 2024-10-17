@@ -8,6 +8,7 @@
 ;; TODO: Projectile?
 ;; TODO: htmlize (for org-export)
 ;; TODO: Window undo / Ctl-o and Ctl-i how they were pls
+;; - evil doesn't seem to like that idea??
 ;; TODO: Olivetty/darkroom-mode
 
 ;; TODO: Vertico for :e find-file style prompt?
@@ -25,7 +26,6 @@
 ;; TODO: What's up with all the litter?
 ;; TODO: Configure lispyville? (evil-)paredit?
 ;; TODO: Can :q pls close a buffer iff no other windows have it open?
-;; TODO: Sync C-w <arrow> bindings with kb config /and/ hjkl?
 
 ;; The code is organized in pages, separated by formfeed characters.
 ;;
@@ -402,7 +402,7 @@
 
 ;; Lisp Parens
 (use-package rainbow-delimiters
-  :guix emacs-rainbow-delimiters
+  :guix  emacs-rainbow-delimiters
   :ghook 'lisp-mode-hook
          'emacs-lisp-mode-hook
          'scheme-mode-hook
@@ -613,7 +613,7 @@
   :init    (marginalia-mode t))
 
 (use-package corfu
-  :guix emacs-corfu
+  :guix  emacs-corfu
   :after (cape consult)
   :custom
   (corfu-auto t)
