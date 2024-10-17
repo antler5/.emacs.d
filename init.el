@@ -9,7 +9,6 @@
 ;; TODO: htmlize (for org-export)
 ;; TODO: Window undo / Ctl-o and Ctl-i how they were pls
 ;; - evil doesn't seem to like that idea??
-;; TODO: Olivetty/darkroom-mode
 
 ;; TODO: Vertico for :e find-file style prompt?
 ;; TODO: Vertico hjkl or is the keymap gonna fix that
@@ -1205,6 +1204,11 @@ targets."
          emacs-json-mode
          emacs-markdown-mode
          emacs-yaml-mode))
+
+(use-package darkroom
+  :guix    emacs-darkroom
+  :general (evil-leader-map "f" #'darkroom-tentative-mode)
+  :custom  (darkroom-text-scale-increase 1.25))
 
 
 ;; Other Dependencies
