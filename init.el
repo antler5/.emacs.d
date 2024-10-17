@@ -443,10 +443,13 @@
             "C-x ]" #'evil-forward-section-begin
             "C-x [" #'evil-backward-section-end)
            ;; Prioritize native org-cycle over evil-jump-forward
+           ;; Ditto for return
            (:states 'normal
             :keymaps 'org-mode-map
             "<tab>" #'org-cycle
-            "TAB"   #'org-cycle)
+            "TAB"   #'org-cycle ; at some point <tab> wasn't enough?
+            "<return>" #'org-return
+            "RET"      #'org-return)
            (evil-leader-map
             "#"     #'display-line-numbers-mode)
   ;; TODO: Why no general do this?
@@ -874,6 +877,7 @@ targets."
                                ("HOLD" . org-warning)
                                ("CANCELLED" :foreground "forest green" :weight bold)))
   (org-agenda-compact-blocks t)
+  (org-return-follows-link   t)
   ;; Refile
   (org-default-notes-file    "~/Sync/org/refile.org")
   (org-refile-targets '((nil :maxlevel . 9)
@@ -946,6 +950,89 @@ targets."
 (use-package ox-haunt
   :guix emacs-ox-haunt
   :after ox)
+
+
+;; Roam
+(use-package org-roam
+  :guix emacs-org-roam
+  :custom
+  (org-roam-directory "~/Sync/org")
+  (org-roam-completion-everywhere nil)
+  :config
+  (org-roam-db-autosync-mode))
+
+(use-package org-node
+  :guix emacs-org-node
+  :after org org-roam
+  :general ("M-s f" 'org-node-find)
+           ("M-s i" 'org-node-insert-link)
+           ("M-s s" #'org-node-series-dispatch)
+  :custom
+  (org-node-ask-directory "~/Sync/org/roam/")
+  (org-node-filter-fn
+    (lambda (node)
+      (not (or (org-node-get-todo node) ;; Ignore headings with todo state
+               (member "drill" (org-node-get-tags node)) ;; Ignore :drill:
+               (assoc "ROAM_EXCLUDE" (org-node-get-properties node))
+               (string-search "archive" (org-node-get-file-path node))))))
+  ;; Seek wide use
+  :ghook ('org-open-at-point-functions
+          #'org-node-try-visit-ref-node)
+  :config
+  (org-node-cache-mode)
+  (org-node-complete-at-point-mode)
+
+  ;; "Old Default Setting", from:
+  ;; https://github.com/meedstrom/org-node/wiki/Configuring-series#old-default-setting
+  (setq org-node-series-defs
+    (list '("d" :name "Dailies"
+       :version 2
+       :classifier (lambda (node)
+                     (let ((path (org-node-get-file-path node)))
+                       (when (string-search "~/Sync/org/roam/dailies" path)
+                         (let ((ymd (org-node-helper-filename->ymd path)))
+                           (when ymd
+                             (cons ymd path))))))
+       :whereami (lambda ()
+                   (org-node-helper-filename->ymd buffer-file-name))
+       :prompter (lambda (key)
+                   (let ((org-node-series-that-marks-calendar key))
+                     (org-read-date)))
+       :try-goto (lambda (item)
+                   (org-node-helper-try-visit-file (cdr item)))
+       :creator (lambda (sortstr key)
+                  (let ((org-node-datestamp-format "")
+                        (org-node-ask-directory "~/Sync/org/roam/dailies"))
+                    (org-node-create sortstr (org-id-new) key)))))))
+
+(use-package org-node-fakeroam
+  :guix emacs-org-node-fakeroam
+  :custom
+  (org-node-extra-id-dirs '("~/Sync/org/"))
+  ;; Right from the README.
+  (org-node-creation-fn #'org-node-fakeroam-new-via-roam-capture)
+  (org-node-slug-fn #'org-node-fakeroam-slugify-via-roam)
+  (org-node-datestamp-format "%Y%m%d%H%M%S-")
+  ;; DB:
+  (org-roam-db-update-on-save nil) ; don't update DB on save, not needed
+  (org-roam-link-auto-replace nil) ; don't look for "roam:" links on save
+  :config
+  (org-node-fakeroam-fast-render-mode)  ; build the Roam buffer faster
+  (org-node-fakeroam-setup-persistence) ; cache previews on-disk
+  ;; DB:
+  (unless org-roam-db-update-on-save
+    (org-node-fakeroam-redisplay-mode))  ; auto-refresh the Roam buffer
+  (org-node-fakeroam-db-feed-mode)       ; keep Roam DB up to date
+  (org-node-fakeroam-jit-backlinks-mode) ; skip DB for Roam buffer
+  ;; Seek wide use
+  (advice-add #'org-roam-db-sync :override
+              #'org-node-fakeroam-db-rebuild)
+  (advice-add #'org-roam-list-files :override
+              #'org-node-fakeroam-list-files)
+  (advice-add #'org-roam-dailies--list-files :override
+              #'org-node-fakeroam-list-dailies)
+  (advice-add #'org-roam-dailies--daily-note-p :override
+              #'org-node-fakeroam-daily-note-p))
 
 
 ;; Eshell
