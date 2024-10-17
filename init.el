@@ -875,11 +875,11 @@ targets."
 ;; Org
 (use-package org
   :guix emacs-org
-  :gfhook #'visual-line-mode
   :custom
   (org-startup-indented      t)
   (org-default-priority      ?C)
   (org-lowest-priority       ?D)
+  (org-agenda-files          '("~/Sync/org"))
   (diary-file                "~/Sync/org/diary")
   (org-archive-location      "%s_archive::* Archived Tasks")
   (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
@@ -918,9 +918,6 @@ targets."
           #'org-setup-<>-syntax-fix
           #'(lambda () (setq-local tab-width 8))
   :config
-  (when (file-exists-p "~/Sync/org")
-    (setq org-agenda-files '("~/Sync/org")))
-
   ;; Credit: https://emacs.stackexchange.com/a/52209
   (defun org-mode-<>-syntax-fix (start end)
     "Change syntax of characters ?< and ?> to symbol within source code blocks."
