@@ -617,7 +617,7 @@
   :guix   emacs-vertico-posframe
   :after  vertico
   :custom (vertico-posframe-parameters '((frame-border-width . 8)))
-  :custom-face (vertico-posframe-border ((t :background "#333")))
+  :custom-face (vertico-posframe-border ((t :background "#555")))
   :init   (general-after-gui
             (vertico-posframe-mode 1)))
 
