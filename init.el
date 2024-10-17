@@ -69,10 +69,8 @@
 
 
 ;;; Use-Package
-'(:guix (emacs-use-package ; This refers to my fork with :custom-face <string> [...]
-          --with-git-url=emacs-use-package=https://github.com/antler5/use-package
-          --with-branch=emacs-use-package=feature/custom-face-with-doc-string-backport-2.4.4
-          ))
+;; This refers to my fork with `:custom-face <string> [...]`.
+'(:guix emacs-use-package-fork)
 (eval-when-compile
   (require 'use-package))
 (require 'bind-key)

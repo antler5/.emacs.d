@@ -8,6 +8,22 @@
   #:use-module (guix packages)
   #:use-module (gnu packages emacs-xyz))
 
+(define-public emacs-use-package-fork
+  (let ((commit "6d55bdd2d281d1b33da06eab0f920327fefdd2a8"))
+    (package
+      (inherit emacs-use-package)
+      (name "emacs-use-package-fork")
+      (version "2.4.4")
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/antler5/use-package")
+                      (commit commit)))
+                (file-name (git-file-name name version))
+                (sha256
+                 (base32
+                  "0qdcwg2y054m11lby8d9cash8j8k1yyjm94x53djgbnr9dph41m3")))))))
+
 ;; First packaged in 2022 by Fredrik Salomonsson <plattfot@posteo.net>
 ;; Not upstream because it includes minified Javascript.
 (define-public emacs-org-roam-ui
