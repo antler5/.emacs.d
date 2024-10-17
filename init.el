@@ -897,6 +897,7 @@ targets."
   :gfhook #'visual-line-mode
           #'flyspell-mode
           #'org-setup-<>-syntax-fix
+          #'(lambda () (setq-local tab-width 8))
   :config
   (when (file-exists-p "~/Sync/org")
     (setq org-agenda-files '("~/Sync/org")))
