@@ -315,7 +315,8 @@
 
 ;; Theme, Graphics, and Fringe
 (use-package emacs
-  :guix font-mononoki
+  :guix (fontconfig ; needs specified, else `guix shell` won't export search path
+         font-mononoki)
   :custom (indicate-buffer-boundaries 'left)
   :custom-face
   (default ((t (:family "mononoki" :height 110))))
@@ -366,7 +367,12 @@
             ((eq system-type 'darwin)
              (concat (getenv "HOME") "/Library/Fonts/")))))
     (unless (file-exists-p (concat font-dest "all-the-icons.ttf"))
-      (all-the-icons-install-fonts))))
+      (all-the-icons-install-fonts)))
+  ;; Customize the Scheme icon
+  (add-to-list 'all-the-icons-extension-icon-alist
+    '("scm" all-the-icons-fileicon "scheme"
+      :height 0.75 :width 1.25
+      :face all-the-icons-blue)))
 
 (use-package all-the-icons-completion
   :guix  emacs-all-the-icons-completion
