@@ -973,6 +973,19 @@ targets."
   :config
   (org-roam-db-autosync-mode))
 
+(use-package websocket
+  :guix  emacs-websocket
+  :after org-roam)
+
+(use-package org-roam-ui
+  :guix    emacs-org-roam-ui
+  :after   org-roam
+  :general (evil-leader-map
+            "u" #'org-roam-ui-open)
+  :custom
+  (org-roam-ui-sync-theme t)
+  (org-roam-ui-open-on-start nil))
+
 (use-package org-node
   :guix emacs-org-node
   :after org org-roam
