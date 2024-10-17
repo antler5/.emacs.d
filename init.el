@@ -177,14 +177,13 @@
   (initial-scratch-message nil)
   (initial-major-mode 'fundamental-mode)
 
-  :init (setq antlers/guix-home-repo
-          "/home/maddhappy/projects/antlers/guix-config")
-        (defun antlers/edit-init-el ()
-          (interactive)
-          (find-file
-            (concat
-              antlers/guix-home-repo
-              "/modules/antlers/home/files/emacs/init.el")))
+  :init
+  (defun antlers/edit-init-el ()
+    (interactive)
+    (find-file
+      (concat (getenv "HOME")
+              "/.emacs.d/init.el")))
+
   :general (evil-leader-map
             "e" #'antlers/edit-init-el)
            ("C-x x T" #'visual-line-mode)
@@ -357,7 +356,20 @@
 ;; Enable /all/ the icons
 (use-package all-the-icons
   :guix emacs-all-the-icons
-  :defer t)
+  :defer
+  :config
+  (let ((font-dest
+          (cond
+            ;; Default Linux install directories
+            ((member system-type '(gnu gnu/linux gnu/kfreebsd))
+             (concat (or (getenv "XDG_DATA_HOME")
+                         (concat (getenv "HOME") "/.local/share"))
+                     "/fonts/"))
+            ;; Default MacOS install directory
+            ((eq system-type 'darwin)
+             (concat (getenv "HOME") "/Library/Fonts/")))))
+    (unless (file-exists-p (concat font-dest "all-the-icons.ttf"))
+      (all-the-icons-install-fonts))))
 
 (use-package all-the-icons-completion
   :guix  emacs-all-the-icons-completion
