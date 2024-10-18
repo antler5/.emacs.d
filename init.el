@@ -185,7 +185,7 @@
            ("C-x x T" #'visual-line-mode)
 
   :config
-  (server-start)                    ; Start server for emacsclient
+  ;; (server-start)                    ; Start server for emacsclient
   (defalias 'yes-or-no-p 'y-or-n-p) ; Replace yes/no prompts with y/n
 
   ;; TODO: use general
