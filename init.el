@@ -4,6 +4,7 @@
 ;; TODO: EAT term
 
 ;; TODO: Corfu-doc
+;; TODO: variable pitch fonts for org-mode, needs mono in src blocks and less bold
 ;; TODO: Fence edit
 ;; TODO: Projectile?
 ;; TODO: htmlize (for org-export)
