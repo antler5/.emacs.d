@@ -262,26 +262,8 @@
 
 
 ;; Mode-line
-(use-package moody
-  :guix emacs-moody
-  :custom
-  (display-time-default-load-average nil)
-  (moody-mode-line-height 20) ; ~1ch
-  (x-underline-at-descent-line t)
-  :custom-face
-  (mode-line ((t (:overline "#666666"
-                  :underline "#666666"
-                  :foreground "#fef8ea")))) ; warmer text
-  (mode-line-inactive ((t :background "#383838")))
-
-  :config
-  (moody-replace-mode-line-buffer-identification)
-  (moody-replace-vc-mode)
-  (moody-replace-eldoc-minibuffer-message-function))
-
 (use-package emacs
   :delight (eldoc-mode nil eldoc) ; Hide eldoc-mode lighter
-  :custom  (column-number-mode t) ; Enable column display
   :config
   (defun spaceline--column-number-at-pos (pos)
     "Column number at POS.  Analog to `line-number-at-pos'."
@@ -301,15 +283,73 @@
                          (and evil (eq 'block evil-visual-selection))))
                (multi-line (or (> lines 1) (and evil (eq 'line evil-visual-selection)))))
           (cond
-           (rect (format "%d×%d" lines (if evil cols (1- cols))))
-           (multi-line (format "%d/%d" lines chars))
-           (t (format "1×%d" (if evil chars (1- chars))))))
-      "0×0"))
-  (add-to-list 'mode-line-position
-    '((:propertize
-        (:eval (spaceline--selection-info))
-        display
-        (min-width (5.0))))))
+           (rect (format " %d×%d " lines (if evil cols (1- cols))))
+           (multi-line (format " %d/%d " lines chars))
+           (t (format " 1×%d " (if evil chars (1- chars))))))
+      " %l:%c ")))
+
+(use-package moody
+  :guix emacs-moody
+  :after all-the-icons
+  :custom
+  (display-time-default-load-average nil)
+  (moody-mode-line-height 20) ; ~1ch
+  (x-underline-at-descent-line t)
+  :custom-face
+  (mode-line ((t (:overline "#666666"
+                  :underline "#666666"
+                  :foreground "#fef8ea")))) ; warmer text
+  (mode-line-inactive ((t :background "#383838")))
+  :config
+  ;; Mostly from nano-modeline.el
+  (defun antlers/mode-line-status (&optional status)
+    (or status
+      (cond (buffer-read-only    " RO ")
+            ((buffer-modified-p) " ** ")
+            (t                   " RW "))))
+  (defun antlers/mode-line-percent ()
+    (format "%-6s " (format "(%d%%%%)" (/ (window-start) 0.01 (point-max)))))
+  (defun antlers/mode-line-vcs ()
+    (when vc-mode
+      (when-let* ((file (buffer-file-name))
+                  (branch (substring-no-properties vc-mode 5))
+                  (state (vc-state file)))
+        (format "%s %s, %s"
+          (if (display-graphic-p)
+              (propertize (all-the-icons-octicon "git-branch" :height 0.9) 'display '(raise 0))
+            "Ͱ") ; ⊦
+          branch state))))
+  (defun antlers/mode-line-file-size ()
+    (if-let* ((file-name (buffer-file-name))
+              (file-attributes (file-attributes file-name))
+              (file-size (file-attribute-size file-attributes))
+              (file-size (file-size-human-readable file-size)))
+        (format " (%s)" file-size)
+      ""))
+  (defun antlers/mode-line-dedicated ()
+    (if (window-dedicated-p)
+        (if (display-graphic-p)
+            (propertize (all-the-icons-octicon "pin" :height 0.9)
+                        'display '(raise 0))
+          "P")
+      ""))
+  (moody-replace-eldoc-minibuffer-message-function)
+  (setq-default mode-line-format
+    '(" "
+      (:eval (antlers/mode-line-dedicated))
+      (:eval (antlers/mode-line-status))
+      moody-mode-line-front-space
+      (:eval (moody-tab (concat
+                          (car (propertized-buffer-identification (buffer-name)))
+                          (antlers/mode-line-file-size))
+                        20 'down))
+      " "
+      (:eval (antlers/mode-line-vcs))
+      mode-line-format-right-align
+      (:eval (spaceline--selection-info))
+      (:eval (antlers/mode-line-percent))
+      (:eval (moody-wrap evil-mode-line-tag))
+      "  ")))
 
 
 ;; Theme, Graphics, and Fringe
