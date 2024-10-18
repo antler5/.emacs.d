@@ -389,6 +389,48 @@
   :custom (kind-icon-default-face 'corfu-default)
   :ghook  ('corfu-margin-formatters #'kind-icon-margin-formatter))
 
+(use-package svg-tag-mode
+  :guix emacs-svg-tag-mode
+  :ghook ('org-mode-hook #'svg-tag-mode)
+  :after org-faces
+  :custom-face
+  (org-todo-tag ((t :background ,(face-foreground 'org-todo nil t)
+                    :foreground ,(face-background 'default)
+                    :weight bold)))
+  (org-next-tag ((t :background "orange"
+                    :foreground ,(face-background 'default)
+                    :weight bold)))
+  (org-hold-tag ((t :foreground ,(face-foreground 'org-warning nil t)
+                    :weight bold)))
+  (org-done-tag ((t :foreground ,(face-foreground 'org-done nil t)
+                    :weight bold)))
+  (org-waiting-tag ((t :foreground "orange"
+                       :weight bold)))
+  (org-cancelled-tag ((t :foreground ,(face-foreground 'org-verbatim nil t)
+                         :weight bold)))
+  (org-tag-tag ((t :foreground ,(face-foreground 'org-verbatim nil t)
+                   :weight bold)))
+  (org-priority-tag ((t :background ,(face-foreground 'org-priority nil t)
+                        :foreground ,(face-background 'default)
+                        :weight bold)))
+  :custom
+  (svg-tag-action-at-point 'edit)
+  (svg-tag-tags
+    '(("TODO" . ((lambda (tag) (svg-tag-make tag :face 'org-todo-tag))))
+      ("NEXT" . ((lambda (tag) (svg-tag-make tag :face 'org-next-tag))))
+      ("HOLD" . ((lambda (tag) (svg-tag-make tag :face 'org-hold-tag))))
+      ("DONE" . ((lambda (tag) (svg-tag-make tag :face 'org-done-tag))))
+      ("CANCELLED" . ((lambda (tag) (svg-tag-make tag :face 'org-cancelled-tag))))
+      ("WAITING" . ((lambda (tag) (svg-tag-make tag :face 'org-waiting-tag))))
+      ("\\[#A\\]" . ((lambda (tag) (svg-lib-progress-pie 1.00 nil :foreground "red" :stroke 3))))
+      ("\\[#B\\]" . ((lambda (tag) (svg-lib-progress-pie 0.75 nil :foreground "orange" :stroke 3))))
+      ("\\[#C\\]" . ((lambda (tag) (svg-lib-progress-pie 0.50 nil :foreground "yellow" :stroke 3))))
+      ("\\[#D\\]" . ((lambda (tag) (svg-lib-progress-pie 0.25 nil :foreground "grey" :stroke 3))))
+      ;; XXX: I want to style props and src blocks, but
+      ;; action-at-point edit gets really buggy when using :beg, :end,
+      ;; or (possibly overlapping) tags with a capture group.
+      )))
+
 
 ;; Butlers
 (use-package no-littering
@@ -898,6 +940,11 @@ targets."
   (org-refile-allow-creating-parent-nodes '(confirm))
   ;; Misc
   (org-treat-S-cursor-todo-selection-as-state-change nil)
+  (org-priority-faces
+    '((?A :foreground "red")
+      (?B :foreground "orange")
+      (?C :foreground "yellow")
+      (?D :foreground "grey")))
   :custom-face
   ;; This was comment-grey by default :/
   (outline-4 ((t :foreground "#c0a6f5")))
@@ -1189,7 +1236,7 @@ targets."
 (use-package git-gutter
   :delight
   :guix emacs-git-gutter
-  :ghook 'prog-mode-hook
+  :ghook 'prog-mode-hook 'org-mode-hook
   :custom-face
   (git-gutter:added ((t :foreground "#cae682")))
   (git-gutter:deleted ((t :foreground "#e5786d")))
