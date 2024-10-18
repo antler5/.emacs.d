@@ -16,6 +16,7 @@
 ;; TODO: Sort words in region ignoring comments!!!
 
 ;; TODO: Looser, smex-style orderless?
+;; TODO: Wish mode-line-percent-position was hidden when "Top" or "Bottom"
 ;; TODO: dirvish: error in process sentinel: Wrong type argument: hash-table-p, nil [2 times]
 ;; TODO: Indent comment to column on tab
 ;; TODO: Get the ledger which-key label working
@@ -265,12 +266,11 @@
   :guix emacs-moody
   :custom
   (display-time-default-load-average nil)
-  (display-time-mode t)
   (moody-mode-line-height 20) ; ~1ch
   (x-underline-at-descent-line t)
   :custom-face
-  (mode-line ((t (:overline   "#666666"
-                  :underline  "#666666"
+  (mode-line ((t (:overline "#666666"
+                  :underline "#666666"
                   :foreground "#fef8ea")))) ; warmer text
   (mode-line-inactive ((t :background "#383838")))
 
