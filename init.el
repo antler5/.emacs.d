@@ -230,6 +230,7 @@
 
 (use-package autorevert
   :custom
+  (auto-revert-use-notify nil)
   (auto-revert-avoid-polling t)
   (auto-revert-check-vc-info t)
   (auto-revert-interval 5)
