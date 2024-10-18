@@ -341,8 +341,8 @@
   :ghook 'lisp-mode-hook 'lisp-data-mode-hook)
 
 (use-package highlight-indent-guides
-  :guix emacs-highlight-indent-guides
   :delight
+  :guix emacs-highlight-indent-guides
   :ghook 'prog-mode-hook
   :custom
   ;; Issue #107: Method 'character breaks with whitespace.el
@@ -416,10 +416,8 @@
 
 ;; Lisp Parens
 (use-package rainbow-delimiters
-  :guix  emacs-rainbow-delimiters
-  :ghook 'lisp-mode-hook
-         'emacs-lisp-mode-hook
-         'scheme-mode-hook
+  :guix emacs-rainbow-delimiters
+  :ghook 'prog-mode-hook
   :config
   (require 'cl-lib)
   (require 'color)
@@ -1163,8 +1161,9 @@ targets."
 ;   (mapc #'beacon-do-blink-command beacon-do-blink-commands))
 
 (use-package flyspell
+  :delight
   :ghook ('(prog-mode-hook) #'flyspell-prog-mode)
-         ('(git-commit-mode-hook) #'flyspell-mode)
+         'git-commit-mode-hook
   :custom
   (ispell-personal-dictionary ; Keep `ispell' dictionary in .emacs.d
    "/home/maddhappy/Sync/org/ispell-english.dict")
@@ -1181,7 +1180,8 @@ targets."
   :config (which-key-mode t))
 
 (use-package whitespace
-  :ghook  ('prog-mode-hook  #'whitespace-mode)
+  :delight
+  :ghook 'prog-mode-hook
   :custom (whitespace-space 'whitespace-newline)
           (whitespace-style '(face lines-tail missing-newline-at-eof tab-mark))
   :custom-face (whitespace-line ((t :background unspecified :foreground "#555"))))
@@ -1204,7 +1204,7 @@ targets."
 (use-package rainbow-mode
   :delight
   :guix emacs-rainbow-mode
-  :ghook ('prog-mode-hook #'rainbow-mode))
+  :ghook 'prog-mode-hook)
 
 
 ;; On-demand Minor Modes
