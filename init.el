@@ -1266,6 +1266,8 @@ targets."
 (use-package git-gutter
   :guix emacs-git-gutter
   :ghook 'prog-mode-hook 'org-mode-hook
+  :gfhook ('magit-post-refresh-hook
+           #'git-gutter:update-all-windows)
   :custom-face
   (git-gutter:added ((t :foreground "#cae682")))
   (git-gutter:deleted ((t :foreground "#e5786d")))
