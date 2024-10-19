@@ -1,42 +1,21 @@
 ;; init.el -*- lexical-binding: t; -*-
-;;
-;; TODO: Intangible eshell prompt?
-;; TODO: EAT term
 
-;; TODO: Corfu-doc
-;; TODO: variable pitch fonts for org-mode, needs mono in src blocks and less bold
-;; TODO: Fence edit
-;; TODO: Projectile?
-;; TODO: htmlize (for org-export)
-;; TODO: Window undo / Ctl-o and Ctl-i how they were pls
-;; - evil doesn't seem to like that idea??
+;; SPDX-License-Identifier: GPL-3.0-or-later
+;; SPDX-FileCopyrightText: (c) 2024 antlers <antlers@illucid.net>
 
-;; TODO: Vertico for :e find-file style prompt?
-;; TODO: Vertico hjkl or is the keymap gonna fix that
-
-;; TODO: Sort words in region ignoring comments!!!
-
-;; TODO: Looser, smex-style orderless?
-;; TODO: Wish mode-line-percent-position was hidden when "Top" or "Bottom"
-;; TODO: dirvish: error in process sentinel: Wrong type argument: hash-table-p, nil [2 times]
-;; TODO: Indent comment to column on tab
-;; TODO: Get the ledger which-key label working
-;; TODO: Absorb https://www.reddit.com/r/emacs/comments/18qa15/dired_discussion/
-;; TODO: Absorb remaining ref-config
-;; TODO: Absorb https://github.com/angrybacon/dotemacs/
-;; TODO: What's up with all the litter?
-;; TODO: Configure lispyville? (evil-)paredit?
-;; TODO: Can :q pls close a buffer iff no other windows have it open?
-
-;; The code is organized in pages, separated by formfeed characters.
-;;
-;; Substantial portions wisdom of:
+;; Substantial portions inspired by:
 ;; - [doomemacs](https://github.com/doomemacs/doomemacs)
 ;; - emacs-bedrock
 ;; - mnewt's dotemacs repo
 ;; - kristofferbalintona.me
-;;
 
+;;; Commentary:
+
+;; The code is organized into pages, separated by form feed characters.
+
+;;; Code:
+
+
 ;;; Native Compilation
 (when (fboundp 'native-compile)
   (setq package-native-compile t)
