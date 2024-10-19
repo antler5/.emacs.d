@@ -256,7 +256,7 @@
 
 (use-package moody
   :guix emacs-moody
-  :after all-the-icons
+  :after nerd-icons
   :custom
   (display-time-default-load-average nil)
   (moody-mode-line-height 20) ; ~1ch
@@ -270,14 +270,11 @@
   ;; Mostly from nano-modeline.el
   (defun antlers/mode-line-status (&optional status)
     (cl-flet ((icon (lambda (i)
-                      (all-the-icons-faicon i :height 0.9 :v-adjust -0.05))))
-      (pcase (list (format-mode-line "%*") (display-graphic-p))
-        ('("*" t)   (icon "chain-broken"))
-        ('("*" nil) "**")
-        ('("-" t)   (icon "link"))
-        ('("-" nil) "RW")
-        ('("%" t)   (icon "lock"))
-        ('("%" nil) "RO"))))
+                      (nerd-icons-faicon i))))
+      (pcase (format-mode-line "%*")
+        ("*"   (icon "nf-fa-chain_broken"))
+        ("-"   (icon "nf-fa-link"))
+        ("%"   (icon "nf-fa-lock")))))
   (defun antlers/mode-line-percent ()
     (format "%-6s " (format "(%d%%%%)" (/ (window-start) 0.01 (point-max)))))
   (defun antlers/mode-line-vcs ()
@@ -286,9 +283,7 @@
                   (branch (substring-no-properties vc-mode 5))
                   (state (vc-state file)))
         (format "%s %s, %s"
-          (if (display-graphic-p)
-              (propertize (all-the-icons-octicon "git-branch" :height 0.9) 'display '(raise 0))
-            "Ͱ") ; ⊦
+          (nerd-icons-devicon "nf-dev-git_branch")
           branch state))))
   (defun antlers/mode-line-file-size ()
     (if-let* ((file-name (buffer-file-name))
@@ -299,9 +294,7 @@
       ""))
   (defun antlers/mode-line-dedicated ()
     (cond ((not (window-dedicated-p)) "")
-          ((not (display-graphic-p)) "P")
-          (t (propertize (all-the-icons-octicon "pin" :height 0.9)
-                         'display '(raise 0)))))
+          (t (nerd-icons-octicon "nf-oct-pin"))))
   (moody-replace-eldoc-minibuffer-message-function)
   (setq-default mode-line-format
     '(" "
@@ -362,69 +355,47 @@
   (highlight-indent-guides-auto-even-face-perc 20)
   (highlight-indent-guides-auto-odd-face-perc 15))
 
-;; Enable /all/ the icons
-(use-package all-the-icons
-  :guix emacs-all-the-icons
-  :defer
+;; Nerd Icons
+(use-package nerd-icons
+  :config
+  ;; For dirvish
+  (defun all-the-icons-octicon (icon &rest args)
+    (apply #'nerd-icons-octicon
+      (cons (concat "nf-oct-"
+              (string-replace "-" "_" icon))
+            args)))
+  (defalias #'all-the-icons-icon-for-dir #'nerd-icons-icon-for-dir)
+  (defalias #'all-the-icons-icon-for-file #'nerd-icons-icon-for-file)
+  (provide 'all-the-icons))
+
+(use-package nerd-icons-completion
+  :guix  emacs-nerd-icons-completion
+  :after marginalia
+  :ghook ('marginalia-mode-hook
+          #'nerd-icons-completion-marginalia-setup)
   :config
   (let ((font-dest
           (cond ;; Default Linux install directories
-                ((member system-type '(gnu gnu/linux gnu/kfreebsd))
-                 (concat (or (getenv "XDG_DATA_HOME")
-                             (concat (getenv "HOME") "/.local/share"))
-                         "/fonts/"))
-                ;; Default MacOS install directory
-                ((eq system-type 'darwin)
-                 (concat (getenv "HOME") "/Library/Fonts/")))))
-    (unless (file-exists-p (concat font-dest "all-the-icons.ttf"))
-      (all-the-icons-install-fonts)))
-  ;; Customize the Scheme icon
-  (add-to-list 'all-the-icons-extension-icon-alist
-    '("scm" all-the-icons-fileicon "scheme"
-      :height 0.75 :width 1.25
-      :face all-the-icons-blue)))
+                 ((member system-type '(gnu gnu/linux gnu/kfreebsd))
+                  (concat (or (getenv "XDG_DATA_HOME")
+                              (concat (getenv "HOME") "/.local/share"))
+                          "/fonts/"
+                          nerd-icons-fonts-subdirectory))
+                 ;; Default MacOS install directory
+                 ((eq system-type 'darwin)
+                  (concat (getenv "HOME")
+                          "/Library/Fonts/"
+                          nerd-icons-fonts-subdirectory)))))
+    (unless (file-readable-p (concat font-dest "NFM.ttf"))
+      (nerd-icons-install-fonts t)))
+  (nerd-icons-completion-mode))
 
-(use-package all-the-icons-completion
-  :guix  emacs-all-the-icons-completion
-  :init  (add-function :before-while
-           all-the-icons-completion-mode
-           #'display-graphic-p)
-  :ghook ('marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
-         'vertico-mode-hook
-         'corfu-mode-hook)
-
-(use-package svg-lib)
-
-(use-package kind-icon
-  :guix   emacs-kind-icon
-  :after  svg-lib corfu
-  ;; "To compute blended backgrounds correctly"
-  :custom (kind-icon-default-face 'corfu-default)
-          (kind-icon-blend-background t)
-          (kind-icon-default-style
-            '(:padding 0 :stroke 0 :margin 0 :radius 0 :height 1.0 :scale 1.0))
-  :ghook  ('corfu-margin-formatters #'kind-icon-margin-formatter)
+(use-package nerd-icons-corfu
+  :guix emacs-nerd-icons-corfu
+  :after corfu
   :config
-  ;; XXX: Was calling `svg-lib-icon` with `:background nil`, which
-  ;; maybe used to be OK.
-  (defun antlers/kind-icon--get-icon-safe (icon &optional col bg-col plist)
-    "Retrieve ICON (a string) from the material database.
-  Uses svg-lib, guarding against non-availability or network
-  errors.  COL and BG-COL are foreground and background color to
-  apply to the icon.  PLIST is an optional additional list of key
-  value pairs to provide to `svg-lib-icon'."
-    (if (fboundp 'svg-lib-icon)
-        (condition-case err
-          (apply #'svg-lib-icon
-            `(,icon ,plist
-              ,@kind-icon-default-style
-              ,@(if col `(:foreground ,col))))
-          (nil ; (error)
-           (warn "Error retrieving icon %s, falling back on short-text\n%s"
-                 icon (cdr err))
-           nil))))
-  (advice-add 'kind-icon--get-icon-safe :override
-    #'antlers/kind-icon--get-icon-safe))
+  (add-to-list 'corfu-margin-formatters
+               #'nerd-icons-corfu-formatter))
 
 
 ;; Butlers
@@ -839,6 +810,7 @@ targets."
          fd
          mediainfo
          tar unzip)
+  :after nerd-icons
   :general (evil-leader-map
             "d"   #'dirvish)
            (dirvish-mode-map

@@ -8,6 +8,50 @@
   #:use-module (guix packages)
   #:use-module (gnu packages emacs-xyz))
 
+(define-public emacs-nerd-icons-corfu
+  (let ((commit "7077bb76fefc15aed967476406a19dc5c2500b3c")
+        (revision "0"))
+    (package
+      (name "emacs-nerd-icons-corfu")
+      (version (git-version "0.1" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/LuigiPiucco/nerd-icons-corfu")
+               (commit commit)))
+         (sha256
+          (base32 "13m20k242zma6jw7pkbw89fk3dnbkwdajcpiyay5xx2l9241snb7"))))
+      (build-system emacs-build-system)
+      (propagated-inputs
+       (list emacs-nerd-icons))
+      (home-page "https://github.com/LuigiPiucco/nerd-icons-corfu")
+      (synopsis "")
+      (description "")
+      (license license:gpl3))))
+
+(define-public emacs-nerd-icons-completion
+  (let ((commit "426a1d7c29a04ae8e6ae9b55b0559f11a1e8b420")
+        (revision "0"))
+    (package
+      (name "emacs-nerd-icons-completion")
+      (version (git-version "0.1" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/rainstormstudio/nerd-icons-completion")
+               (commit commit)))
+         (sha256
+          (base32 "03kkyxc9v38v1fc69xqc70gwvsq4pr8bgsk8f6is9z2w7p4y08sm"))))
+      (build-system emacs-build-system)
+      (propagated-inputs
+       (list emacs-compat emacs-nerd-icons))
+      (home-page "https://github.com/rainstormstudio/nerd-icons-completion")
+      (synopsis "")
+      (description "")
+      (license license:gpl3))))
+
 (define-public emacs-use-package-fork
   (let ((commit "6d55bdd2d281d1b33da06eab0f920327fefdd2a8"))
     (package
