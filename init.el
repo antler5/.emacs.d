@@ -833,7 +833,7 @@ targets."
      ))
   (dired-listing-switches
     "-l --almost-all --human-readable --group-directories-first --no-group")
-  :init
+  :config
   (dirvish-override-dired-mode))
 
 (use-package tramp

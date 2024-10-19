@@ -8,6 +8,21 @@
   #:use-module (guix packages)
   #:use-module (gnu packages emacs-xyz))
 
+(define-public emacs-dirvish-patched
+  (package
+    (inherit emacs-dirvish)
+    (name "emacs-dirvish-patched")
+    (version "2.0.53")
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url "https://github.com/alexluigit/dirvish")
+                    (commit "600b81d5b8adc8532cb31b72c9cf2fc981c678e9")))
+              (sha256
+               (base32
+                "0035cydmdgdva5azcdcxnpzzjm191shg33q21sfh5jfy0xhs05si"))
+              (file-name (git-file-name name version))))))
+
 (define-public emacs-nerd-icons-corfu
   (let ((commit "7077bb76fefc15aed967476406a19dc5c2500b3c")
         (revision "0"))
