@@ -169,7 +169,16 @@
     (lambda (_)
       (when (and (looking-at page-delimiter)
                  (> (match-end 0) (point)))
-        (forward-char 1)))))
+        (forward-char 1))))
+
+  (defun antlers/grep-elisp-load-path (regex)
+    (interactive (list (read-shell-command "Regex: " nil 'grep-history)))
+    (->> (elisp-load-path-roots)
+      (-filter #'file-exists-p)
+      (mapcar #'shell-quote-argument)
+      (append `("grep" "-R" ,(shell-quote-argument regex)))
+      (funcall (-flip #'string-join) " ")
+      (grep-find))))
 
 ;; Default Tabs & Indents
 (use-package emacs
