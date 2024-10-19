@@ -1264,8 +1264,9 @@ targets."
 
 ;; Other Dependencies
 ;; For eg. `guix shell --container --network emacs'
-'(:guix (coreutils
-         bash
+'(:guix (bash
+         coreutils
+         diffutils ; for magit
          git
          gnupg
          ispell
