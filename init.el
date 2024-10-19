@@ -1163,6 +1163,7 @@ targets."
   (evil-ex-define-cmd "exit"    #'save-and-kill-frame)
   (evil-ex-define-cmd "q[uit]"  #'quit-to-eshell)
   (evil-ex-define-cmd "qa[ll]"  #'quit-all-to-eshell)
+  (evil-ex-define-cmd "wq"      #'save-and-quit-to-eshell)
   (evil-ex-define-cmd "wqa[ll]" #'save-and-quit-to-eshell*)
   (evil-ex-define-cmd "qa[ll]"  #'save-and-quit-all-to-eshell)
   (evil-ex-define-cmd "wqa[ll]" #'save-and-quit-all-to-eshell*))
