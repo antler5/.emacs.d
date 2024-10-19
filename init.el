@@ -260,10 +260,15 @@
   :config
   ;; Mostly from nano-modeline.el
   (defun antlers/mode-line-status (&optional status)
-    (or status
-      (cond (buffer-read-only    " RO ")
-            ((buffer-modified-p) " ** ")
-            (t                   " RW "))))
+    (cl-flet ((icon (lambda (i)
+                      (all-the-icons-faicon i :height 0.9 :v-adjust -0.05))))
+      (pcase (list (format-mode-line "%*") (display-graphic-p))
+        ('("*" t)   (icon "chain-broken"))
+        ('("*" nil) "**")
+        ('("-" t)   (icon "link"))
+        ('("-" nil) "RW")
+        ('("%" t)   (icon "lock"))
+        ('("%" nil) "RO"))))
   (defun antlers/mode-line-percent ()
     (format "%-6s " (format "(%d%%%%)" (/ (window-start) 0.01 (point-max)))))
   (defun antlers/mode-line-vcs ()
