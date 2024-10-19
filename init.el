@@ -393,12 +393,38 @@
          'vertico-mode-hook
          'corfu-mode-hook)
 
+(use-package svg-lib)
+
 (use-package kind-icon
   :guix   emacs-kind-icon
-  :after  corfu
+  :after  svg-lib corfu
   ;; "To compute blended backgrounds correctly"
   :custom (kind-icon-default-face 'corfu-default)
-  :ghook  ('corfu-margin-formatters #'kind-icon-margin-formatter))
+          (kind-icon-blend-background t)
+          (kind-icon-default-style
+            '(:padding 0 :stroke 0 :margin 0 :radius 0 :height 1.0 :scale 1.0))
+  :ghook  ('corfu-margin-formatters #'kind-icon-margin-formatter)
+  :config
+  ;; XXX: Was calling `svg-lib-icon` with `:background nil`, which
+  ;; maybe used to be OK.
+  (defun antlers/kind-icon--get-icon-safe (icon &optional col bg-col plist)
+    "Retrieve ICON (a string) from the material database.
+  Uses svg-lib, guarding against non-availability or network
+  errors.  COL and BG-COL are foreground and background color to
+  apply to the icon.  PLIST is an optional additional list of key
+  value pairs to provide to `svg-lib-icon'."
+    (if (fboundp 'svg-lib-icon)
+        (condition-case err
+          (apply #'svg-lib-icon
+            `(,icon ,plist
+              ,@kind-icon-default-style
+              ,@(if col `(:foreground ,col))))
+          (nil ; (error)
+           (warn "Error retrieving icon %s, falling back on short-text\n%s"
+                 icon (cdr err))
+           nil))))
+  (advice-add 'kind-icon--get-icon-safe :override
+    #'antlers/kind-icon--get-icon-safe))
 
 
 ;; Butlers
