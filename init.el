@@ -90,8 +90,7 @@
 
 
 ;;; Packages with `use-package' extensions or no autoloads
-(use-package dash    :guix emacs-dash)
-(use-package delight :guix emacs-delight)
+(use-package dash :guix emacs-dash)
 (use-package general
   :guix emacs-general
   :config (general-evil-setup))
@@ -101,7 +100,6 @@
 (use-package guix
   :guix    emacs-guix
   :general (evil-leader-map "G" 'guix)
-  :delight (guix-prettify-mode nil guix-prettify)
   :custom  (global-guix-prettify-mode t))
 
 ;; Locate profile and home packages
@@ -133,7 +131,6 @@
 ;;; Garbage Collection Pt. 2
 (use-package gcmh
   :guix emacs-gcmh
-  :delight
   :custom
   (gcmh-idle-delay 'auto) ; default is 15s
   (gcmh-auto-idle-delay-factor 10)
@@ -264,7 +261,6 @@
 
 ;; Mode-line
 (use-package emacs
-  :delight (eldoc-mode nil eldoc) ; Hide eldoc-mode lighter
   :config
   (defun spaceline--column-number-at-pos (pos)
     "Column number at POS.  Analog to `line-number-at-pos'."
@@ -382,7 +378,6 @@
   :ghook 'lisp-mode-hook 'lisp-data-mode-hook)
 
 (use-package highlight-indent-guides
-  :delight
   :guix emacs-highlight-indent-guides
   :ghook 'prog-mode-hook
   :custom
@@ -481,7 +476,6 @@
            `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 
 (use-package ws-butler
-  :delight
   :guix emacs-ws-butler
   :config (ws-butler-global-mode t))
 
@@ -489,7 +483,6 @@
 ;; Undo
 (use-package undo-tree
   :guix emacs-undo-tree
-  :delight
   :custom
   (undo-tree-auto-save-history t)     ; preserve undo history
   (undo-tree-histoy-directory-alist   ; where to keep it
@@ -575,7 +568,6 @@
 (use-package evil-collection
   :guix    emacs-evil-collection
   :after   evil
-  :delight (evil-collection-unimpaired-mode nil evil-collection-unimpaired)
   :custom  (evil-collection-setup-minibuffer t)
   :config  (evil-collection-init))
 
@@ -1249,7 +1241,6 @@ targets."
 ;   (mapc #'beacon-do-blink-command beacon-do-blink-commands))
 
 (use-package flyspell
-  :delight
   :ghook ('(prog-mode-hook) #'flyspell-prog-mode)
          'git-commit-mode-hook
   :custom
@@ -1258,7 +1249,6 @@ targets."
   (ispell-silently-savep t))  ; Don't ask before saving dict. updates
 
 (use-package which-key
-  :delight
   :guix emacs-which-key
   ;; "same as default, except all keys from local maps shown first"
   :custom (which-key-compute-remaps t)
@@ -1268,14 +1258,12 @@ targets."
   :config (which-key-mode t))
 
 (use-package whitespace
-  :delight
   :ghook 'prog-mode-hook
   :custom (whitespace-space 'whitespace-newline)
           (whitespace-style '(face lines-tail missing-newline-at-eof tab-mark))
   :custom-face (whitespace-line ((t :background unspecified :foreground "#555"))))
 
 (use-package git-gutter
-  :delight
   :guix emacs-git-gutter
   :ghook 'prog-mode-hook 'org-mode-hook
   :custom-face
@@ -1285,7 +1273,6 @@ targets."
   :custom (git-gutter:modified-sign "≈"))
 
 (use-package rainbow-mode
-  :delight
   :guix emacs-rainbow-mode
   :ghook 'prog-mode-hook)
 
