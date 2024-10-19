@@ -72,16 +72,8 @@
 ;;; Guix Integration
 (use-package guix
   :guix    emacs-guix
-  :general (evil-leader-map "g" 'guix)
+  :general (evil-leader-map "G" 'guix)
   :custom  (global-guix-prettify-mode t))
-
-;; Register Guix Profile and Home Environment
-(-map (lambda (dir)
-        (when (file-directory-p dir)
-          (let ((default-directory dir))
-            (normal-top-level-add-subdirs-to-load-path))))
-      '("~/.guix-home/profile/share/emacs/site-lisp/"
-        "~/.guix-profile/share/emacs/site-lisp/"))
 
 ;; Register setuid binaries
 (defun antlers/append-to-path (dir)
@@ -159,6 +151,7 @@
   :general ("<wheel-left>" #'(lambda () (interactive) (scroll-left 1))
             "<wheel-right>" #'(lambda () (interactive) (scroll-right 1)))
            (evil-leader-map
+            "s" #'scratch-buffer
             "e" `("init.el" . ,(antlers/find-file antlers/init.el)))
 
   :config
