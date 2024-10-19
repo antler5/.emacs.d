@@ -3,7 +3,22 @@ set -x
 
 export GUIX_PACKAGE_PATH+="$HOME/.emacs.d/modules"
 
-guix shell \
+CONTAINER_ARGS=(
+  --container --network --nesting
+  --preserve='^DISPLAY$' --preserve='^XAUTHORITY$' --expose="$XAUTHORITY"
+  --preserve='^DBUS_' --expose=/var/run/dbus
+  --preserve='TERM'
+  --expose=/sys/dev --expose=/sys/devices --expose=/dev/dri
+  --share="$HOME"
+)
+
+ARGS=()
+if [[ $1 == '-C' ]]; then
+  shift;
+  ARGS+=(${CONTAINER_ARGS[@]})
+fi
+
+guix shell ${ARGS[@]} \
   -L ~/.emacs.d/modules \
   --with-input=emacs=emacs-next \
   --with-input=emacs-minimal=emacs-next-minimal \

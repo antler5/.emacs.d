@@ -71,7 +71,7 @@
 
 ;;; Guix Integration
 (use-package guix
-  :guix    emacs-guix
+  :guix    (emacs-guix guile)
   :general (evil-leader-map "G" 'guix)
   :custom  (global-guix-prettify-mode t))
 
