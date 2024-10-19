@@ -1208,12 +1208,31 @@ targets."
 ;   (mapc #'beacon-do-blink-command beacon-do-blink-commands))
 
 (use-package flyspell
+  :guix hunspell hunspell-dict-en-us
   :ghook ('(prog-mode-hook) #'flyspell-prog-mode)
          'git-commit-mode-hook
   :custom
+  (ispell-alternate-dictionary "/tmp/words")
   (ispell-personal-dictionary ; Keep `ispell' dictionary in .emacs.d
-   "/home/maddhappy/Sync/org/ispell-english.dict")
-  (ispell-silently-savep t))  ; Don't ask before saving dict. updates
+    (concat (getenv "HOME") "/Sync/org/ispell-english.dict"))
+  (ispell-silently-savep t)   ; Don't ask before saving dict. updates
+  :config
+  ;; TODO: Should be a Guix package instead of building into /tmp at
+  ;; runtime.
+  (unless (file-readable-p "/tmp/words")
+    (save-window-excursion
+      (async-shell-command
+        (string-join
+          (list (concat (getenv "GUIX_ENVIRONMENT")
+                        "/bin/unmunch")
+                (shell-quote-argument
+                  (concat (getenv "GUIX_ENVIRONMENT")
+                          "/share/hunspell/en_US.dic"))
+                (shell-quote-argument
+                  (concat (getenv "GUIX_ENVIRONMENT")
+                          "/share/hunspell/en_US.aff"))
+                "> /tmp/words")
+          " ")))))
 
 (use-package which-key
   :guix emacs-which-key
@@ -1269,7 +1288,6 @@ targets."
          diffutils ; for magit
          git
          gnupg
-         ispell
          nss-certs
          openssh ; for tramp
          patch ; for debugs
