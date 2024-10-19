@@ -1,5 +1,6 @@
 * TODO: Intangible eshell prompt?
 * TODO: EAT term
+* TODO: bind recenter-top-bottom to `z z`?
 
 * TODO: Corfu-doc
 * TODO: Darkroom + Focus-mode??
@@ -20,7 +21,6 @@
 * TODO: Wish mode-line-percent-position was hidden when "Top" or "Bottom"
 * TODO: dirvish: error in process sentinel: Wrong type argument: hash-table-p, nil [2 times]
 * TODO: Indent comment to column on tab
-* TODO: Get the ledger which-key label working
 * TODO: Absorb https://www.reddit.com/r/emacs/comments/18qa15/dired_discussion/
 * TODO: Absorb remaining ref-config
 * TODO: Absorb https://github.com/angrybacon/dotemacs/

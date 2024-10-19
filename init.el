@@ -56,10 +56,11 @@
   (require 'use-package))
 (require 'bind-key)
 
-;; Some hooks are un-usable without this.
+;; Some hooks are un-usable under the default scheme.
 (setq use-package-hook-name-suffix nil)
 
-;; Setup the no-op :guix keyword
+;; Setup `:guix` as a no-op use-package keyword
+;; (It's pulled out by a stand-alone script.)
 (push ':guix use-package-keywords)
 (defun use-package-normalize/:guix (_ keyword args)
   (use-package-as-one (symbol-name keyword) args
@@ -78,34 +79,35 @@
 ;;; Guix Integration
 (use-package guix
   :guix    emacs-guix
-  :general (evil-leader-map "G" 'guix)
+  :general (evil-leader-map "g" 'guix)
   :custom  (global-guix-prettify-mode t))
 
-;; Locate profile and home packages
+;; Register Guix Profile and Home Environment
 (-map (lambda (dir)
-        (let ((default-directory dir))
-          (normal-top-level-add-subdirs-to-load-path)))
+        (when (file-directory-p dir)
+          (let ((default-directory dir))
+            (normal-top-level-add-subdirs-to-load-path))))
       '("~/.guix-home/profile/share/emacs/site-lisp/"
         "~/.guix-profile/share/emacs/site-lisp/"))
 
-;; Locate setuid binaries
-;; Yes, I will pay the runtime cost of de-duping my PATH.
-(when (file-directory-p "/run/setuid-programs")
-  (setenv "PATH"
-    (string-join
-      (delete-dups
-        (split-string (concat "/run/setuid-programs:"
-                              (getenv "PATH"))
-                      ":"))
-      ":"))
-  (add-to-list 'exec-path "/run/setuid-programs"))
+;; Register setuid binaries
+(defun antlers/append-to-path (dir)
+  (when (file-directory-p dir)
+    (-> (getenv "PATH")
+      (parse-colon-path)
+      (append '("/run/setuid-programs"))
+      (delete-dups)
+      (string-join ":"))
+    (add-to-list 'exec-path dir)))
+(antlers/append-to-path "/run/setuid-programs")
 
 
 ;;; Garbage Collection Pt. 2
+;; (Re: `early-init.el`)
 (use-package gcmh
   :guix emacs-gcmh
   :custom
-  (gcmh-idle-delay 'auto) ; default is 15s
+  (gcmh-idle-delay 'auto)
   (gcmh-auto-idle-delay-factor 10)
   (gcmh-high-cons-threshold (* 16 1024 1024)) ; 16mb
   (gcmh-mode t))
@@ -115,60 +117,56 @@
 (use-package emacs
   :guix gzip
   :custom
-  (scroll-bar-mode nil)
-  (tool-bar-mode nil)
-  (menu-bar-mode nil)
-  (cursor-in-non-selected-windows nil)  ; Hide the cursor in inactive windows
-  (custom-file                          ; Disable custom-file persistence
+  (select-enable-clipboard t)          ; Merge System and Emacs clipboard
+  (tab-always-indent 'complete)        ; Preferred TAB behavior
+  (custom-file                         ; Disable custom-file persistence
    (make-temp-file "custom-" nil ".el"))
-  (display-line-numbers-width 3)        ; Mode-toggle is bound in evil config
-  (echo-keystrokes 0.001)               ; Display prefixes in minibuffer instantly
-  (help-window-select t)                ; Focus new help windows when opened
-  (highlight-nonselected-windows nil)   ; Hide active region in inactive windows
-  (select-enable-clipboard t)           ; Merge System and Emacs clipboard
-  (sentence-end-double-space nil)       ; Let one space end a sentence
-  (switch-to-buffer-obey-display-actions t) ; "Make switching buffers more consistent"
-  (tab-always-indent 'complete)         ; Preferred TAB behavior
-  (visible-bell nil)                    ; Disable visual-bell
-  (truncate-lines t)                    ; Truncate lines by default
-  (recenter-positions '(5 top bottom))  ; Set re-centering positions
 
-  ;; Customized Modes
-  (blink-cursor-mode   nil) ; Disable cursor blinking
+  ;; Cursor and Windows
+  (blink-cursor-mode nil)              ; Disable cursor blinking
+  (cursor-in-non-selected-windows nil) ; Hide inactive window's cursor
+  (help-window-select t)               ; Focus new help windows when opened
+  (highlight-nonselected-windows nil)  ; Hide inactive window's active region
+
+  ;; Preferences
+  (recenter-positions '(5 top bottom)) ; Set re-centering positions
+  (sentence-end-double-space nil)      ; Let one space end a sentence
+  (visible-bell nil)                   ; Disable visual-bell
+
+  ;; Responsiveness
+  (echo-keystrokes 0.001)                   ; Display prefixes in minibuffer instantly
+  (switch-to-buffer-obey-display-actions t) ; "Make switching buffers more consistent"
+
+  ;; Minor modes
   (global-so-long-mode t)   ; Disable major + some minor modes in large files
   (repeat-mode         t)   ; Enable repeat-maps
   (save-place-mode     t)   ; Remember cursor position
   (savehist-mode       t)   ; Save history of minibuffer
   (tooltip-mode        nil) ; Disable tooltips
+  (truncate-lines      t)   ; Truncate lines by default
 
-  ;; startup.el
+  ;; Startup
   (inhibit-startup-screen t)
   (initial-scratch-message nil)
   (initial-major-mode 'fundamental-mode)
 
+  ;; Leader-key shortcuts
   :init
-  (defun antlers/edit-init-el ()
-    (interactive)
-    (find-file
-      (concat (getenv "HOME")
-              "/.emacs.d/init.el")))
+  (defun antlers/find-file (path)
+    (lambda ()
+      (interactive)
+      (find-file path)))
+  (defvar antlers/init.el
+    (concat (getenv "HOME")
+            "/.emacs.d/init.el"))
 
-  :general (evil-leader-map "e" #'antlers/edit-init-el)
-           ("C-x x T" #'visual-line-mode)
+  :general ("<wheel-left>" #'(lambda () (interactive) (scroll-left 1))
+            "<wheel-right>" #'(lambda () (interactive) (scroll-right 1)))
+           (evil-leader-map
+            "e" `("init.el" . ,(antlers/find-file antlers/init.el)))
 
   :config
-  ;; (server-start)                    ; Start server for emacsclient
   (defalias 'yes-or-no-p 'y-or-n-p) ; Replace yes/no prompts with y/n
-
-  ;; TODO: use general
-  (global-set-key (kbd "<wheel-left>")
-    (lambda ()
-      (interactive)
-      (scroll-left 1)))
-  (global-set-key (kbd "<wheel-right>")
-    (lambda ()
-      (interactive)
-      (scroll-right 1)))
 
   ;; GPG / Pinentry
   (setq epa-pinentry-mode 'loopback)
@@ -177,11 +175,11 @@
               (replace-regexp-in-string "%0A" "\n" desc))
             prompt ": "))
 
-  ;; FIX: Correct forward-page behavior when on a page delimiter
+  ;; Correct forward-page behavior on page delimiters
   (advice-add 'forward-page :before
     (lambda (_)
       (when (and (looking-at page-delimiter)
-              (> (match-end 0) (point)))
+                 (> (match-end 0) (point)))
         (forward-char 1)))))
 
 ;; Default Tabs & Indents
@@ -189,7 +187,7 @@
   :custom
   (tab-width 2)
   (indent-tabs-mode nil)
-  ;; Must come last to use modified `tab-width'.
+  ;; Must come last to use modified `tab-width'
   (tab-stop-list (number-sequence tab-width 120 tab-width))
   :config
   (add-to-list 'warning-suppress-types '(defvaralias))
@@ -297,12 +295,10 @@
         (format " (%s)" file-size)
       ""))
   (defun antlers/mode-line-dedicated ()
-    (if (window-dedicated-p)
-        (if (display-graphic-p)
-            (propertize (all-the-icons-octicon "pin" :height 0.9)
-                        'display '(raise 0))
-          "P")
-      ""))
+    (cond ((not (window-dedicated-p)) "")
+          ((not (display-graphic-p)) "P")
+          (t (propertize (all-the-icons-octicon "pin" :height 0.9)
+                         'display '(raise 0)))))
   (moody-replace-eldoc-minibuffer-message-function)
   (setq-default mode-line-format
     '(" "
@@ -328,7 +324,7 @@
          font-mononoki)
   :custom (indicate-buffer-boundaries 'left)
   :custom-face
-  (default ((t (:family "mononoki" :height 110))))
+  (default        ((t (:family "mononoki" :height 110))))
   ;; These set the cursor, active-, & other- isearch results
   ;; (respectively, and which all default to grey) to visible colors.
   (cursor         ((t (:background"#ddaa6f"))))
@@ -346,6 +342,10 @@
   (fringe           ((t (:foreground "#ddaa6f"))))
   (vertical-border  ((t (:background "#000"))))
   :config (load-theme 'wombat))
+
+(use-package display-line-numbers
+  :general (evil-leader-map "#" #'display-line-numbers-mode)
+  :custom (display-line-numbers-width 3))
 
 (use-package prettify-symbols-mode
   :ghook 'lisp-mode-hook 'lisp-data-mode-hook)
@@ -365,15 +365,14 @@
   :defer
   :config
   (let ((font-dest
-          (cond
-            ;; Default Linux install directories
-            ((member system-type '(gnu gnu/linux gnu/kfreebsd))
-             (concat (or (getenv "XDG_DATA_HOME")
-                         (concat (getenv "HOME") "/.local/share"))
-                     "/fonts/"))
-            ;; Default MacOS install directory
-            ((eq system-type 'darwin)
-             (concat (getenv "HOME") "/Library/Fonts/")))))
+          (cond ;; Default Linux install directories
+                ((member system-type '(gnu gnu/linux gnu/kfreebsd))
+                 (concat (or (getenv "XDG_DATA_HOME")
+                             (concat (getenv "HOME") "/.local/share"))
+                         "/fonts/"))
+                ;; Default MacOS install directory
+                ((eq system-type 'darwin)
+                 (concat (getenv "HOME") "/Library/Fonts/")))))
     (unless (file-exists-p (concat font-dest "all-the-icons.ttf"))
       (all-the-icons-install-fonts)))
   ;; Customize the Scheme icon
@@ -398,48 +397,6 @@
   :custom (kind-icon-default-face 'corfu-default)
   :ghook  ('corfu-margin-formatters #'kind-icon-margin-formatter))
 
-(use-package svg-tag-mode
-  :guix emacs-svg-tag-mode
-  :ghook ('org-mode-hook #'svg-tag-mode)
-  :after org-faces
-  :custom-face
-  (org-todo-tag ((t :background ,(face-foreground 'org-todo nil t)
-                    :foreground ,(face-background 'default)
-                    :weight bold)))
-  (org-next-tag ((t :background "orange"
-                    :foreground ,(face-background 'default)
-                    :weight bold)))
-  (org-hold-tag ((t :foreground ,(face-foreground 'org-warning nil t)
-                    :weight bold)))
-  (org-done-tag ((t :foreground ,(face-foreground 'org-done nil t)
-                    :weight bold)))
-  (org-waiting-tag ((t :foreground "orange"
-                       :weight bold)))
-  (org-cancelled-tag ((t :foreground ,(face-foreground 'org-verbatim nil t)
-                         :weight bold)))
-  (org-tag-tag ((t :foreground ,(face-foreground 'org-verbatim nil t)
-                   :weight bold)))
-  (org-priority-tag ((t :background ,(face-foreground 'org-priority nil t)
-                        :foreground ,(face-background 'default)
-                        :weight bold)))
-  :custom
-  (svg-tag-action-at-point 'edit)
-  (svg-tag-tags
-    '(("TODO" . ((lambda (tag) (svg-tag-make tag :face 'org-todo-tag))))
-      ("NEXT" . ((lambda (tag) (svg-tag-make tag :face 'org-next-tag))))
-      ("HOLD" . ((lambda (tag) (svg-tag-make tag :face 'org-hold-tag))))
-      ("DONE" . ((lambda (tag) (svg-tag-make tag :face 'org-done-tag))))
-      ("CANCELLED" . ((lambda (tag) (svg-tag-make tag :face 'org-cancelled-tag))))
-      ("WAITING" . ((lambda (tag) (svg-tag-make tag :face 'org-waiting-tag))))
-      ("\\[#A\\]" . ((lambda (tag) (svg-lib-progress-pie 1.00 nil :foreground "red" :stroke 3))))
-      ("\\[#B\\]" . ((lambda (tag) (svg-lib-progress-pie 0.75 nil :foreground "orange" :stroke 3))))
-      ("\\[#C\\]" . ((lambda (tag) (svg-lib-progress-pie 0.50 nil :foreground "yellow" :stroke 3))))
-      ("\\[#D\\]" . ((lambda (tag) (svg-lib-progress-pie 0.25 nil :foreground "grey" :stroke 3))))
-      ;; XXX: I want to style props and src blocks, but
-      ;; action-at-point edit gets really buggy when using :beg, :end,
-      ;; or (possibly overlapping) tags with a capture group.
-      )))
-
 
 ;; Butlers
 (use-package no-littering
@@ -457,10 +414,10 @@
 (use-package undo-tree
   :guix emacs-undo-tree
   :custom
-  (undo-tree-auto-save-history t)     ; preserve undo history
-  (undo-tree-histoy-directory-alist   ; where to keep it
-   (expand-file-name "undo-tree" user-emacs-directory))
-  :config (global-undo-tree-mode t))  ; enable globally
+  (undo-tree-auto-save-history t)
+  (undo-tree-histoy-directory-alist
+    (expand-file-name "undo-tree" user-emacs-directory))
+  :config (global-undo-tree-mode t))
 
 
 ;; Lisp Parens
@@ -481,9 +438,8 @@
           (rainbow-delimiters-depth-8-face "sienna1")))
   (cl-loop for index from 1 to rainbow-delimiters-max-face-count do
     (let ((face (intern (format "rainbow-delimiters-depth-%d-face" index))))
-      ;; TODO: Tune these in a GUI frame pls
-      (cl-callf color-desaturate-name (face-foreground face) 60)
-      (cl-callf color-darken-name (face-foreground face) 25))))
+      (cl-callf color-desaturate-name (face-foreground face) 50)
+      (cl-callf color-darken-name (face-foreground face) 30))))
 
 
 ;; Evil
@@ -511,8 +467,6 @@
             "TAB"   #'org-cycle ; at some point <tab> wasn't enough?
             "<return>" #'org-return
             "RET"      #'org-return)
-           (evil-leader-map
-            "#"     #'display-line-numbers-mode)
   ;; TODO: Why no general do this?
   :bind    (:repeat-map evil-windows/repeat-map
             (">" . evil-window-increase-width)
@@ -539,10 +493,10 @@
   (evil-set-initial-state 'messages-buffer-mode 'normal))
 
 (use-package evil-collection
-  :guix    emacs-evil-collection
-  :after   evil
-  :custom  (evil-collection-setup-minibuffer t)
-  :config  (evil-collection-init))
+  :guix   emacs-evil-collection
+  :after  evil
+  :custom (evil-collection-setup-minibuffer t)
+  :config (evil-collection-init))
 
 ; (use-package devil
 ;   :guix emacs-devil-mode
@@ -659,12 +613,11 @@
             "RET"           #'vertico-directory-enter))
 
 (use-package vertico-posframe
-  :guix   emacs-vertico-posframe
-  :after  vertico
-  :custom (vertico-posframe-parameters '((frame-border-width . 8)))
+  :guix        emacs-vertico-posframe
+  :after       vertico
+  :custom      (vertico-posframe-parameters '((frame-border-width . 8)))
   :custom-face (vertico-posframe-border ((t :background "#555")))
-  :init   (general-after-gui
-            (vertico-posframe-mode 1)))
+  :init        (general-after-gui (vertico-posframe-mode 1)))
 
 (use-package marginalia
   :guix    emacs-marginalia
@@ -706,6 +659,7 @@
     (unless (bound-and-true-p vertico--input)
       (setq-local corfu-auto nil) ; only in buffer
       (corfu-mode 1)))
+  ;; Hook depth! Very fancy.
   (add-hook 'minibuffer-setup-hook 'corfu-enable-always-in-minibuffer 1)
 
   ;; Enable in Eshell
@@ -728,8 +682,7 @@
 (use-package corfu-terminal
   :guix emacs-corfu-terminal
   :defer
-  :init (general-after-tty
-          (corfu-terminal-mode 1)))
+  :init (general-after-tty (corfu-terminal-mode 1)))
 
 (use-package cape
   :guix emacs-cape
@@ -760,6 +713,7 @@
             "C-h B" #'embark-bindings) ; alternative for `describe-bindings'
            (:state 'normal
             ;; XXX: "C-." doesn't work in Zorin's Gnome Terminal.
+            ;; XXX: Also not seeing it in GUI mode. Ugh.
             "C-." #'embark-act)
   ;; Replace the key help with a completing-read interface
   :custom (prefix-help-command 'embark-prefix-help-command)
@@ -805,8 +759,8 @@ targets."
            (remq #'embark-which-key-indicator embark-indicators)))
         (apply fn args)))
 
-  (advice-add #'embark-completing-read-prompter
-              :around #'embark-hide-which-key-indicator)
+  (advice-add #'embark-completing-read-prompter :around
+    #'embark-hide-which-key-indicator)
 
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
@@ -837,11 +791,11 @@ targets."
             "M-s s"   #'isearch-forward)
             ;; Isearch integration
            (:keymaps 'isearch-mode-map
-            "M-m"   #'consult-isearch-history ; like move-to-minibuffer
-            "M-e"   #'consult-isearch-history ; orig. isearch-edit-string
-            "M-s e" #'consult-isearch-history ; orig. isearch-edit-string
-            "M-s l" #'consult-line            ; needed by consult-line to detect isearch (???)
-            "M-s L" #'consult-line-multi)     ; needed by consult-line to detect isearch (???)
+            "M-m"     #'consult-isearch-history ; like move-to-minibuffer
+            "M-e"     #'consult-isearch-history ; orig. isearch-edit-string
+            "M-s e"   #'consult-isearch-history ; orig. isearch-edit-string
+            "M-s l"   #'consult-line            ; needed by consult-line to detect isearch (???)
+            "M-s L"   #'consult-line-multi)     ; needed by consult-line to detect isearch (???)
   :custom (consult-narrow-key "<"))
 
 (use-package embark-consult
@@ -857,14 +811,14 @@ targets."
          mediainfo
          tar unzip)
   :general (evil-leader-map
-            "d" #'dirvish)
+            "d"   #'dirvish)
            (dirvish-mode-map
             "a"   #'dirvish-quick-access
             "N"   #'dirvish-narrow
             "TAB" #'dirvish-toggle-subtree)
            (:states 'motion
-            "-" #'dired-jump
-            "_" #'dirvish-layout-toggle)
+            "-"   #'dired-jump
+            "_"   #'dirvish-layout-toggle)
   :custom
   (dirvish-attributes
     '(subtree-state
@@ -894,11 +848,10 @@ targets."
   (setq tramp-use-ssh-controlmaster-options nil))
 
 (use-package magit
-  :guix emacs-magit emacs-transient-posframe
+  :guix    emacs-magit emacs-transient-posframe
   :general (evil-leader-map "g" #'magit)
-  :custom (magit-diff-refine-hunk t)
-  :init (general-after-gui
-          (transient-posframe-mode 1)))
+  :custom  (magit-diff-refine-hunk t)
+  :init    (general-after-gui (transient-posframe-mode 1)))
 
 (defvar ledger-dir
   (concat (getenv "HOME") "/Sync/org/ledger"))
@@ -911,10 +864,7 @@ targets."
           (ledger-post-amount-alignment-column 49)
           (ledger-post-amount-alignment-at :decimal)
   :general (evil-leader-map
-            "l" '((lambda ()
-                    (interactive)
-                    (find-file ledger-dir))
-                  :which-key "ledger")))
+            "l" `("ledger" . (antlers/find-file ledger-dir))))
 
 
 ;; Org
@@ -940,8 +890,8 @@ targets."
   (org-return-follows-link   t)
   ;; Refile
   (org-default-notes-file    "~/Sync/org/refile.org")
-  (org-refile-targets '((nil :maxlevel . 9)
-                        (org-agenda-files :maxlevel . 9)))
+  (org-refile-targets        '((nil :maxlevel . 9)
+                               (org-agenda-files :maxlevel . 9)))
   (org-refile-use-outline-path t)
   (org-refile-allow-creating-parent-nodes '(confirm))
   ;; Misc
@@ -1010,6 +960,48 @@ targets."
             '((shell . t)
               (gnuplot . t))))
 
+(use-package svg-tag-mode
+  :guix emacs-svg-tag-mode
+  :ghook ('org-mode-hook #'svg-tag-mode)
+  :after org-faces
+  :custom-face
+  (org-todo-tag      ((t :background ,(face-foreground 'org-todo nil t)
+                         :foreground ,(face-background 'default)
+                         :weight bold)))
+  (org-next-tag      ((t :background "orange"
+                         :foreground ,(face-background 'default)
+                         :weight bold)))
+  (org-hold-tag      ((t :foreground ,(face-foreground 'org-warning nil t)
+                         :weight bold)))
+  (org-done-tag      ((t :foreground ,(face-foreground 'org-done nil t)
+                         :weight bold)))
+  (org-waiting-tag   ((t :foreground "orange"
+                         :weight bold)))
+  (org-cancelled-tag ((t :foreground ,(face-foreground 'org-verbatim nil t)
+                         :weight bold)))
+  (org-tag-tag       ((t :foreground ,(face-foreground 'org-verbatim nil t)
+                         :weight bold)))
+  (org-priority-tag  ((t :background ,(face-foreground 'org-priority nil t)
+                         :foreground ,(face-background 'default)
+                         :weight bold)))
+  :custom
+  (svg-tag-action-at-point 'edit)
+  (svg-tag-tags
+    '(("TODO"      . ((lambda (tag) (svg-tag-make tag :face 'org-todo-tag))))
+      ("NEXT"      . ((lambda (tag) (svg-tag-make tag :face 'org-next-tag))))
+      ("HOLD"      . ((lambda (tag) (svg-tag-make tag :face 'org-hold-tag))))
+      ("DONE"      . ((lambda (tag) (svg-tag-make tag :face 'org-done-tag))))
+      ("CANCELLED" . ((lambda (tag) (svg-tag-make tag :face 'org-cancelled-tag))))
+      ("WAITING"   . ((lambda (tag) (svg-tag-make tag :face 'org-waiting-tag))))
+      ("\\[#A\\]"  . ((lambda (tag) (svg-lib-progress-pie 1.00 nil :foreground "red" :stroke 3))))
+      ("\\[#B\\]"  . ((lambda (tag) (svg-lib-progress-pie 0.75 nil :foreground "orange" :stroke 3))))
+      ("\\[#C\\]"  . ((lambda (tag) (svg-lib-progress-pie 0.50 nil :foreground "yellow" :stroke 3))))
+      ("\\[#D\\]"  . ((lambda (tag) (svg-lib-progress-pie 0.25 nil :foreground "grey" :stroke 3))))
+      ;; XXX: I want to style props and src blocks, but
+      ;; action-at-point edit gets really buggy when using :beg, :end,
+      ;; or (possibly overlapping) tags with a capture group.
+      )))
+
 (use-package ox
   :guix emacs-htmlize)
 
@@ -1035,13 +1027,12 @@ targets."
   :guix    emacs-org-roam-ui
   :after   org-roam
   :general (evil-leader-map "u" #'org-roam-ui-open)
-  :custom
-  (org-roam-ui-sync-theme t)
-  (org-roam-ui-open-on-start nil))
+  :custom  (org-roam-ui-sync-theme t)
+           (org-roam-ui-open-on-start nil))
 
 (use-package org-node
-  :guix emacs-org-node
-  :after org org-roam
+  :guix    emacs-org-node
+  :after   org org-roam
   :general ("M-s f" 'org-node-find)
            ("M-s i" 'org-node-insert-link)
            ("M-s s" #'org-node-series-dispatch)
