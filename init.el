@@ -16,13 +16,6 @@
 ;;; Code:
 
 
-;;; Native Compilation
-(when (fboundp 'native-compile)
-  (setq package-native-compile t)
-  (custom-set-variables
-    '(native-comp-async-report-warnings-errors nil)))
-
-
 ;;; Optimization from doom-start.el
 (setq auto-mode-case-fold nil)
 (setq-default bidi-display-reordering 'left-to-right
@@ -149,6 +142,9 @@
   (inhibit-startup-screen t)
   (initial-scratch-message nil)
   (initial-major-mode 'fundamental-mode)
+
+  ;; Debug, Warnings, and Errors
+  (native-comp-async-report-warnings-errors nil)
 
   ;; Leader-key shortcuts
   :init
