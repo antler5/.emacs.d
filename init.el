@@ -121,12 +121,6 @@
       ":"))
   (add-to-list 'exec-path "/run/setuid-programs"))
 
-;; Load fonts from XDG directory
-(-map (-cut add-to-list 'bdf-directory-list <>)
-      (-filter 'file-directory-p
-               (-map (-cut concat <> "fonts/truetype")
-                     (parse-colon-path (getenv "XDG_DATA_DIRS")))))
-
 
 ;;; Garbage Collection Pt. 2
 (use-package gcmh
