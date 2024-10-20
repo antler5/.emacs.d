@@ -1059,7 +1059,7 @@ targets."
        :version 2
        :classifier (lambda (node)
                      (let ((path (org-node-get-file-path node)))
-                       (when (string-search "~/Sync/org/roam/dailies" path)
+                       (when (string-search (concat (getenv "HOME") "/Sync/org/roam/journals") path)
                          (let ((ymd (org-node-helper-filename->ymd path)))
                            (when ymd
                              (cons ymd path))))))
@@ -1072,7 +1072,7 @@ targets."
                    (org-node-helper-try-visit-file (cdr item)))
        :creator (lambda (sortstr key)
                   (let ((org-node-datestamp-format "")
-                        (org-node-ask-directory "~/Sync/org/roam/dailies"))
+                        (org-node-ask-directory "~/Sync/org/roam/journals"))
                     (org-node-create sortstr (org-id-new) key)))))))
 
 (use-package org-node-fakeroam
