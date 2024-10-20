@@ -1052,6 +1052,11 @@ targets."
   (org-node-cache-mode)
   (org-node-complete-at-point-mode)
 
+  ;; Undo a Roam override
+  (with-eval-after-load 'org-roam-id
+    (org-link-set-parameters
+     "id" :follow #'org-id-open :store #'org-id-store-link-maybe))
+
   ;; "Old Default Setting", from:
   ;; https://github.com/meedstrom/org-node/wiki/Configuring-series#old-default-setting
   (setq org-node-series-defs
