@@ -1236,7 +1236,7 @@ targets."
   ;; TODO: Should be a Guix package instead of building into /tmp at
   ;; runtime.
   (unless (file-readable-p "/tmp/words")
-    (call-process-shell-command
+    (start-process-shell-command "unmunch" nil
       (string-join
         (list (concat (getenv "GUIX_ENVIRONMENT")
                       "/bin/unmunch")
@@ -1247,8 +1247,7 @@ targets."
                 (concat (getenv "GUIX_ENVIRONMENT")
                         "/share/hunspell/en_US.aff"))
               "> /tmp/words")
-        " ")
-      nil 0)))
+        " "))))
 
 (use-package which-key
   :guix emacs-which-key
