@@ -1071,26 +1071,27 @@ targets."
 
   ;; "Old Default Setting", from:
   ;; https://github.com/meedstrom/org-node/wiki/Configuring-series#old-default-setting
-  (setq org-node-series-defs
-    (list '("d" :name "Dailies"
-       :version 2
-       :classifier (lambda (node)
-                     (let ((path (org-node-get-file-path node)))
-                       (when (string-search (concat (getenv "HOME") "/Sync/org/roam/journals") path)
-                         (let ((ymd (org-node-helper-filename->ymd path)))
-                           (when ymd
-                             (cons ymd path))))))
-       :whereami (lambda ()
-                   (org-node-helper-filename->ymd buffer-file-name))
-       :prompter (lambda (key)
-                   (let ((org-node-series-that-marks-calendar key))
-                     (org-read-date)))
-       :try-goto (lambda (item)
-                   (org-node-helper-try-visit-file (cdr item)))
-       :creator (lambda (sortstr key)
-                  (let ((org-node-datestamp-format "")
-                        (org-node-ask-directory "~/Sync/org/roam/journals"))
-                    (org-node-create sortstr (org-id-new) key)))))))
+  ;; (setq org-node-series-defs
+  ;;   (list '("d" :name "Dailies"
+  ;;      :version 2
+  ;;      :classifier (lambda (node)
+  ;;                    (let ((path (org-node-get-file-path node)))
+  ;;                      (when (string-search (concat (getenv "HOME") "/Sync/org/roam/journals") path)
+  ;;                        (let ((ymd (org-node-helper-filename->ymd path)))
+  ;;                          (when ymd
+  ;;                            (cons ymd path))))))
+  ;;      :whereami (lambda ()
+  ;;                  (org-node-helper-filename->ymd buffer-file-name))
+  ;;      :prompter (lambda (key)
+  ;;                  (let ((org-node-series-that-marks-calendar key))
+  ;;                    (org-read-date)))
+  ;;      :try-goto (lambda (item)
+  ;;                  (org-node-helper-try-visit-file (cdr item)))
+  ;;      :creator (lambda (sortstr key)
+  ;;                 (let ((org-node-datestamp-format "")
+  ;;                       (org-node-ask-directory "~/Sync/org/roam/journals"))
+  ;;                   (org-node-create sortstr (org-id-new) key))))))
+  )
 
 (use-package org-node-fakeroam
   :guix emacs-org-node-fakeroam
@@ -1294,6 +1295,115 @@ targets."
   :guix    emacs-darkroom
   :general (evil-leader-map "f" #'darkroom-tentative-mode)
   :custom  (darkroom-text-scale-increase 1.25))
+
+
+;; EAF
+(use-package eaf
+  :guix (alsa-lib
+         at-spi2-core
+         bzip2
+         cairo
+         cups
+         dbus
+         gcc-toolchain
+         gdk-pixbuf
+         glib
+         gst-plugins-base
+         gstreamer
+         gtk+
+         jq
+         libxcomposite
+         libxkbcommon
+         libxkbfile
+         libxrandr
+         libxrender
+         libxtst
+         mesa
+         mit-krb5
+         mysql
+         node
+         nss
+         pango
+         patchelf
+         pcsc-lite
+         postgresql
+         pulseaudio
+         python
+         speech-dispatcher
+         unixodbc
+         wmctrl
+         xcb-util-cursor
+         xcb-util-image
+         xcb-util-keysyms
+         xcb-util-wm
+         xdotool)
+  :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
+  :config
+  ;; Gonna use the built-in Qt6 distribution, tried the `qtbase` package but got this error:
+  ;; `libQt6Quick.so.6: undefined symbol: _ZTVNSt3pmr25monotonic_buffer_resourceE, version Qt_6`
+  ;; Update: Still works if I comment this out, so I don't think it's needed >u<
+  ;; (setenv "QT_QPA_PLATFORM_PLUGIN_PATH"
+  ;;   (concat (getenv "HOME")
+  ;;           "/.local/lib/python3.10/site-packages/PyQt6/Qt6/plugins/platforms"))
+  (antlers/append-to-path
+    (concat (getenv "GUIX_ENVIRONMENT") "/lib")
+    "LD_LIBRARY_PATH")
+  (antlers/append-to-path
+    (concat (getenv "GUIX_ENVIRONMENT") "/lib/nss")
+    "LD_LIBRARY_PATH")
+  (let* ((sh-bin (shell-command-to-string "which sh"))
+         (sh-bin (shell-command-to-string (concat "realpath " sh-bin)))
+         (interpreter (shell-command-to-string (concat "patchelf --print-interpreter " sh-bin)))
+         (interpreter (string-trim-right interpreter)))
+      (-map (lambda (file)
+              ;; XXX: No error handling
+              (start-process-shell-command "patchelf" nil
+                (concat "patchelf --set-interpreter " interpreter " " (concat (getenv "HOME") file))))
+        '("/.local/lib/python3.10/site-packages/PyQt6/Qt6/libexec/QtWebEngineProcess"
+          "/.local/lib/python3.10/site-packages/PyQt6/Qt6/lib/libQt6Core.so.6"))))
+
+;; These seem to work without additional deps
+;; (though I haven't isolated them to be sure)
+(use-package eaf-browser)
+(use-package eaf-mindmap)
+(use-package eaf-org-previewer)
+(use-package eaf-pdf-viewer)
+(use-package eaf-vue-demo)
+(use-package eaf-vue-tailwindcss)
+
+;; These needed some python deps
+(use-package eaf-system-monitor
+  :guix python-psutil)
+(use-package eaf-file-manager
+  :guix python-pygments)
+(use-package eaf-jupyter
+  :guix python-qtconsole)
+
+;; Block-cursor covers up letters, I'll stick to eshell.
+;; (use-package eaf-pyqterminal
+;;   :guix python-pyte)
+
+;; And I haven't ran these:
+
+;; Empty buffer
+;; I get this error when trying to run any EAF application with `qtwebchannel` installed:
+;; ImportError: /home/antlers/.local/lib/python3.10/site-packages/PyQt6/Qt6/lib/libQt6Core.so.6: version `Qt_6.6' not found (required by /gnu/store/2q6hy1pbhmylf3x0552xp47wsn3wl4n8-profile/lib/libQt6WebChannel.so.6)
+(use-package eaf-camera
+  :guix (;; qtwebchannel
+         python-pyqt
+         ))
+
+;; `filebrowser` has not been packaged
+;; (use-package eaf-file-browser
+;;   :guix (filebrowser
+;;          python-qrcode))
+
+;; `python-unidiff` has not been packaged
+;; (use-package eaf-git
+;;   :guix (python-charset-normalizer
+;;          python-pygit2
+;;          ;; python-unidiff
+;;          ))
 
 
 ;; Other Dependencies
