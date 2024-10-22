@@ -75,16 +75,21 @@
   :general (evil-leader-map "G" 'guix)
   :custom  (global-guix-prettify-mode t))
 
-;; Register setuid binaries
-(defun antlers/append-to-path (dir)
-  (when (file-directory-p dir)
-    (-> (getenv "PATH")
-      (parse-colon-path)
-      (append '("/run/setuid-programs"))
-      (delete-dups)
-      (string-join ":"))
-    (add-to-list 'exec-path dir)))
-(antlers/append-to-path "/run/setuid-programs")
+;; Register privileged binaries
+(defun antlers/append-to-path (dir &optional path)
+  (let ((path (or path "PATH")))
+    (when (file-directory-p dir)
+      (setenv path
+        (-> (getenv path)
+          (parse-colon-path)
+          (append (list dir))
+          (delete-dups)
+          (string-join ":")))
+      (when (string-equal path "PATH")
+        (add-to-list 'exec-path dir))
+      (getenv path))))
+(antlers/append-to-path "/run/privileged/bin/")
+(antlers/append-to-path "/run/setuid-programs/")
 
 
 ;;; Garbage Collection Pt. 2
@@ -102,6 +107,7 @@
 (use-package emacs
   :guix gzip
   :custom
+  (help-window-keep-selected t)        ; Re-use help buffer
   (select-enable-clipboard t)          ; Merge System and Emacs clipboard
   (tab-always-indent 'complete)        ; Preferred TAB behavior
   (custom-file                         ; Disable custom-file persistence
@@ -117,6 +123,10 @@
   (recenter-positions '(5 top bottom)) ; Set re-centering positions
   (sentence-end-double-space nil)      ; Let one space end a sentence
   (visible-bell nil)                   ; Disable visual-bell
+
+  ;; Personal
+  (user-full-name "antlers")
+  (user-mail-address "antlers@illucid.net")
 
   ;; Responsiveness
   (echo-keystrokes 0.001)                   ; Display prefixes in minibuffer instantly
@@ -515,7 +525,6 @@
   (avy-keys '(?s ?d ?l ?o ?u ?i ?e ?a ?f ?r))
   :general ("C-l" 'evil-avy-goto-line)
            (:states 'motion
-            "g b" #'evil-avy-goto-word-1
             "g l" #'evil-avy-goto-line
             "g s" #'evil-avy-goto-char-timer)
            (isearch-mode-map
@@ -849,13 +858,16 @@ targets."
   (setq tramp-use-ssh-controlmaster-options nil))
 
 (use-package magit
-  :guix    emacs-magit emacs-transient-posframe
+  :guix    (emacs-magit
+            emacs-transient-posframe
+            diffutils)
   :general (evil-leader-map "g" #'magit)
+           (magit-status-mode-map "M-RET" #'magit-diff-visit-file-other-window)
   :custom  (magit-diff-refine-hunk t)
   :init    (general-after-gui (transient-posframe-mode 1)))
 
 (defvar ledger-dir
-  (concat (getenv "HOME") "/Sync/org/ledger"))
+  (concat (getenv "HOME") "/Sync/ledger"))
 (defvar ledger-init-file-name
   (concat ledger-dir "/ledgerrc"))
 (use-package ledger-mode
@@ -1038,7 +1050,7 @@ targets."
            ("M-s i" 'org-node-insert-link)
            ("M-s s" #'org-node-series-dispatch)
   :custom
-  (org-node-ask-directory "~/Sync/org/roam/")
+  (org-node-ask-directory "~/Sync/org/roam")
   (org-node-filter-fn
     (lambda (node)
       (not (or (org-node-get-todo node) ;; Ignore headings with todo state
@@ -1083,7 +1095,7 @@ targets."
 (use-package org-node-fakeroam
   :guix emacs-org-node-fakeroam
   :custom
-  (org-node-extra-id-dirs '("~/Sync/org/"))
+  (org-node-extra-id-dirs '("~/Sync/org"))
   ;; Right from the README.
   (org-node-creation-fn #'org-node-fakeroam-new-via-roam-capture)
   (org-node-slug-fn #'org-node-fakeroam-slugify-via-roam)
@@ -1224,19 +1236,19 @@ targets."
   ;; TODO: Should be a Guix package instead of building into /tmp at
   ;; runtime.
   (unless (file-readable-p "/tmp/words")
-    (save-window-excursion
-      (async-shell-command
-        (string-join
-          (list (concat (getenv "GUIX_ENVIRONMENT")
-                        "/bin/unmunch")
-                (shell-quote-argument
-                  (concat (getenv "GUIX_ENVIRONMENT")
-                          "/share/hunspell/en_US.dic"))
-                (shell-quote-argument
-                  (concat (getenv "GUIX_ENVIRONMENT")
-                          "/share/hunspell/en_US.aff"))
-                "> /tmp/words")
-          " ")))))
+    (call-process-shell-command
+      (string-join
+        (list (concat (getenv "GUIX_ENVIRONMENT")
+                      "/bin/unmunch")
+              (shell-quote-argument
+                (concat (getenv "GUIX_ENVIRONMENT")
+                        "/share/hunspell/en_US.dic"))
+              (shell-quote-argument
+                (concat (getenv "GUIX_ENVIRONMENT")
+                        "/share/hunspell/en_US.aff"))
+              "> /tmp/words")
+        " ")
+      nil 0)))
 
 (use-package which-key
   :guix emacs-which-key
@@ -1289,7 +1301,6 @@ targets."
 ;; For eg. `guix shell --container --network emacs'
 '(:guix (bash
          coreutils
-         diffutils ; for magit
          git
          gnupg
          nss-certs

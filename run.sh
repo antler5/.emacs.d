@@ -4,7 +4,7 @@ set -x
 export GUIX_PACKAGE_PATH+="$HOME/.emacs.d/modules"
 
 CONTAINER_ARGS=(
-  --container --network --nesting
+  --pure --container --network --nesting
   --preserve='^DISPLAY$' --preserve='^XAUTHORITY$' --expose="$XAUTHORITY"
   --preserve='^DBUS_' --expose=/var/run/dbus
   --preserve='TERM'

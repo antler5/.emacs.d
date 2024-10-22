@@ -43,6 +43,9 @@
             (width . 174))
           default-frame-alist))
 
+;; This will get populated later
+(setq-default mode-line-format nil)
+
 ;; Skip adjusting frame based on font-size
 (setq frame-inhibit-implied-resize t
       frame-resize-pixelwise t)
