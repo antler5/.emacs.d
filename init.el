@@ -811,6 +811,39 @@ targets."
 
 
 ;;; Application Packages
+(use-package dired
+  :gfhook ('dired-mode-hook #'dired-hide-details-mode)
+          ('dired-mode-hook #'hl-line-mode))
+
+(use-package dired-avfs
+  :guix (emacs-dired-hacks avfs)
+  :config
+  (unless (file-readable-p (concat (getenv "HOME") "/.avfs"))
+    (start-process-shell-command "mountavfs" nil "mountavfs")))
+
+;; Dired Font Lock -- for colors!
+(use-package diredfl
+  :guix emacs-diredfl
+  :custom-face
+  (diredfl-date-time   ((t :foreground "grey")))
+  (diredfl-exec-priv   ((t :foreground ,(face-foreground 'escape-glyph nil t) :background unspecified)))
+  (diredfl-file-name   ((t :foreground ,(face-foreground 'default nil t))))
+  (diredfl-file-suffix ((t :foreground "grey" :background unspecified)))
+  (diredfl-no-priv     ((t :foreground "grey" :background unspecified)))
+
+  (diredfl-symlink     ((t :foreground "orchid")))
+  (diredfl-link-priv   ((t :foreground "orchid")))
+  (diredfl-dir-heading ((t :inherit dired-header           :foreground unspecified :background unspecified)))
+  (diredfl-dir-name    ((t :inherit dired-directory        :foreground unspecified :background unspecified)))
+  (diredfl-dir-priv    ((t :inherit dired-directory        :foreground unspecified :background unspecified)))
+  (diredfl-number      ((t :inherit dired-directory        :foreground unspecified :background unspecified)))
+  (diredfl-read-priv   ((t :inherit font-lock-keyword-face :foreground unspecified :background unspecified)))
+  (diredfl-write-priv  ((t :inherit font-lock-builtin-face :foreground unspecified :background unspecified)))
+  (diredfl-executable-tag ((t :inherit dired-directory     :foreground unspecified :background unspecified)))
+  :ghook '(dired-mode-hook
+           dirvish-mode-hook
+           dirvish-directory-view-mode))
+
 (use-package dirvish
   :guix (emacs-dirvish
          emacs-pdf-tools
@@ -840,7 +873,7 @@ targets."
      ("s" "~/Sync"     "Sync")
      ))
   (dired-listing-switches
-    "-l --almost-all --human-readable --group-directories-first --no-group")
+    "-lv --almost-all --human-readable --group-directories-first --no-group --classify")
   :config
   (dirvish-override-dired-mode))
 
