@@ -276,7 +276,7 @@
                   :underline "#666666"
                   :foreground "#fef8ea")))) ; warmer text
   (mode-line-inactive ((t :background "#383838")))
-  :ghook ('after-init-hook #'antlers/set-mode-line-format)
+  :ghook ('emacs-startup-hook #'antlers/set-mode-line-format)
   :config
   ;; Mostly from nano-modeline.el
   (defun antlers/mode-line-status (&optional status)
@@ -323,7 +323,12 @@
         (:eval (spaceline--selection-info))
         (:eval (antlers/mode-line-percent))
         (:eval (moody-wrap evil-mode-line-tag))
-        "  "))))
+        "  "))
+    (-map (lambda (b)
+            (when (not (buffer-local-value 'mode-line-format b))
+              (setf (buffer-local-value 'mode-line-format b)
+                (default-value 'mode-line-format))))
+      (buffer-list))))
 
 
 ;; Theme, Graphics, and Fringe
