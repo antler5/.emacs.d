@@ -1291,6 +1291,13 @@ targets."
          emacs-markdown-mode
          emacs-yaml-mode))
 
+(use-package nov
+  :guix emacs-nov-el
+  :after darkroom
+  :gfhook #'darkroom-tentative-mode
+  :custom (nov-text-width 80)
+  :init (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
+
 (use-package darkroom
   :guix    emacs-darkroom
   :general (evil-leader-map "f" #'darkroom-tentative-mode)
