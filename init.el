@@ -1307,6 +1307,7 @@ targets."
          dbus
          gcc-toolchain
          gdk-pixbuf
+         git
          glib
          gst-plugins-base
          gstreamer
@@ -1338,13 +1339,25 @@ targets."
          xcb-util-wm
          xdotool)
   :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
+  :after evil
+  :init
+  (defun antlers/eaf-install-and-update ()
+    (eaf-install-and-update 'browser 'org-previewer 'pdf-viewer))
+  (let ((eaf-url "https://github.com/emacs-eaf/emacs-application-framework")
+        (eaf-dir (concat (getenv "HOME") "/.emacs.d/site-lisp/emacs-application-framework")))
+    (if (not (file-readable-p eaf-dir))
+        (progn
+          (mkdir (file-name-directory eaf-dir) t)
+          (vc-git-clone eaf-url eaf-dir nil)
+          (antlers/eaf-install-and-update))
+      (-> eaf-dir
+        (concat "/.git/FETCH_HEAD")
+        (file-attributes)
+        (file-attribute-modification-time)
+        (time-since)
+        (time-less-p (days-to-time 7))
+        (unless (add-hook 'after-init-hook #'antlers/eaf-install-and-update)))))
   :config
-  ;; Gonna use the built-in Qt6 distribution, tried the `qtbase` package but got this error:
-  ;; `libQt6Quick.so.6: undefined symbol: _ZTVNSt3pmr25monotonic_buffer_resourceE, version Qt_6`
-  ;; Update: Still works if I comment this out, so I don't think it's needed >u<
-  ;; (setenv "QT_QPA_PLATFORM_PLUGIN_PATH"
-  ;;   (concat (getenv "HOME")
-  ;;           "/.local/lib/python3.10/site-packages/PyQt6/Qt6/plugins/platforms"))
   (antlers/append-to-path
     (concat (getenv "GUIX_ENVIRONMENT") "/lib")
     "LD_LIBRARY_PATH")
@@ -1362,48 +1375,15 @@ targets."
         '("/.local/lib/python3.10/site-packages/PyQt6/Qt6/libexec/QtWebEngineProcess"
           "/.local/lib/python3.10/site-packages/PyQt6/Qt6/lib/libQt6Core.so.6"))))
 
-;; These seem to work without additional deps
-;; (though I haven't isolated them to be sure)
+(use-package eaf-evil
+  :after eaf-browser
+  :config (eaf-enable-evil-intergration))
+
 (use-package eaf-browser)
-(use-package eaf-mindmap)
 (use-package eaf-org-previewer)
 (use-package eaf-pdf-viewer)
-(use-package eaf-vue-demo)
-(use-package eaf-vue-tailwindcss)
-
-;; These needed some python deps
-(use-package eaf-system-monitor
-  :guix python-psutil)
-(use-package eaf-file-manager
-  :guix python-pygments)
-(use-package eaf-jupyter
-  :guix python-qtconsole)
-
-;; Block-cursor covers up letters, I'll stick to eshell.
-;; (use-package eaf-pyqterminal
-;;   :guix python-pyte)
-
-;; And I haven't ran these:
-
-;; Empty buffer
-;; I get this error when trying to run any EAF application with `qtwebchannel` installed:
-;; ImportError: /home/antlers/.local/lib/python3.10/site-packages/PyQt6/Qt6/lib/libQt6Core.so.6: version `Qt_6.6' not found (required by /gnu/store/2q6hy1pbhmylf3x0552xp47wsn3wl4n8-profile/lib/libQt6WebChannel.so.6)
-(use-package eaf-camera
-  :guix (;; qtwebchannel
-         python-pyqt
-         ))
-
-;; `filebrowser` has not been packaged
-;; (use-package eaf-file-browser
-;;   :guix (filebrowser
-;;          python-qrcode))
-
-;; `python-unidiff` has not been packaged
-;; (use-package eaf-git
-;;   :guix (python-charset-normalizer
-;;          python-pygit2
-;;          ;; python-unidiff
-;;          ))
+(use-package eaf-ocap-cad-viewer
+  :load-path "~/0/1-project/eaf-ocap-cad-viewer")
 
 
 ;; Other Dependencies
