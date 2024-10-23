@@ -1,6 +1,8 @@
 * TODO: Intangible eshell prompt?
 * TODO: EAT term
 * TODO: bind recenter-top-bottom to `z z`?
+* TODO: hey what if dired had color ranges for sizes and date-times
+- Color by ext / mime-type?
 
 * TODO: Corfu-doc
 * TODO: Darkroom + Focus-mode??
