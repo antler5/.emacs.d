@@ -473,10 +473,8 @@
            ;; Ditto for return
            (:states 'normal
             :keymaps 'org-mode-map
-            "<tab>" #'org-cycle
-            "TAB"   #'org-cycle ; at some point <tab> wasn't enough?
-            "<return>" #'org-return
-            "RET"      #'org-return)
+            "TAB"   #'org-cycle
+            "RET"   #'org-return)
   ;; TODO: Why no general do this?
   :bind    (:repeat-map evil-windows/repeat-map
             (">" . evil-window-increase-width)
@@ -486,6 +484,7 @@
   (evil-respect-visual-line-mode t)
   (evil-undo-system 'undo-tree)
   (evil-want-C-u-scroll t) ; universal-arg is rebound to C-M-u in :bind
+  (evil-want-C-i-jump nil) ; to reclaim TAB
   (evil-want-Y-yank-to-eol t)
   (evil-want-fine-undo nil)
   (evil-want-integration t)
@@ -823,10 +822,10 @@ targets."
   :general (evil-leader-map
             "d"   #'dirvish)
            (dirvish-mode-map
+            :states 'motion
             "a"   #'dirvish-quick-access
             "N"   #'dirvish-narrow
-            "TAB" #'dirvish-toggle-subtree)
-           (:states 'motion
+            "<tab>" #'dirvish-toggle-subtree
             "-"   #'dired-jump
             "_"   #'dirvish-layout-toggle)
   :custom
