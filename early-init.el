@@ -43,7 +43,12 @@
             (width . 174))
           default-frame-alist))
 
-;; This will get populated later
+;; These will get populated later
+(let ((orig frame-title-format))
+  (defun antlers/restore-frame-title-format ()
+    (setq-default frame-title-format orig))
+  (add-hook 'emacs-startup-hook #'antlers/restore-frame-title-format))
+(setq-default frame-title-format nil)
 (setq-default mode-line-format nil)
 
 ;; Skip adjusting frame based on font-size
