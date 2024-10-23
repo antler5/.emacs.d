@@ -276,6 +276,7 @@
                   :underline "#666666"
                   :foreground "#fef8ea")))) ; warmer text
   (mode-line-inactive ((t :background "#383838")))
+  :ghook ('after-init-hook #'antlers/set-mode-line-format)
   :config
   ;; Mostly from nano-modeline.el
   (defun antlers/mode-line-status (&optional status)
@@ -306,22 +307,23 @@
     (cond ((not (window-dedicated-p)) "")
           (t (nerd-icons-octicon "nf-oct-pin"))))
   (moody-replace-eldoc-minibuffer-message-function)
-  (setq-default mode-line-format
-    '(" "
-      (:eval (antlers/mode-line-dedicated))
-      (:eval (antlers/mode-line-status))
-      moody-mode-line-front-space
-      (:eval (moody-tab (concat
-                          (car (propertized-buffer-identification (buffer-name)))
-                          (antlers/mode-line-file-size))
-                        20 'down))
-      " "
-      (:eval (antlers/mode-line-vcs))
-      mode-line-format-right-align
-      (:eval (spaceline--selection-info))
-      (:eval (antlers/mode-line-percent))
-      (:eval (moody-wrap evil-mode-line-tag))
-      "  ")))
+  (defun antlers/set-mode-line-format ()
+    (setq-default mode-line-format
+      '(" "
+        (:eval (antlers/mode-line-dedicated))
+        (:eval (antlers/mode-line-status))
+        moody-mode-line-front-space
+        (:eval (moody-tab (concat
+                            (car (propertized-buffer-identification (buffer-name)))
+                            (antlers/mode-line-file-size))
+                          20 'down))
+        " "
+        (:eval (antlers/mode-line-vcs))
+        mode-line-format-right-align
+        (:eval (spaceline--selection-info))
+        (:eval (antlers/mode-line-percent))
+        (:eval (moody-wrap evil-mode-line-tag))
+        "  "))))
 
 
 ;; Theme, Graphics, and Fringe
@@ -354,7 +356,9 @@
   :custom (display-line-numbers-width 3))
 
 (use-package prettify-symbols-mode
-  :ghook 'lisp-mode-hook 'lisp-data-mode-hook)
+  :ghook ('lisp-mode-hook
+          'lisp-data-mode-hook
+          'eshell-mode-hook))
 
 (use-package highlight-indent-guides
   :guix emacs-highlight-indent-guides
@@ -1156,9 +1160,29 @@ targets."
 
 
 ;; Eshell
-(use-package eshell
-  :general (evil-leader-map "q" #'eshell)
+(use-package eat
+  :guix emacs-eat
+  :custom
+  (eat-term-name "xterm-256color")
+  (eat-eshell-mode t)
+  (eat-eshell-visual-command-mode t))
 
+(use-package eshell
+  :gfhook ('emacs-startup-hook #'eshell)
+  :general (evil-leader-map
+            "q" #'eshell)
+           (eshell-mode-map
+            "C-l" #'antlers/clear)
+  :init
+  (defun antlers/clear ()
+    (interactive)
+    (evil-goto-line)
+    (evil-scroll-line-to-top
+      (string-to-number
+        (format-mode-line "%l"))))
+  :custom
+  (eshell-scroll-to-bottom-on-output nil)
+  (eshell-scroll-show-maximum-output nil)
   :config
   ;; Clever rebinding of nvim/emacs -> :edit
   ;; TODO: More of these, built into guix home config?
@@ -1176,7 +1200,7 @@ targets."
     (interactive)
     (if (> (count-windows) 1)
         (let ((buffer (current-buffer)))
-          (delete-window (get-buffer-window buffer))
+          (delete-window)
           (when (not (get-buffer-window buffer))
             (kill-buffer buffer)))
       (kill-buffer)
@@ -1216,7 +1240,8 @@ targets."
   (evil-ex-define-cmd "wq"      #'save-and-quit-to-eshell)
   (evil-ex-define-cmd "wqa[ll]" #'save-and-quit-to-eshell*)
   (evil-ex-define-cmd "qa[ll]"  #'save-and-quit-all-to-eshell)
-  (evil-ex-define-cmd "wqa[ll]" #'save-and-quit-all-to-eshell*))
+  (evil-ex-define-cmd "wqa[ll]" #'save-and-quit-all-to-eshell*)
+  (defalias 'save-buffers-kill-terminal #'save-and-quit-all-to-eshell))
 
 (use-package eshell-syntax-highlighting
   :guix   emacs-eshell-syntax-highlighting
@@ -1229,9 +1254,6 @@ targets."
   :init   (autoload 'epe-theme-lambda "eshell-prompt-extras")
   :custom (eshell-highlight-prompt nil)
           (eshell-prompt-function 'epe-theme-lambda))
-
-(use-package eat
-  :guix emacs-eat)
 
 
 ;; Minor Modes
