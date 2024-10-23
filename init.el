@@ -287,7 +287,10 @@
         ("-"   (icon "nf-fa-link"))
         ("%"   (icon "nf-fa-lock")))))
   (defun antlers/mode-line-percent ()
-    (format "%-6s " (format "(%d%%%%)" (/ (window-start) 0.01 (point-max)))))
+    (format "%-7s "
+      (format "(%d%%%%/%d)"
+        (/ (window-start) 0.01 (point-max))
+        (- (line-number-at-pos (point-max)) 1))))
   (defun antlers/mode-line-vcs ()
     (when vc-mode
       (when-let* ((file (buffer-file-name))
@@ -305,25 +308,34 @@
       ""))
   (defun antlers/mode-line-dedicated ()
     (cond ((not (window-dedicated-p)) "")
-          (t (nerd-icons-octicon "nf-oct-pin"))))
+          (t (list (nerd-icons-octicon "nf-oct-pin") " "))))
   (moody-replace-eldoc-minibuffer-message-function)
+  (defun antlers/mode-line-format (title center right end)
+    `(" "
+      (:eval (antlers/mode-line-dedicated))
+      (:eval (antlers/mode-line-status))
+      moody-mode-line-front-space
+      ,@(if title
+            `((:eval
+               (moody-tab
+                 (concat (car (propertized-buffer-identification ,title))
+                         (antlers/mode-line-file-size))
+                 20 'down)))
+          '())
+      " "
+      ,@center
+      mode-line-format-right-align
+      ,@right
+      (:eval (moody-wrap evil-mode-line-tag))
+      ,@end))
   (defun antlers/set-mode-line-format ()
     (setq-default mode-line-format
-      '(" "
-        (:eval (antlers/mode-line-dedicated))
-        (:eval (antlers/mode-line-status))
-        moody-mode-line-front-space
-        (:eval (moody-tab (concat
-                            (car (propertized-buffer-identification (buffer-name)))
-                            (antlers/mode-line-file-size))
-                          20 'down))
-        " "
-        (:eval (antlers/mode-line-vcs))
-        mode-line-format-right-align
-        (:eval (spaceline--selection-info))
-        (:eval (antlers/mode-line-percent))
-        (:eval (moody-wrap evil-mode-line-tag))
-        "  "))
+      (antlers/mode-line-format
+        '(buffer-name)
+        '((:eval (antlers/mode-line-vcs)))
+        '((:eval (spaceline--selection-info))
+          (:eval (antlers/mode-line-percent)))
+        '("  ")))
     (-map (lambda (b)
             (when (not (buffer-local-value 'mode-line-format b))
               (setf (buffer-local-value 'mode-line-format b)
@@ -850,8 +862,7 @@ targets."
   (diredfl-write-priv  ((t :inherit font-lock-builtin-face :foreground unspecified :background unspecified)))
   (diredfl-executable-tag ((t :inherit dired-directory     :foreground unspecified :background unspecified)))
   :ghook '(dired-mode-hook
-           dirvish-mode-hook
-           dirvish-directory-view-mode))
+           dirvish-directory-view-mode-hook))
 
 (use-package dirvish
   :guix (emacs-dirvish
@@ -860,15 +871,21 @@ targets."
          fd
          mediainfo
          tar unzip)
-  :after nerd-icons
+  :after (nerd-icons
+          moody
+          eshell-prompt-extras)
   :general (evil-leader-map
-            "d"   #'dirvish)
+            "d"   #'dirvish-dwim)
+           (:states 'motion
+            "-"   #'dired-jump)
+           (dirvish-mode-map
+            :states 'normal
+            "q"   #'dirvish-quit) ; quit-window causes problems :/
            (dirvish-mode-map
             :states 'motion
             "a"   #'dirvish-quick-access
             "N"   #'dirvish-narrow
-            "<tab>" #'dirvish-toggle-subtree
-            "-"   #'dired-jump
+            "TAB" #'dirvish-toggle-subtree
             "_"   #'dirvish-layout-toggle)
   :custom
   (dirvish-attributes
@@ -883,8 +900,51 @@ targets."
      ))
   (dired-listing-switches
     "-lv --almost-all --human-readable --group-directories-first --no-group --classify")
+  (dirvish-header-line-height moody-mode-line-height)
+  (dirvish-mode-line-height moody-mode-line-height)
+  (dirvish-use-header-line t)
   :config
-  (dirvish-override-dired-mode))
+  (dirvish-override-dired-mode)
+  (defun antlers/dirvish--mode-line-fmt-setter (left right &optional header)
+    (cl-labels ((expand (segments)
+                  (cl-loop for s in segments collect
+                           (if (stringp s) s
+                             `(:eval (,(intern (format "dirvish-%s-ml" s)) (dirvish-curr)))))))
+      (if header
+          `((:eval
+             (let* ((dv (dirvish-curr))
+                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
+               (when (buffer-local-value 'dired-hide-details-mode (or buf (current-buffer)))
+                 (format-mode-line ',(expand '(file-modes)) nil nil buf))))
+            (:eval (progn (setq mode-line-format-bak mode-line-format) nil))
+            (:eval (progn (setq mode-line-format header-line-format) nil))
+            mode-line-format-right-align
+            (:eval (progn (setq mode-line-format mode-line-format-bak) nil))
+            (:eval
+             (let* ((dv (dirvish-curr))
+                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
+               (format-mode-line ',(expand '(free-space)) nil nil buf)))
+            ;; Doesn't show up without this, probably height-related?
+            (:eval
+              (let ((dv (dirvish-curr)))
+                (dirvish--bar-image (car (dv-layout dv)) t)))
+            )
+        (antlers/mode-line-format
+          '(epe-fish-path (epe-pwd))
+          `((:eval
+             (let* ((dv (dirvish-curr))
+                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv))))
+                    (str-l (format-mode-line
+                            ',(or (expand left) mode-line-format) nil nil buf)))
+               (string-trim str-l))))
+          '((:eval
+             (let ((info (spaceline--selection-info)))
+               (list (car (string-split info "[:/]"))
+                     (if (s-contains? "/" info) ":/" "/"))))
+            (:eval (cadr (string-split (antlers/mode-line-percent) "[/)]"))))
+          '(" ")))))
+  (advice-add 'dirvish--mode-line-fmt-setter :override
+    #'antlers/dirvish--mode-line-fmt-setter))
 
 (use-package tramp
   :config
@@ -1255,8 +1315,6 @@ targets."
 
 (use-package eshell-prompt-extras
   :guix   emacs-eshell-prompt-extras
-  :after  eshell
-  :init   (autoload 'epe-theme-lambda "eshell-prompt-extras")
   :custom (eshell-highlight-prompt nil)
           (eshell-prompt-function 'epe-theme-lambda))
 
