@@ -286,11 +286,13 @@
         ("*"   (icon "nf-fa-chain_broken"))
         ("-"   (icon "nf-fa-link"))
         ("%"   (icon "nf-fa-lock")))))
-  (defun antlers/mode-line-percent ()
+  (defun antlers/mode-line-percent (&optional buffer)
     (format "%-7s "
       (format "(%d%%%%/%d)"
         (/ (window-start) 0.01 (point-max))
-        (- (line-number-at-pos (point-max)) 1))))
+        (if buffer
+            (car (buffer-line-statistics buffer))
+          (- (line-number-at-pos (point-max)) 1)))))
   (defun antlers/mode-line-vcs ()
     (when vc-mode
       (when-let* ((file (buffer-file-name))
@@ -833,8 +835,7 @@ targets."
 
 ;;; Application Packages
 (use-package dired
-  :gfhook ('dired-mode-hook #'dired-hide-details-mode)
-          ('dired-mode-hook #'hl-line-mode))
+  :gfhook ('dired-mode-hook #'dired-hide-details-mode))
 
 (use-package dired-avfs
   :guix (emacs-dired-hacks avfs)
@@ -887,24 +888,67 @@ targets."
             "N"   #'dirvish-narrow
             "TAB" #'dirvish-toggle-subtree
             "_"   #'dirvish-layout-toggle)
+  :custom-face
+  (dirvish-collapse-dir-face ((t (:inherit dirvish-collapse-empty-dir-face))))
+  (dirvish-git-commit-message-face ((t (:background "#333"))))
+
+  (vc-edited-state              ((t (:foreground "#8ac6f2"))))
+  (vc-locally-added-state       ((t (:foreground "#cae682"))))
+  (vc-removed-state             ((t (:foreground "#e5786d"))))
+  (vc-missing-state             ((t (:foreground "pink"))))
+  (dirvish-vc-needs-merge-face  ((t (:foreground "orange"))))
+  (vc-conflict-state            ((t (:foreground "red"))))
+  (vc-locked-state              ((t (:foreground "magenta"))))
+  (vc-needs-update-state        ((t (:foreground "purple"))))
+  (dirvish-vc-unregistered-face ((t (:foreground "#424"))))
+
   :custom
   (dirvish-attributes
     '(subtree-state
+      collapse
       all-the-icons
       git-msg
-      file-size))
+      file-size
+      file-time
+      hl-line
+      ))
   (dirvish-quick-access-entries
    '(("d" "~/"         "Home")
      ("p" "~/projects" "Projects")
      ("s" "~/Sync"     "Sync")
      ))
   (dired-listing-switches
-    "-lv --almost-all --human-readable --group-directories-first --no-group --classify")
+    "-lv --escape --almost-all --human-readable --group-directories-first --no-group")
   (dirvish-header-line-height moody-mode-line-height)
   (dirvish-mode-line-height moody-mode-line-height)
-  (dirvish-use-header-line t)
   :config
   (dirvish-override-dired-mode)
+  (dirvish-define-attribute git-msg
+    ;; Customized to use face with custom bg, had to trim edges /
+    ;; account for hl-line.
+    "Append git commit message to filename."
+    :index 1
+    :when (and (eq (dirvish-prop :vc-backend) 'Git)
+               (not (dirvish-prop :remote))
+               (> win-width 65))
+    (let* ((info (dirvish-attribute-cache f-name :git-msg))
+           (face (or hl-face 'dirvish-git-commit-message-face))
+           (str (concat (substring (concat " " info) 0 -1) " ")))
+      (when hl-face
+        (add-face-text-property 0 1 face t str)
+        (add-face-text-property (- (length str) 1) (length str) face t str))
+      (when (> (length (string-to-list str)) 1)
+        (add-face-text-property 1 (- (length str) 1) face t str)
+        `(left . ,str))))
+  (defun antlers/dirvish-collapse--cache (x)
+    (if (stringp (car x))
+        (cons (apply #'propertize
+                (string-replace "|" "/" (car x))
+                (text-properties-at 0 (car x)))
+              (cdr x))
+      x))
+  (advice-add 'dirvish-collapse--cache :filter-return
+    #'antlers/dirvish-collapse--cache)
   (defun antlers/dirvish--mode-line-fmt-setter (left right &optional header)
     (cl-labels ((expand (segments)
                   (cl-loop for s in segments collect
@@ -938,10 +982,18 @@ targets."
                             ',(or (expand left) mode-line-format) nil nil buf)))
                (string-trim str-l))))
           '((:eval
-             (let ((info (spaceline--selection-info)))
-               (list (car (string-split info "[:/]"))
-                     (if (s-contains? "/" info) ":/" "/"))))
-            (:eval (cadr (string-split (antlers/mode-line-percent) "[/)]"))))
+             (let* ((dv (dirvish-curr))
+                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
+               (if (and buf (not (eq buf (current-buffer))))
+                   "-/"
+                 (let ((info (format-mode-line (spaceline--selection-info) nil nil buf)))
+                   (if (s-contains? "/" info)
+                       (list (car (string-split info "/")) ":/")
+                     (list (number-to-string (1- (string-to-number (car (string-split info ":"))))) "/"))))))
+            (:eval
+             (let* ((dv (dirvish-curr))
+                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
+               (number-to-string (1- (string-to-number (cadr (string-split (antlers/mode-line-percent buf) "[/)]"))))))))
           '(" ")))))
   (advice-add 'dirvish--mode-line-fmt-setter :override
     #'antlers/dirvish--mode-line-fmt-setter))
