@@ -918,6 +918,7 @@ targets."
       git-msg
       file-size
       file-time
+      vc-state
       hl-line
       ))
   (dirvish-quick-access-entries
@@ -929,6 +930,18 @@ targets."
     "-lv --escape --almost-all --human-readable --group-directories-first --no-group")
   (dirvish-header-line-height moody-mode-line-height)
   (dirvish-mode-line-height moody-mode-line-height)
+  :init
+  ;; Improve `vc-git.el` handling of .git and untracked directories
+  (defun antlers/vc-git-state (file)
+    (when (equal (eshell/basename file) ".git")
+      'ignored))
+  (advice-add 'vc-git-state :before-until
+    #'antlers/vc-git-state)
+  (defun antlers/vc-git--git-status-to-vc-state (code-list)
+    (when (-every? (-cut equal <> "??") code-list)
+      'unregistered))
+  (advice-add 'vc-git--git-status-to-vc-state :before-until
+    #'antlers/vc-git--git-status-to-vc-state)
   :config
   (dirvish-override-dired-mode)
   (defun antlers/dirvish-collapse--cache (x)
@@ -1009,7 +1022,32 @@ targets."
                (number-to-string (1- (string-to-number (cadr (string-split (antlers/mode-line-percent buf) "[/)]"))))))))
           '(" ")))))
   (advice-add 'dirvish--mode-line-fmt-setter :override
-    #'antlers/dirvish--mode-line-fmt-setter))
+    #'antlers/dirvish--mode-line-fmt-setter)
+  ;; Use git-gutter for vc-state
+  (defvar antlers/vc-state-cache (make-hash-table :test #'equal))
+  (defun antlers/clear-vc-state-cache ()
+    (clrhash antlers/vc-state-cache))
+  (add-hook 'dirvish-after-revert-hook
+    #'antlers/clear-vc-state-cache)
+  (with-eval-after-load 'magit-mode
+    (add-hook 'magit-post-refresh-hook
+      #'antlers/clear-vc-state-cache))
+  (dirvish-define-attribute vc-state
+    :when (and (git-gutter:set-window-margin (git-gutter:window-margin))
+               (or (remove-overlays (point-min) (point-max) 'git-gutter t) t))
+    ;; Cache full of nonsense: (dirvish-attribute-cache f-name :vc-state)
+    (let* ((state (or (gethash f-name antlers/vc-state-cache)
+                      (puthash f-name (vc-state-refresh f-name 'Git) antlers/vc-state-cache))))
+      (pcase state
+        ('conflict     (git-gutter:put-signs (propertize "◆" 'face '(:foreground "#e5786d")) (list f-beg)))
+        ('ignored      (git-gutter:put-signs (propertize "✕" 'face '(:foreground "#646")) (list f-beg)))
+        ('added        (git-gutter:put-signs (propertize git-gutter:added-sign 'face '(:foreground "#cae682")) (list f-beg)))
+        ('removed      (git-gutter:put-signs (propertize git-gutter:removed-sign 'face '(:foreground "#e5786d")) (list f-beg)))
+        ('edited       (git-gutter:put-signs (propertize git-gutter:modified-sign 'face 'git-gutter:modified) (list f-beg)))
+        ('unregistered (git-gutter:put-signs (propertize "✕" 'face '(:foreground "orchid")) (list f-beg)))
+        ('up-to-date   nil)
+        (_ nil)
+        ))))
 
 (use-package dirvish-vc
   :config
