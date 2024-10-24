@@ -3,6 +3,10 @@
 - Color by ext / mime-type?
 
 * TODO: Corfu-doc
+* TODO: make narrow-to-page work
+* TODO: wrap line-to-top advice aorund next-page / prev-page
+* TODO: clean up all the dirvish code
+* TODO: do I want tab(spaces)?
 * TODO: Darkroom + Focus-mode??
 * TODO: Prefer vertical splits (specifically in focus mode)
 * TODO: variable pitch fonts for org-mode, needs mono in src blocks and less bold
