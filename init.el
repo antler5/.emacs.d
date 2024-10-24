@@ -923,24 +923,6 @@ targets."
   (dirvish-mode-line-height moody-mode-line-height)
   :config
   (dirvish-override-dired-mode)
-  ;; XXX: Doesn't start correctly.
-  (dirvish-define-attribute git-msg
-    ;; Customized to use face with custom bg, had to trim edges /
-    ;; account for hl-line.
-    "Append git commit message to filename."
-    :index 1
-    :when (and (eq (dirvish-prop :vc-backend) 'Git)
-               (not (dirvish-prop :remote))
-               (> win-width 65))
-    (let* ((info (dirvish-attribute-cache f-name :git-msg))
-           (face (or hl-face 'dirvish-git-commit-message-face))
-           (str (concat (substring (concat " " info) 0 -1) " ")))
-      (when hl-face
-        (add-face-text-property 0 1 face t str)
-        (add-face-text-property (- (length str) 1) (length str) face t str))
-      (when (> (length (string-to-list str)) 1)
-        (add-face-text-property 1 (- (length str) 1) face t str)
-        `(left . ,str))))
   (defun antlers/dirvish-collapse--cache (x)
     (if (stringp (car x))
         (cons (apply #'propertize
@@ -998,6 +980,26 @@ targets."
           '(" ")))))
   (advice-add 'dirvish--mode-line-fmt-setter :override
     #'antlers/dirvish--mode-line-fmt-setter))
+
+(use-package dirvish-vc
+  :config
+  (dirvish-define-attribute git-msg
+    ;; Customized to use face with custom bg, had to trim edges /
+    ;; account for hl-line.
+    "Append git commit message to filename."
+    :index 1
+    :when (and (eq (dirvish-prop :vc-backend) 'Git)
+               (not (dirvish-prop :remote))
+               (> win-width 65))
+    (let* ((info (dirvish-attribute-cache f-name :git-msg))
+           (face (or hl-face 'dirvish-git-commit-message-face))
+           (str (concat (substring (concat " " info) 0 -1) " ")))
+      (when hl-face
+        (add-face-text-property 0 1 face t str)
+        (add-face-text-property (- (length str) 1) (length str) face t str))
+      (when (> (length (string-to-list str)) 1)
+        (add-face-text-property 1 (- (length str) 1) face t str)
+        `(left . ,str)))))
 
 (use-package tramp
   :config
