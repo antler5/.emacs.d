@@ -923,6 +923,7 @@ targets."
   (dirvish-mode-line-height moody-mode-line-height)
   :config
   (dirvish-override-dired-mode)
+  ;; XXX: Doesn't start correctly.
   (dirvish-define-attribute git-msg
     ;; Customized to use face with custom bg, had to trim edges /
     ;; account for hl-line.
