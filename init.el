@@ -1437,13 +1437,15 @@ targets."
 (use-package git-gutter
   :guix emacs-git-gutter
   :ghook 'prog-mode-hook 'org-mode-hook
-  :gfhook ('magit-post-refresh-hook
-           #'git-gutter:update-all-windows)
   :custom-face
   (git-gutter:added ((t :foreground "#cae682")))
   (git-gutter:deleted ((t :foreground "#e5786d")))
   (git-gutter:modified ((t :foreground "#8ac6f2")))
-  :custom (git-gutter:modified-sign "≈"))
+  :custom (git-gutter:modified-sign "≈")
+  :config
+  (with-eval-after-load 'magit-mode
+    (add-hook 'magit-post-refresh-hook
+      #'git-gutter:update-all-windows)))
 
 (use-package rainbow-mode
   :guix emacs-rainbow-mode
