@@ -926,27 +926,50 @@ targets."
   (defun antlers/dirvish-collapse--cache (x)
     (if (stringp (car x))
         (cons (apply #'propertize
-                (string-replace "|" "/" (car x))
+                (subst-char-in-string ?| ?/ (car x) t)
                 (text-properties-at 0 (car x)))
               (cdr x))
       x))
   (advice-add 'dirvish-collapse--cache :filter-return
     #'antlers/dirvish-collapse--cache)
+  (defun antlers/dirvish-file-modes-ml (str)
+    "Replicates diredfl colors."
+    (-map-indexed (pcase-lambda (i `(,char . ,face))
+                    (put-text-property i (1+ i)
+                      'face (if (= char ?-) diredfl-no-priv face)
+                      str))
+      (-zip (string-to-list str)
+            (list diredfl-link-priv
+                  diredfl-read-priv
+                  diredfl-write-priv
+                  diredfl-exec-priv
+                  diredfl-read-priv
+                  diredfl-write-priv
+                  diredfl-exec-priv
+                  diredfl-read-priv
+                  diredfl-write-priv
+                  diredfl-exec-priv)))
+    str)
+  (advice-add 'dirvish-file-modes-ml :filter-return
+    #'antlers/dirvish-file-modes-ml)
+  (defvar header-line-format-right-align
+    '((:eval (progn (setq mode-line-format-bak mode-line-format) nil))
+      (:eval (progn (setq mode-line-format header-line-format) nil))
+      mode-line-format-right-align
+      (:eval (progn (setq mode-line-format mode-line-format-bak) nil))))
   (defun antlers/dirvish--mode-line-fmt-setter (left right &optional header)
     (cl-labels ((expand (segments)
                   (cl-loop for s in segments collect
                            (if (stringp s) s
                              `(:eval (,(intern (format "dirvish-%s-ml" s)) (dirvish-curr)))))))
       (if header
-          `((:eval
+          `("  "
+            (:eval
              (let* ((dv (dirvish-curr))
                     (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
                (when (buffer-local-value 'dired-hide-details-mode (or buf (current-buffer)))
                  (format-mode-line ',(expand '(file-modes)) nil nil buf))))
-            (:eval (progn (setq mode-line-format-bak mode-line-format) nil))
-            (:eval (progn (setq mode-line-format header-line-format) nil))
-            mode-line-format-right-align
-            (:eval (progn (setq mode-line-format mode-line-format-bak) nil))
+            ,@header-line-format-right-align
             (:eval
              (let* ((dv (dirvish-curr))
                     (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
@@ -954,8 +977,7 @@ targets."
             ;; Doesn't show up without this, probably height-related?
             (:eval
               (let ((dv (dirvish-curr)))
-                (dirvish--bar-image (car (dv-layout dv)) t)))
-            )
+                (dirvish--bar-image (car (dv-layout dv)) t))))
         (antlers/mode-line-format
           '(epe-fish-path (epe-pwd))
           `((:eval
