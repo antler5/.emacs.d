@@ -942,6 +942,9 @@ targets."
       'unregistered))
   (advice-add 'vc-git--git-status-to-vc-state :before-until
     #'antlers/vc-git--git-status-to-vc-state)
+  (defun antlers/disable-indicate-buffer-boundaries ()
+    (setq-local indicate-buffer-boundaries nil))
+  :ghook ('dired-mode-hook #'antlers/disable-indicate-buffer-boundaries)
   :config
   (dirvish-override-dired-mode)
   (defun antlers/dirvish-collapse--cache (x)
@@ -1022,7 +1025,28 @@ targets."
                (number-to-string (1- (string-to-number (cadr (string-split (antlers/mode-line-percent buf) "[/)]"))))))))
           '(" ")))))
   (advice-add 'dirvish--mode-line-fmt-setter :override
-    #'antlers/dirvish--mode-line-fmt-setter)
+    #'antlers/dirvish--mode-line-fmt-setter))
+
+(use-package dirvish-vc
+  :config
+  (dirvish-define-attribute git-msg
+    ;; Customized to use face with custom bg, had to trim edges /
+    ;; account for hl-line.
+    "Append git commit message to filename."
+    :index 1
+    :when (and (eq (dirvish-prop :vc-backend) 'Git)
+               (not (dirvish-prop :remote))
+               (> win-width 65))
+    (let* ((info (dirvish-attribute-cache f-name :git-msg))
+           (face (or hl-face 'dirvish-git-commit-message-face))
+           (str (concat (substring (concat " " info) 0 -1) " ")))
+      (when hl-face
+        (add-face-text-property 0 1 face t str)
+        (add-face-text-property (- (length str) 1) (length str) face t str))
+      (when (> (length (string-to-list str)) 1)
+        (add-face-text-property 1 (- (length str) 1) face t str)
+        `(left . ,str))))
+
   ;; Use git-gutter for vc-state
   (defvar antlers/vc-state-cache (make-hash-table :test #'equal))
   (defun antlers/clear-vc-state-cache ()
@@ -1048,26 +1072,6 @@ targets."
         ('up-to-date   nil)
         (_ nil)
         ))))
-
-(use-package dirvish-vc
-  :config
-  (dirvish-define-attribute git-msg
-    ;; Customized to use face with custom bg, had to trim edges /
-    ;; account for hl-line.
-    "Append git commit message to filename."
-    :index 1
-    :when (and (eq (dirvish-prop :vc-backend) 'Git)
-               (not (dirvish-prop :remote))
-               (> win-width 65))
-    (let* ((info (dirvish-attribute-cache f-name :git-msg))
-           (face (or hl-face 'dirvish-git-commit-message-face))
-           (str (concat (substring (concat " " info) 0 -1) " ")))
-      (when hl-face
-        (add-face-text-property 0 1 face t str)
-        (add-face-text-property (- (length str) 1) (length str) face t str))
-      (when (> (length (string-to-list str)) 1)
-        (add-face-text-property 1 (- (length str) 1) face t str)
-        `(left . ,str)))))
 
 (use-package tramp
   :config
@@ -1508,6 +1512,7 @@ targets."
 
 (use-package git-gutter
   :guix emacs-git-gutter
+  :commands (git-gutter:set-window-margin git-gutter:window-margin)
   :ghook 'prog-mode-hook 'org-mode-hook
   :custom-face
   (git-gutter:added ((t :foreground "#cae682")))
