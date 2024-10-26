@@ -968,32 +968,6 @@ targets."
   (advice-add 'dirvish-collapse--cache :filter-return
     #'antlers/dirvish-collapse--cache)
 
-  (defun antlers/dirvish-file-modes-ml (str)
-    "Replicates diredfl colors."
-    (-map-indexed (pcase-lambda (i `(,char . ,face))
-                    (put-text-property i (1+ i)
-                      'face (if (= char ?-) diredfl-no-priv face)
-                      str))
-      (-zip (string-to-list str)
-            (list diredfl-link-priv
-                  diredfl-read-priv
-                  diredfl-write-priv
-                  diredfl-exec-priv
-                  diredfl-read-priv
-                  diredfl-write-priv
-                  diredfl-exec-priv
-                  diredfl-read-priv
-                  diredfl-write-priv
-                  diredfl-exec-priv)))
-    str)
-
-  (advice-add 'dirvish-free-space-ml :filter-return
-    #'antlers/dirvish-free-space-ml)
-  (defun antlers/dirvish-free-space-ml (str)
-    (propertize str 'face 'dired-ignored))
-  (advice-add 'dirvish-free-space-ml :filter-return
-    #'antlers/dirvish-free-space-ml)
-
   (defvar header-line-format-right-align
     '((:eval (progn (setq mode-line-format-bak mode-line-format) nil))
       (:eval (progn (setq mode-line-format header-line-format) nil))
@@ -1055,6 +1029,35 @@ targets."
           '(" ")))))
   (advice-add 'dirvish--mode-line-fmt-setter :override
     #'antlers/dirvish--mode-line-fmt-setter))
+
+(use-package dirvish-widgets
+  :config
+  (defun antlers/dirvish-file-modes-ml (str)
+    "Replicates diredfl colors."
+    (-map-indexed (pcase-lambda (i `(,char . ,face))
+                    (put-text-property i (1+ i)
+                      'face (if (= char ?-) diredfl-no-priv face)
+                      str))
+      (-zip (string-to-list str)
+            (list diredfl-link-priv
+                  diredfl-read-priv
+                  diredfl-write-priv
+                  diredfl-exec-priv
+                  diredfl-read-priv
+                  diredfl-write-priv
+                  diredfl-exec-priv
+                  diredfl-read-priv
+                  diredfl-write-priv
+                  diredfl-exec-priv)))
+    (message (format "%s" str))
+    str)
+  (advice-add 'dirvish-file-modes-ml :filter-return
+    #'antlers/dirvish-file-modes-ml)
+
+  (defun antlers/dirvish-free-space-ml (str)
+    (propertize str 'face 'dired-ignored))
+  (advice-add 'dirvish-free-space-ml :filter-return
+    #'antlers/dirvish-free-space-ml))
 
 (use-package dirvish-vc
   :config
