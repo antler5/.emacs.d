@@ -296,7 +296,14 @@
   (defun antlers/mode-line-vcs ()
     (when vc-mode
       (when-let* ((file (buffer-file-name))
+                  (limit (- (window-total-width) 67)) ; XXX: Lazy
                   (branch (substring-no-properties vc-mode 5))
+                  (branch (if (< (string-bytes branch) limit)
+                              branch
+                            (concat (string-limit
+                                      branch
+                                      (- limit 3))
+                                    "...")))
                   (state (vc-state file)))
         (format "%s %s, %s"
           (nerd-icons-devicon "nf-dev-git_branch")
@@ -1025,7 +1032,7 @@ targets."
                     (str-l (format-mode-line
                             ',(or (expand left) mode-line-format) nil nil buf)))
                (let ((str-l (string-trim str-l))
-                     (limit (- (window-total-width) 42))) ; XXX: lazy
+                     (limit (- (window-total-width) 42))) ; XXX: Lazy
                  (if (< (string-bytes str-l) limit)
                      str-l
                    (concat (string-limit
@@ -1071,7 +1078,7 @@ targets."
         `(left . ,str))))
 
   ;; Use git-gutter for vc-state
-  (defun antlers/magit-post-refresh-hook ()
+  (defun antlers/magit-post-refresh-hook (&optional _)
     (-map (lambda (b)
             (when (eq (buffer-local-value 'major-mode b) #'dired-mode)
               (save-window-excursion
@@ -1094,6 +1101,8 @@ targets."
     ret)
   (advice-add 'dirvish-subtree-remove :filter-return
     #'antlers/dirvish-subtree-remove)
+  (advice-add 'dirvish--init-session :filter-return
+    #'antlers/magit-post-refresh-hook)
 
   (defun antlers/dirvish--render-attrs (ret)
     (setq git-gutter:last-chars-modified-tick
