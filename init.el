@@ -176,7 +176,7 @@
 
   ;; Correct forward-page behavior on page delimiters
   (advice-add 'forward-page :before
-    (lambda (_)
+    (lambda (&optional _count)
       (when (and (looking-at page-delimiter)
                  (> (match-end 0) (point)))
         (forward-char 1))))
@@ -1600,3 +1600,4 @@ targets."
          patch ; for debugs
          sed
          ))
+(put 'narrow-to-page 'disabled nil)
