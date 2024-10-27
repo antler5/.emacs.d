@@ -2,12 +2,31 @@
 * TODO: hey what if dired had color ranges for sizes and date-times
 - Color by ext / mime-type?
 
+* TODO: Learn how `filecache.el`'s store paths are inlined, apply to `locate.el`?
+- Esp. `htmlfontify.el`, which looks for `etags-bin` even though
+  `emacs:out` has `bin/etags`.
+- Ditto `hexl.el`
 * TODO: Corfu-doc
-* TODO: make narrow-to-page work
+* TODO: Dirvish-git-gutter / OG: Re-use overlays?
+* TODO: beacon-mode which-key advice
+* TODO: Consistent indentation / dir-locals
+* TODO: Based on gentoo eflags, remove lisp i dont use
+- viper-mode
+- cedet
+- gamesgames
+- print / lpr
+- mail (pick one package & it's deps?)
+* TODO: Fix embark binding conflicts
+* TODO: Prevent consult from attempting to preview EAF buffers
+* TODO: Split `:general` bindings into `:general-config` where appropriate
+* TODO: Dirvish vc cache nonsense why?
+* TODO: Make narrowed consult-buffer act like consult-bookmark
+- Consult-buffer, when narrowed to bookmarks, should create a new bookmark
+  with `name` when it doesn't already exist.
 * TODO: wrap line-to-top advice aorund next-page / prev-page
 * TODO: clean up all the dirvish code
+* TODO: `dired-kill-when-opening-new-dired-buffer`?
 * TODO: do I want tab(spaces)?
-* TODO: Darkroom + Focus-mode??
 * TODO: Prefer vertical splits (specifically in focus mode)
 * TODO: variable pitch fonts for org-mode, needs mono in src blocks and less bold
 * TODO: Fence edit
