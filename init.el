@@ -1017,17 +1017,17 @@ targets."
                     (put-text-property i (1+ i)
                       'face (if (= char ?-) diredfl-no-priv face)
                       str))
-      (-zip (string-to-list str)
-            (list diredfl-link-priv
-                  diredfl-read-priv
-                  diredfl-write-priv
-                  diredfl-exec-priv
-                  diredfl-read-priv
-                  diredfl-write-priv
-                  diredfl-exec-priv
-                  diredfl-read-priv
-                  diredfl-write-priv
-                  diredfl-exec-priv)))
+      (-zip-lists (string-to-list str)
+                  (list diredfl-link-priv
+                        diredfl-read-priv
+                        diredfl-write-priv
+                        diredfl-exec-priv
+                        diredfl-read-priv
+                        diredfl-write-priv
+                        diredfl-exec-priv
+                        diredfl-read-priv
+                        diredfl-write-priv
+                        diredfl-exec-priv)))
     str)
   (advice-add 'dirvish-file-modes-ml :filter-return
     #'antlers/dirvish-file-modes-ml)
