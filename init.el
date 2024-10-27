@@ -81,10 +81,10 @@
     (when (file-directory-p dir)
       (setenv path
         (-> (getenv path)
-          (parse-colon-path)
-          (append (list dir))
-          (delete-dups)
-          (string-join ":")))
+            (parse-colon-path)
+            (append (list dir))
+            (delete-dups)
+            (string-join ":")))
       (when (string-equal path "PATH")
         (add-to-list 'exec-path dir))
       (getenv path))))
@@ -184,11 +184,11 @@
   (defun antlers/grep-elisp-load-path (regex)
     (interactive (list (read-shell-command "Regex: " nil 'grep-history)))
     (->> (elisp-load-path-roots)
-      (-filter #'file-exists-p)
-      (mapcar #'shell-quote-argument)
-      (append `("grep" "-R" ,(shell-quote-argument regex)))
-      (funcall (-flip #'string-join) " ")
-      (grep-find))))
+         (-filter #'file-exists-p)
+         (mapcar #'shell-quote-argument)
+         (append `("grep" "-R" ,(shell-quote-argument regex)))
+         (funcall (-flip #'string-join) " ")
+         (grep-find))))
 
 ;; Default Tabs & Indents
 (use-package emacs
@@ -198,7 +198,8 @@
   ;; Must come last to use modified `tab-width'
   (tab-stop-list (number-sequence tab-width 120 tab-width))
   :config
-  (add-to-list 'warning-suppress-types '(defvaralias))
+  (add-to-list 'warning-suppress-types
+    '(defvaralias losing-value lisp-indent-offset))
   (-map (-cut defvaralias <> 'tab-width)
         '(c-basic-offset
           css-indent-offset
@@ -371,7 +372,8 @@
   :config (load-theme 'wombat))
 
 (use-package display-line-numbers
-  :general (evil-leader-map "#" #'display-line-numbers-mode)
+  :general (evil-leader-map
+            "#" #'display-line-numbers-mode)
   :custom (display-line-numbers-width 3))
 
 (use-package prettify-symbols-mode
@@ -637,11 +639,12 @@
   (minibuffer-prompt-properties
    '(read-only t cursor-intangible t face minibuffer-prompt))
   :ghook ('minibuffer-setup-hook #'cursor-intangible-mode)
-  :general (vertico-map
-            "C-l"           #'kb/vertico-quick-embark
-            "<backspace>"   #'vertico-directory-delete-char
-            "C-<backspace>" #'vertico-directory-delete-word
-            "RET"           #'vertico-directory-enter))
+  :general-config
+  (vertico-map
+   "C-l"           #'kb/vertico-quick-embark
+   "<backspace>"   #'vertico-directory-delete-char
+   "C-<backspace>" #'vertico-directory-delete-word
+   "RET"           #'vertico-directory-enter))
 
 (use-package vertico-posframe
   :guix        emacs-vertico-posframe
@@ -653,7 +656,8 @@
 (use-package marginalia
   :guix    emacs-marginalia
   :after   vertico
-  :general (minibuffer-local-map "M-A" #'marginalia-cycle)
+  :general-config
+  (minibuffer-local-map "M-A" #'marginalia-cycle)
   :init    (marginalia-mode t))
 
 (use-package corfu
@@ -667,13 +671,14 @@
   (corfu-preselect-first nil)
   (corfu-quit-no-match nil)
   (global-corfu-mode t)
-  :general (corfu-map
-            ;; XXX: Prevents tab-completion of a single candidate
-            ; "TAB"     #'corfu-next
-            ; [tab]     #'corfu-next
-            ; "S-TAB"   #'corfu-previous
-            ; [backtab] #'corfu-previous
-            "S-SPC" #'corfu-insert-separator)
+  :general-config
+  (corfu-map
+    ;; XXX: Prevents tab-completion of a single candidate
+    ; "TAB"     #'corfu-next
+    ; [tab]     #'corfu-next
+    ; "S-TAB"   #'corfu-previous
+    ; [backtab] #'corfu-previous
+    "S-SPC" #'corfu-insert-separator)
   :config
   ;; Move to Minibuffer
   ;; This is from the Corfu README, but pairs well with `embark-collect'
@@ -717,31 +722,19 @@
 
 (use-package cape
   :guix emacs-cape
-  :demand
-  ;; These are defaults from the cape README.
-  :general ("C-c p p" #'completion-at-point
-            "C-c p t" #'complete-tag
-            "C-c p h" #'cape-history
-            "C-c p f" #'cape-file
-            "C-c p k" #'cape-keyword
-            "C-c p s" #'cape-symbol
-            "C-c p a" #'cape-abbrev
-            "C-c p i" #'cape-ispell
-            "C-c p l" #'cape-line
-            "C-c p w" #'cape-dict
-            "C-c p r" #'cape-rfc1345)
-  :init
-  (add-to-list 'completion-at-point-functions 'cape-file))
+  ;; Defaults from the cape README.
+  :ghook ('completion-at-point-functions #'cape-file)
+  :general ("C-c p" #'cape-prefix-map))
 
 (use-package embark
   :guix (emacs-embark ; This refers to my fork with a page-able which-key pop-up on `embark-collect'
           ; --with-git-url=emacs-embark=file:///home/maddhappy/projects/oantolin/embark
           ; --with-branch=emacs-embark=fix/issue-647
           )
-  :after evil
-  :general ("C-." #'embark-act         ; pick some comfortable binding
-            "C-;" #'embark-dwim        ; good alternative: M-.
-            "C-h B" #'embark-bindings) ; alternative for `describe-bindings'
+  :after evil evil-repeat
+  :general ("C->" #'embark-act  ; pick some comfortable binding
+            "C-;" #'embark-dwim ; good alternative: M-.
+            [remap describe-bindings] #'embark-bindings) ; C-h b
            (:state 'normal
             ;; XXX: "C-." doesn't work in Zorin's Gnome Terminal.
             ;; XXX: Also not seeing it in GUI mode. Ugh.
@@ -800,16 +793,20 @@ targets."
        (window-parameters (mode-line-format . none)))))
 
 (use-package consult
-  :guix emacs-consult
-  :demand
-  :general ("M-y"     #'consult-yank-pop        ; orig. yank-pop
+  :guix (emacs-consult
+         ripgrep)
+  :general ([remap yank-pop] #'consult-yank-pop ; M-y
+            "M-p"     #'consult-yank-pop        ; makes more sense to me
             ;; C-x bindings (ctl-x-map)
-            [remap switch-to-buffer] #'consult-buffer
-            "C-x p b" #'consult-project-buffer  ; orig. project-switch-to-buffer
-            "C-x r b" #'consult-bookmark        ; prefer to narrow consult-buffer
+            [remap switch-to-buffer] #'consult-buffer ; C-x b
+            [remap project-switch-to-buffer] #'consult-project-buffer ; C-x p b
+            ;; I prefer to narrow consult-buffer, but like that this
+            ;; makes missing bookmarks. Could the narrowed buffer
+            ;; search do that?
+            "C-x r b" #'consult-bookmark
             ;; M-g bindings (goto-map)
+            [remap goto-line] #'consult-goto-line ; M-g g
             "M-g o"   #'consult-outline
-            "M-g g"   #'consult-goto-line       ; orig. goto-line
             "M-g i"   #'consult-imenu
             ;; M-s bindings (search-map)
             "M-s d"   #'consult-find
@@ -818,15 +815,17 @@ targets."
             "M-s r"   #'consult-ripgrep
             "C-s"     #'consult-line
             "M-s l"   #'consult-line
-            "M-s L"   #'consult-line-multi
-            "M-s s"   #'isearch-forward)
-            ;; Isearch integration
-           (:keymaps 'isearch-mode-map
-            "M-m"     #'consult-isearch-history ; like move-to-minibuffer
-            "M-e"     #'consult-isearch-history ; orig. isearch-edit-string
-            "M-s e"   #'consult-isearch-history ; orig. isearch-edit-string
-            "M-s l"   #'consult-line            ; needed by consult-line to detect isearch (???)
-            "M-s L"   #'consult-line-multi)     ; needed by consult-line to detect isearch (???)
+            "M-s L"   #'consult-line-multi)
+  :config
+  ;; Isearch integration
+  (with-eval-after-load 'isearch
+    (general-def
+      'isearch-mode-map
+      "M-m"     #'consult-isearch-history ; like move-to-minibuffer
+      "M-e"     #'consult-isearch-history ; orig. isearch-edit-string
+      "M-s e"   #'consult-isearch-history ; orig. isearch-edit-string
+      "M-s l"   #'consult-line            ; needed by consult-line to detect isearch (???)
+      "M-s L"   #'consult-line-multi))    ; needed by consult-line to detect isearch (???)
   :custom (consult-narrow-key "<"))
 
 (use-package embark-consult
@@ -871,7 +870,8 @@ targets."
          imagemagick
          fd
          mediainfo
-         tar unzip)
+         tar
+         unzip)
   :after (nerd-icons
           moody
           eshell-prompt-extras)
@@ -1310,6 +1310,7 @@ targets."
   (eat-eshell-visual-command-mode t))
 
 (use-package eshell
+  :after evil
   :gfhook ('emacs-startup-hook #'eshell)
   :general (evil-leader-map
             "q" #'eshell)
@@ -1554,12 +1555,12 @@ targets."
           (vc-git-clone eaf-url eaf-dir nil)
           (antlers/eaf-install-and-update))
       (-> eaf-dir
-        (concat "/.git/FETCH_HEAD")
-        (file-attributes)
-        (file-attribute-modification-time)
-        (time-since)
-        (time-less-p (days-to-time 7))
-        (unless (add-hook 'after-init-hook #'antlers/eaf-install-and-update)))))
+          (concat "/.git/FETCH_HEAD")
+          (file-attributes)
+          (file-attribute-modification-time)
+          (time-since)
+          (time-less-p (days-to-time 7))
+          (unless (add-hook 'after-init-hook #'antlers/eaf-install-and-update)))))
   :config
   (antlers/append-to-path
     (concat (getenv "GUIX_ENVIRONMENT") "/lib")

@@ -23,6 +23,7 @@ guix shell ${ARGS[@]} \
   --with-input=emacs=emacs-next \
   --with-input=emacs-minimal=emacs-next-minimal \
   --with-input=emacs-dirvish=emacs-dirvish-patched \
+  --with-input=emacs-general=emacs-general-next \
   --without-tests=emacs-lispy \
   emacs \
   $(~/.emacs.d/extract-packages.scm < ~/.emacs.d/init.el) \

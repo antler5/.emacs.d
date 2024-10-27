@@ -8,6 +8,23 @@
   #:use-module (guix packages)
   #:use-module (gnu packages emacs-xyz))
 
+(define-public emacs-general-next
+  (let ((commit "826bf2b97a0fb4a34c5eb96ec2b172d682fd548f")
+        (revision "0"))
+    (package
+      (inherit emacs-general)
+      (name "emacs-general-next")
+      (version (git-version "0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/noctuid/general.el")
+               (commit commit)))
+         (sha256
+          (base32 "1jillsr80l4wfbcqsxh3zbgbvmbfih2wcz518mgw9p9pwg4xwvy7"))
+         (file-name (git-file-name name version)))))))
+
 (define-public emacs-dirvish-patched
   (package
     (inherit emacs-dirvish)
