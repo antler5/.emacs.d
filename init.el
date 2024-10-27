@@ -961,23 +961,20 @@ targets."
                          segments)))))
       (if header
           `(,(antlers/expand
-               `(list
-                  (if (or (not buf) (eq buf (current-buffer)))
-                      "   "
-                      "  ")
-                  (format-mode-line ',(expand '(file-modes)) nil nil buf)))
+               `(list (if (or (not buf) (eq buf (current-buffer)))
+                          "   "
+                          "  ")
+                      (format-mode-line ',(expand '(file-modes)) nil nil buf)))
             ,@header-line-format-right-align
             ,(antlers/expand
-               `(list
-                  (format-mode-line ',(expand '(free-space)) nil nil buf)
-                  ;; Doesn't show up without this, probably height-related?
-                  (if (and (or (not buf) (eq buf (current-buffer)))
-                           (buffer-local-value 'dired-hide-details-mode
-                                               (or buf (current-buffer))))
-                      "      "
-                      " ")
-                  (dirvish--bar-image (car (dv-layout dv)) t)
-                  )))
+               `(list (format-mode-line ',(expand '(free-space)) nil nil buf)
+                      ;; Doesn't show up without this, probably height-related?
+                      (if (and (or (not buf) (eq buf (current-buffer)))
+                               (buffer-local-value 'dired-hide-details-mode
+                                                   (or buf (current-buffer))))
+                          "      "
+                          " ")
+                      (dirvish--bar-image (car (dv-layout dv)) t))))
         (antlers/mode-line-format
           '(epe-fish-path (epe-pwd))
           `(,(antlers/expand
@@ -987,15 +984,14 @@ targets."
                       (format-mode-line nil nil buf)
                       (string-trim)))))
           `(,(antlers/expand
-               '(list
-                  (if (and buf (not (eq buf (current-buffer))))
-                      "-/"
-                    (let ((info (format-mode-line (spaceline--selection-info) nil nil buf)))
-                      (if (s-contains? "/" info)
-                          (list (car (string-split info "/")) ":/")
-                        (list (antlers/s-subtract 1 (car (string-split info ":"))) "/"))))
-                  (antlers/s-subtract 1
-                    (cadr (string-split (antlers/mode-line-percent buf) "[/)]"))))))
+               '(list (if (and buf (not (eq buf (current-buffer))))
+                          "-/"
+                        (let ((info (format-mode-line (spaceline--selection-info) nil nil buf)))
+                          (if (s-contains? "/" info)
+                              (list (car (string-split info "/")) ":/")
+                            (list (antlers/s-subtract 1 (car (string-split info ":"))) "/"))))
+                      (antlers/s-subtract 1
+                        (cadr (string-split (antlers/mode-line-percent buf) "[/)]"))))))
           '(" ")))))
   (advice-add 'dirvish--mode-line-fmt-setter :override
     #'antlers/dirvish--mode-line-fmt-setter))
