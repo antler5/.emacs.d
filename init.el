@@ -998,12 +998,11 @@ targets."
   :config
   ;; Replace `\` with `|` in collapsed paths.
   (defun antlers/dirvish-collapse--cache (x)
-    (if (stringp (car x))
+    (or (and (not (stringp (car x))) x)
         (cons (apply #'propertize
                 (subst-char-in-string ?| ?/ (car x) t)
                 (text-properties-at 0 (car x)))
-              (cdr x))
-      x))
+              (cdr x))))
   (advice-add 'dirvish-collapse--cache :filter-return
     #'antlers/dirvish-collapse--cache))
 
@@ -1011,22 +1010,22 @@ targets."
   :config
   (defun antlers/dirvish-file-modes-ml (str)
     "Replicates diredfl colors."
-    (-map-indexed (pcase-lambda (i `(,char . ,face))
-                    (put-text-property i (1+ i)
-                      'face (if (= char ?-) diredfl-no-priv face)
-                      str))
-      (-zip-lists (string-to-list str)
-                  (list diredfl-link-priv
-                        diredfl-read-priv
-                        diredfl-write-priv
-                        diredfl-exec-priv
-                        diredfl-read-priv
-                        diredfl-write-priv
-                        diredfl-exec-priv
-                        diredfl-read-priv
-                        diredfl-write-priv
-                        diredfl-exec-priv)))
-    str)
+    (prog1 str
+      (-map-indexed (pcase-lambda (i `(,char . ,face))
+                      (put-text-property i (1+ i)
+                        'face (if (= char ?-) diredfl-no-priv face)
+                        str))
+        (-zip-lists (string-to-list str)
+                    (list diredfl-link-priv
+                          diredfl-read-priv
+                          diredfl-write-priv
+                          diredfl-exec-priv
+                          diredfl-read-priv
+                          diredfl-write-priv
+                          diredfl-exec-priv
+                          diredfl-read-priv
+                          diredfl-write-priv
+                          diredfl-exec-priv)))))
   (advice-add 'dirvish-file-modes-ml :filter-return
     #'antlers/dirvish-file-modes-ml)
 
