@@ -105,7 +105,6 @@
 
 ;;; Native Emacs Configuration
 (use-package emacs
-  :guix gzip
   :custom
   (help-window-keep-selected t)        ; Re-use help buffer
   (select-enable-clipboard t)          ; Merge System and Emacs clipboard
@@ -1592,13 +1591,30 @@ targets."
 
 ;; Other Dependencies
 ;; For eg. `guix shell --container --network emacs'
+;; - Some lisp sources, like filecache.el, have store paths inlined.
+;;   Others, like locate.el, do not?
+;; - Am omitting:
+;;   - arc-mode.el, bc we use avfs
+;;   - w3m for Gnus
 '(:guix (bash
          coreutils
+         bind:utils ; for #'dig
+         findutils ; for #'locate
+         ghostscript ; for ps2pdf, for org-agenda.el ; XXX: guix issue#50625
          git
          gnupg
+         gzip
+         imagemagick ; for #'mpc
+         net-tools ; for #'arp
          nss-certs
          openssh ; for tramp
+         openssl ; for erc/erc-sasl.el
+         optipng ; > pngnq pngcrush ; for image-dired-external.el
          patch ; for debugs
+         poppler-qt6 ; for pdfinfo, for doc-view.el
+         rclone ; for net/tramp-rclone.el
          sed
+         sshfs  ; for net/tramp-sshfs.el
+         zip ; for org/ox-odt.el (not that i use it)
          ))
 (put 'narrow-to-page 'disabled nil)
