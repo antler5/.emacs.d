@@ -952,13 +952,11 @@ targets."
                   (cl-loop for s in segments collect
                            (if (stringp s) s
                              `(:eval (,(intern (format "dirvish-%s-ml" s)) (dirvish-curr))))))
-                (antlers/expand (segments &optional format)
+                (antlers/expand (segments)
                   `(:eval
                     (let* ((dv (dirvish-curr))
                            (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
-                      ,(if format
-                           `(format-mode-line ',segments nil nil buf)
-                         segments)))))
+                      ,segments))))
       (if header
           `(,(antlers/expand
                `(list (if (or (not buf) (eq buf (current-buffer)))
