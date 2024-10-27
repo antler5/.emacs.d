@@ -296,7 +296,14 @@
   (defun antlers/mode-line-vcs ()
     (when vc-mode
       (when-let* ((file (buffer-file-name))
+                  (limit (- (window-total-width) 67)) ; XXX: Lazy
                   (branch (substring-no-properties vc-mode 5))
+                  (branch (if (< (string-bytes branch) limit)
+                              branch
+                            (concat (string-limit
+                                      branch
+                                      (- limit 3))
+                                    "...")))
                   (state (vc-state file)))
         (format "%s %s, %s"
           (nerd-icons-devicon "nf-dev-git_branch")
@@ -872,6 +879,22 @@ targets."
   :ghook '(dired-mode-hook
            dirvish-directory-view-mode-hook))
 
+(use-package vc-git
+  :config
+  ;; Improve handling of .git and untracked directories
+  (defun antlers/vc-git-state (file)
+    (when (equal (eshell/basename file) ".git")
+      'ignored))
+  (advice-add 'vc-git-state :before-until
+    #'antlers/vc-git-state)
+  (defun antlers/vc-git--git-status-to-vc-state (code-list)
+    (when (and code-list
+               (listp code-list)
+               (-every? (-cut equal <> "??") code-list))
+      'unregistered))
+  (advice-add 'vc-git--git-status-to-vc-state :before-until
+    #'antlers/vc-git--git-status-to-vc-state))
+
 (use-package dirvish
   :guix (emacs-dirvish
          emacs-pdf-tools
@@ -899,18 +922,8 @@ targets."
   :custom-face
   (dirvish-collapse-dir-face ((t (:inherit dirvish-collapse-empty-dir-face))))
   (dirvish-git-commit-message-face ((t (:background "#333"))))
-
-  (vc-edited-state              ((t (:foreground "#8ac6f2"))))
-  (vc-locally-added-state       ((t (:foreground "#cae682"))))
-  (vc-removed-state             ((t (:foreground "#e5786d"))))
-  (vc-missing-state             ((t (:foreground "pink"))))
-  (dirvish-vc-needs-merge-face  ((t (:foreground "orange"))))
-  (vc-conflict-state            ((t (:foreground "red"))))
-  (vc-locked-state              ((t (:foreground "magenta"))))
-  (vc-needs-update-state        ((t (:foreground "purple"))))
-  (dirvish-vc-unregistered-face ((t (:foreground "#424"))))
-
   :custom
+  (dirvish-override-dired-mode t)
   (dirvish-attributes
     '(subtree-state
       collapse
@@ -918,6 +931,7 @@ targets."
       git-msg
       file-size
       file-time
+      vc-state
       hl-line
       ))
   (dirvish-quick-access-entries
@@ -929,8 +943,76 @@ targets."
     "-lv --escape --almost-all --human-readable --group-directories-first --no-group")
   (dirvish-header-line-height moody-mode-line-height)
   (dirvish-mode-line-height moody-mode-line-height)
+  :init
+  (defun antlers/disable-indicate-buffer-boundaries ()
+    (setq-local indicate-buffer-boundaries nil))
+  :ghook ('dired-mode-hook #'antlers/disable-indicate-buffer-boundaries)
   :config
-  (dirvish-override-dired-mode)
+  (require 's)
+  ;; Customize header-line and mode-line
+  (defvar header-line-format-right-align
+    '((:eval (progn (setq mode-line-format-bak mode-line-format) nil))
+      (:eval (progn (setq mode-line-format header-line-format) nil))
+      mode-line-format-right-align
+      (:eval (progn (setq mode-line-format mode-line-format-bak) nil))))
+  (defun antlers/s-subtract (n str)
+    (number-to-string (- (string-to-number str) n)))
+  (defun antlers/dirvish--mode-line-fmt-setter (left right &optional header)
+    (cl-labels ((expand (segments)
+                  (cl-loop for s in segments collect
+                           (if (stringp s) s
+                             `(:eval (,(intern (format "dirvish-%s-ml" s)) (dirvish-curr))))))
+                (antlers/expand (segments &optional format)
+                  `(:eval
+                    (let* ((dv (dirvish-curr))
+                           (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
+                      ,(if format
+                           `(format-mode-line ',segments nil nil buf)
+                         segments)))))
+      (if header
+          `(,(antlers/expand
+               `(list
+                  (if (or (not buf) (eq buf (current-buffer)))
+                      "   "
+                      "  ")
+                  (format-mode-line ',(expand '(file-modes)) nil nil buf)))
+            ,@header-line-format-right-align
+            ,(antlers/expand
+               `(list
+                  (format-mode-line ',(expand '(free-space)) nil nil buf)
+                  ;; Doesn't show up without this, probably height-related?
+                  (if (and (or (not buf) (eq buf (current-buffer)))
+                           (buffer-local-value 'dired-hide-details-mode
+                                               (or buf (current-buffer))))
+                      "      "
+                      " ")
+                  (dirvish--bar-image (car (dv-layout dv)) t)
+                  )))
+        (antlers/mode-line-format
+          '(epe-fish-path (epe-pwd))
+          `(,(antlers/expand
+               `(s-truncate
+                  (- (window-total-width) 42) ; XXX: Lazy
+                  (-> ',(or (expand left) mode-line-format)
+                      (format-mode-line nil nil buf)
+                      (string-trim)))))
+          `(,(antlers/expand
+               '(list
+                  (if (and buf (not (eq buf (current-buffer))))
+                      "-/"
+                    (let ((info (format-mode-line (spaceline--selection-info) nil nil buf)))
+                      (if (s-contains? "/" info)
+                          (list (car (string-split info "/")) ":/")
+                        (list (antlers/s-subtract 1 (car (string-split info ":"))) "/"))))
+                  (antlers/s-subtract 1
+                    (cadr (string-split (antlers/mode-line-percent buf) "[/)]"))))))
+          '(" ")))))
+  (advice-add 'dirvish--mode-line-fmt-setter :override
+    #'antlers/dirvish--mode-line-fmt-setter))
+
+(use-package dirvish-collapse
+  :config
+  ;; Replace `\` with `|` in collapsed paths.
   (defun antlers/dirvish-collapse--cache (x)
     (if (stringp (car x))
         (cons (apply #'propertize
@@ -939,7 +1021,10 @@ targets."
               (cdr x))
       x))
   (advice-add 'dirvish-collapse--cache :filter-return
-    #'antlers/dirvish-collapse--cache)
+    #'antlers/dirvish-collapse--cache))
+
+(use-package dirvish-widgets
+  :config
   (defun antlers/dirvish-file-modes-ml (str)
     "Replicates diredfl colors."
     (-map-indexed (pcase-lambda (i `(,char . ,face))
@@ -960,59 +1045,15 @@ targets."
     str)
   (advice-add 'dirvish-file-modes-ml :filter-return
     #'antlers/dirvish-file-modes-ml)
-  (defvar header-line-format-right-align
-    '((:eval (progn (setq mode-line-format-bak mode-line-format) nil))
-      (:eval (progn (setq mode-line-format header-line-format) nil))
-      mode-line-format-right-align
-      (:eval (progn (setq mode-line-format mode-line-format-bak) nil))))
-  (defun antlers/dirvish--mode-line-fmt-setter (left right &optional header)
-    (cl-labels ((expand (segments)
-                  (cl-loop for s in segments collect
-                           (if (stringp s) s
-                             `(:eval (,(intern (format "dirvish-%s-ml" s)) (dirvish-curr)))))))
-      (if header
-          `("  "
-            (:eval
-             (let* ((dv (dirvish-curr))
-                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
-               (when (buffer-local-value 'dired-hide-details-mode (or buf (current-buffer)))
-                 (format-mode-line ',(expand '(file-modes)) nil nil buf))))
-            ,@header-line-format-right-align
-            (:eval
-             (let* ((dv (dirvish-curr))
-                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
-               (format-mode-line ',(expand '(free-space)) nil nil buf)))
-            ;; Doesn't show up without this, probably height-related?
-            (:eval
-              (let ((dv (dirvish-curr)))
-                (dirvish--bar-image (car (dv-layout dv)) t))))
-        (antlers/mode-line-format
-          '(epe-fish-path (epe-pwd))
-          `((:eval
-             (let* ((dv (dirvish-curr))
-                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv))))
-                    (str-l (format-mode-line
-                            ',(or (expand left) mode-line-format) nil nil buf)))
-               (string-trim str-l))))
-          '((:eval
-             (let* ((dv (dirvish-curr))
-                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
-               (if (and buf (not (eq buf (current-buffer))))
-                   "-/"
-                 (let ((info (format-mode-line (spaceline--selection-info) nil nil buf)))
-                   (if (s-contains? "/" info)
-                       (list (car (string-split info "/")) ":/")
-                     (list (number-to-string (1- (string-to-number (car (string-split info ":"))))) "/"))))))
-            (:eval
-             (let* ((dv (dirvish-curr))
-                    (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
-               (number-to-string (1- (string-to-number (cadr (string-split (antlers/mode-line-percent buf) "[/)]"))))))))
-          '(" ")))))
-  (advice-add 'dirvish--mode-line-fmt-setter :override
-    #'antlers/dirvish--mode-line-fmt-setter))
+
+  (defun antlers/dirvish-free-space-ml (str)
+    (propertize str 'face 'dired-ignored))
+  (advice-add 'dirvish-free-space-ml :filter-return
+    #'antlers/dirvish-free-space-ml))
 
 (use-package dirvish-vc
   :config
+  (require 'git-gutter)
   (dirvish-define-attribute git-msg
     ;; Customized to use face with custom bg, had to trim edges /
     ;; account for hl-line.
@@ -1029,7 +1070,69 @@ targets."
         (add-face-text-property (- (length str) 1) (length str) face t str))
       (when (> (length (string-to-list str)) 1)
         (add-face-text-property 1 (- (length str) 1) face t str)
-        `(left . ,str)))))
+        `(left . ,str))))
+
+  ;; Use git-gutter for vc-state
+  (defun antlers/magit-post-refresh-hook (&optional _)
+    (-map (lambda (b)
+            (when (eq (buffer-local-value 'major-mode b) #'dired-mode)
+              (save-window-excursion
+                (switch-to-buffer b)
+                (revert-buffer t t nil))))
+          (buffer-list)))
+  (with-eval-after-load 'magit-mode
+    (add-hook 'magit-post-refresh-hook
+      #'antlers/magit-post-refresh-hook))
+
+  (defvar antlers/vc-state-cache (make-hash-table :test #'equal))
+  (defun antlers/clear-vc-state-cache ()
+    (clrhash antlers/vc-state-cache)
+    (git-gutter:clear-gutter))
+  (add-hook 'dirvish-after-revert-hook
+    #'antlers/clear-vc-state-cache)
+
+  (defun antlers/dirvish-subtree-remove (ret)
+    (git-gutter:clear-gutter)
+    ret)
+  (advice-add 'dirvish-subtree-remove :filter-return
+    #'antlers/dirvish-subtree-remove)
+  (advice-add 'dirvish--init-session :filter-return
+    #'antlers/magit-post-refresh-hook)
+
+  (defun antlers/dirvish--render-attrs (ret)
+    (setq git-gutter:last-chars-modified-tick
+      (buffer-chars-modified-tick))
+    ret)
+  (advice-add 'dirvish--render-attrs :filter-return
+    #'antlers/dirvish--render-attrs)
+
+  (defun antlers/dirvish-find-entry-hook (_key _buffer)
+    (git-gutter:clear-gutter))
+  (add-hook 'dirvish-find-entry-hook
+    #'antlers/dirvish-find-entry-hook)
+
+  (dirvish-define-attribute vc-state
+    :when (when (not (equal (buffer-chars-modified-tick)
+                            git-gutter:last-chars-modified-tick))
+            (git-gutter:set-window-margin (git-gutter:window-margin))
+            t)
+    (when (and (not (equal (buffer-chars-modified-tick)
+                            git-gutter:last-chars-modified-tick))
+               (vc-find-root (file-name-parent-directory f-name) ".git"))
+      ;; Cache full of nonsense: (dirvish-attribute-cache f-name :vc-state)
+      (let* ((state (or (gethash f-name antlers/vc-state-cache)
+                        (puthash f-name (vc-state-refresh f-name 'Git) antlers/vc-state-cache))))
+        (pcase state
+          ('conflict     (git-gutter:put-signs (propertize "◆" 'face '(:foreground "#e5786d")) (list f-beg)))
+          ('ignored      (git-gutter:put-signs (propertize "✕" 'face '(:foreground "#646")) (list f-beg)))
+          ('added        (git-gutter:put-signs (propertize git-gutter:added-sign 'face '(:foreground "#cae682")) (list f-beg)))
+          ('removed      (git-gutter:put-signs (propertize git-gutter:removed-sign 'face '(:foreground "#e5786d")) (list f-beg)))
+          ('edited       (git-gutter:put-signs (propertize git-gutter:modified-sign 'face 'git-gutter:modified) (list f-beg)))
+          ('unregistered (git-gutter:put-signs (propertize "✕" 'face '(:foreground "orchid")) (list f-beg)))
+          ('up-to-date   nil)
+          (_ nil)
+          )
+        nil))))
 
 (use-package tramp
   :config
@@ -1470,6 +1573,7 @@ targets."
 
 (use-package git-gutter
   :guix emacs-git-gutter
+  :commands (git-gutter:set-window-margin git-gutter:window-margin)
   :ghook 'prog-mode-hook 'org-mode-hook
   :custom-face
   (git-gutter:added ((t :foreground "#cae682")))

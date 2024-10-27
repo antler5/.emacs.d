@@ -28,6 +28,7 @@
 * TODO: wrap line-to-top advice aorund next-page / prev-page
 * TODO: clean up all the dirvish code
 * TODO: =dired-kill-when-opening-new-dired-buffer=?
+* TODO: dirvish-vc: grey out ignored and/or untracked files?
 * TODO: do I want tab(spaces)?
 * TODO: Prefer vertical splits (specifically in focus mode)
 * TODO: variable pitch fonts for org-mode, needs mono in src blocks and less bold

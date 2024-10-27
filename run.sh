@@ -19,6 +19,7 @@ if [[ $1 == '-C' ]]; then
 fi
 
 guix shell ${ARGS[@]} \
+  --no-offload \
   -L ~/.emacs.d/modules \
   --with-input=emacs=emacs-next \
   --with-input=emacs-minimal=emacs-next-minimal \
