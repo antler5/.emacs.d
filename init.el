@@ -666,7 +666,6 @@
 
 (use-package corfu
   :guix  emacs-corfu
-  :after (cape consult)
   :custom
   (corfu-auto t)
   (corfu-cycle t)
@@ -842,20 +841,11 @@ targets."
 
 (use-package dired-avfs
   :guix (emacs-dired-hacks avfs)
-  :defer
-  :init
-  (defun antlers/find-file-noselect (filename &rest _)
-    (unless (or (not (featurep 'tramp))
-                (not (tramp-tramp-file-p filename)))
-      (require 'dired-avfs)
-      (advice-remove 'find-file-noselect
-        #'antlers/find-file-noselect)))
-  (advice-add 'find-file-noselect :before
-    #'antlers/find-file-noselect)
   :config
-  (unless (and (file-readable-p (concat (getenv "HOME") "/.avfs"))
-               (= 0 (call-process "mountpoint" nil nil nil (concat (getenv "HOME") "/.avfs"))))
-    (start-process-shell-command "mountavfs" nil "mountavfs")))
+  (defun antlers/find-file-noselect (filename &rest _)
+    (unless (and (file-readable-p (concat (getenv "HOME") "/.avfs"))
+                 (= 0 (call-process "mountpoint" nil nil nil (concat (getenv "HOME") "/.avfs"))))
+    (start-process-shell-command "mountavfs" nil "mountavfs"))))
 
 ;; Dired Font Lock -- for colors!
 (use-package diredfl
