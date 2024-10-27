@@ -480,25 +480,24 @@
 (use-package evil
   :guix emacs-evil
   :demand
-  :general ("C-M-u" #'universal-argument) ; evil-want-Y-yank-to-eol
-           ;; Swap evil section keys with emacs defaults
-           ;; C-g -> normal mode
-           (:states 'normal
-            "\\"    #'evil-leader-map
-            "C-SPC" #'evil-leader-map)
-           (:states 'insert
-            "C-g"    #'evil-normal-state)
-           (:states 'motion
-            "] ]"   #'forward-page
-            "[ ["   #'backward-page
-            "C-x ]" #'evil-forward-section-begin
-            "C-x [" #'evil-backward-section-end)
-           ;; Prioritize native org-cycle over evil-jump-forward
-           ;; Ditto for return
-           (:states 'normal
-            :keymaps 'org-mode-map
-            "TAB"   #'org-cycle
-            "RET"   #'org-return)
+  :general-config
+  ("C-M-u" #'universal-argument) ; evil-want-Y-yank-to-eol
+  ;; Swap evil section keys with emacs defaults
+  ;; C-g -> normal mode
+  (:states 'normal
+   "\\"    #'evil-leader-map
+   "C-SPC" #'evil-leader-map)
+  (:states 'insert
+   "C-g"    #'evil-normal-state)
+  (:states 'motion
+   "] ]"   #'forward-page
+   "[ ["   #'backward-page
+   "C-x ]" #'evil-forward-section-begin
+   "C-x [" #'evil-backward-section-end)
+  ;; Prioritize native org-return over evil jump binding
+  (:states 'normal
+   :keymaps 'org-mode-map
+   "RET"   #'org-return)
   ;; TODO: Why no general do this?
   :bind    (:repeat-map evil-windows/repeat-map
             (">" . evil-window-increase-width)
@@ -508,7 +507,6 @@
   (evil-respect-visual-line-mode t)
   (evil-undo-system 'undo-tree)
   (evil-want-C-u-scroll t) ; universal-arg is rebound to C-M-u in :bind
-  (evil-want-C-i-jump nil) ; to reclaim TAB
   (evil-want-Y-yank-to-eol t)
   (evil-want-fine-undo nil)
   (evil-want-integration t)
