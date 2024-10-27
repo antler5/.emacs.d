@@ -1,5 +1,5 @@
-* TODO: bind recenter-top-bottom to =z z=?
-* TODO: hey what if dired had color ranges for sizes and date-times
+* TODO bind recenter-top-bottom to =z z=?
+* TODO hey what if dired had color ranges for sizes and date-times
 - Color by ext / mime-type?
 
 * TODO [#A] Where'd my mode-line go (in =init.el=)?
@@ -15,48 +15,48 @@
 - Esp. =htmlfontify.el=, which looks for =etags-bin= even though
   =emacs:out= has =bin/etags=.
 - Ditto =hexl.el=
-* TODO: Corfu-doc
+* TODO Corfu-doc
 * =dirvish-git-gutter=
-** TODO: Re-use overlays? (ideally applies to OG too)
-** TODO: Only show when in a git directory, without lagging?
-* TODO: beacon-mode which-key advice
-* TODO: Consistent indentation / dir-locals
+** TODO Re-use overlays? (ideally applies to OG too)
+** TODO Only show when in a git directory, without lagging?
+* TODO beacon-mode which-key advice
+* TODO Consistent indentation / dir-locals
 * TODO [#A] Make visual-block mode-line update faster :c
-* TODO: Based on gentoo eflags, remove lisp i dont use
+* TODO Based on gentoo eflags, remove lisp i dont use
 - viper-mode
 - cedet
 - gamesgames
 - print / lpr
 - mail (pick one package & it's deps?)
-* TODO: Fix embark binding conflicts
-* TODO: Prevent consult from attempting to preview EAF buffers
-* TODO: Split =:general= bindings into =:general-config= where appropriate
-* TODO: Dirvish vc cache nonsense why?
-* TODO: Make narrowed consult-buffer act like consult-bookmark
+* TODO Fix embark binding conflicts
+* TODO Prevent consult from attempting to preview EAF buffers
+* TODO Split =:general= bindings into =:general-config= where appropriate
+* TODO Dirvish vc cache nonsense why?
+* TODO Make narrowed consult-buffer act like consult-bookmark
 - Consult-buffer, when narrowed to bookmarks, should create a new bookmark
   with =name= when it doesn't already exist.
-* TODO: wrap line-to-top advice aorund next-page / prev-page
-* TODO: clean up all the dirvish code
-* TODO: =dired-kill-when-opening-new-dired-buffer=?
-* TODO: dirvish-vc: grey out ignored and/or untracked files?
-* TODO: do I want tab(spaces)?
-* TODO: Prefer vertical splits (specifically in focus mode)
-* TODO: variable pitch fonts for org-mode, needs mono in src blocks and less bold
-* TODO: Fence edit
-* TODO: Projectile?
-* TODO: htmlize (for org-export)
-* TODO: Window undo / Ctl-o and Ctl-i how they were pls
+* TODO wrap line-to-top advice aorund next-page / prev-page
+* TODO clean up all the dirvish code
+* TODO =dired-kill-when-opening-new-dired-buffer=?
+* TODO dirvish-vc: grey out ignored and/or untracked files?
+* TODO do I want tab(spaces)?
+* TODO Prefer vertical splits (specifically in focus mode)
+* TODO variable pitch fonts for org-mode, needs mono in src blocks and less bold
+* TODO Fence edit
+* TODO Projectile?
+* TODO htmlize (for org-export)
+* TODO Window undo / Ctl-o and Ctl-i how they were pls
 - evil doesn't seem to like that idea??
 
-* TODO: Vertico for :e find-file style prompt?
-* TODO: Vertico hjkl or is the keymap gonna fix that
+* TODO Vertico for :e find-file style prompt?
+* TODO Vertico hjkl or is the keymap gonna fix that
 
-* TODO: Sort words in region ignoring comments!!!
+* TODO Sort words in region ignoring comments!!!
 
-* TODO: Looser, smex-style orderless?
-* TODO: Indent comment to column on tab
-* TODO: Absorb https://www.reddit.com/r/emacs/comments/18qa15/dired_discussion/
-* TODO: Absorb remaining ref-config
-* TODO: Absorb https://github.com/angrybacon/dotemacs/
-* TODO: Configure lispyville? (evil-)paredit?
-* TODO: Can :q pls close a buffer iff no other windows have it open?
+* TODO Looser, smex-style orderless?
+* TODO Indent comment to column on tab
+* TODO Absorb https://www.reddit.com/r/emacs/comments/18qa15/dired_discussion/
+* TODO Absorb remaining ref-config
+* TODO Absorb https://github.com/angrybacon/dotemacs/
+* TODO Configure lispyville? (evil-)paredit?
+* TODO Can :q pls close a buffer iff no other windows have it open?
