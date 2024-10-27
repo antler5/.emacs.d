@@ -2,7 +2,16 @@
 * TODO: hey what if dired had color ranges for sizes and date-times
 - Color by ext / mime-type?
 
-* TODO: Learn how =filecache.el='s store paths are inlined, apply to =locate.el=?
+* TODO [#A] Where'd my mode-line go (in =init.el=)?
+* TODO Pick a variable pitch font
+* TODO Make custom-face face lists consistent (no nested list)
+* TODO Sanity check which packages are deferred
+- Packages which are deferred and un-configured don't need use-package
+  blocks.
+- Double check that the guix build process creates autoloads, then
+  maybe set defer by default to true.
+- Ensure =:after= tags are minimized, but used where appropriate.
+* TODO Learn how =filecache.el='s store paths are inlined, apply to =locate.el=?
 - Esp. =htmlfontify.el=, which looks for =etags-bin= even though
   =emacs:out= has =bin/etags=.
 - Ditto =hexl.el=
@@ -12,6 +21,7 @@
 ** TODO: Only show when in a git directory, without lagging?
 * TODO: beacon-mode which-key advice
 * TODO: Consistent indentation / dir-locals
+* TODO [#A] Make visual-block mode-line update faster :c
 * TODO: Based on gentoo eflags, remove lisp i dont use
 - viper-mode
 - cedet
