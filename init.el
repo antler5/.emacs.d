@@ -962,26 +962,32 @@ targets."
                   (cl-loop for s in segments collect
                            (if (stringp s) s
                              `(:eval (,(intern (format "dirvish-%s-ml" s)) (dirvish-curr))))))
-                (antlers/expand (segments &optional cond format)
+                (antlers/expand (segments &optional format)
                   `(:eval
                     (let* ((dv (dirvish-curr))
                            (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
-                      (when ,(or cond t)
-                        ,(if format
-                             `(format-mode-line ',segments nil nil buf)
-                           segments)))))
-                (antlers/format (segments &optional cond)
-                  (antlers/expand segments cond t)))
+                      ,(if format
+                           `(format-mode-line ',segments nil nil buf)
+                         segments)))))
       (if header
-          `("   "
-            ,(antlers/format (expand '(file-modes)))
+          `(,(antlers/expand
+               `(list
+                  (if (or (not buf) (eq buf (current-buffer)))
+                      "   "
+                      "  ")
+                  (format-mode-line ',(expand '(file-modes)) nil nil buf)))
             ,@header-line-format-right-align
-            ,(antlers/format (expand '(free-space)))
-            ,(antlers/expand "      "
-               '(buffer-local-value 'dired-hide-details-mode
-                                    (or buf (current-buffer))))
-            ;; Doesn't show up without this, probably height-related?
-            ,(antlers/format '(dirvish--bar-image (car (dv-layout dv)) t)))
+            ,(antlers/expand
+               `(list
+                  (format-mode-line ',(expand '(free-space)) nil nil buf)
+                  ;; Doesn't show up without this, probably height-related?
+                  (if (and (or (not buf) (eq buf (current-buffer)))
+                           (buffer-local-value 'dired-hide-details-mode
+                                               (or buf (current-buffer))))
+                      "      "
+                      " ")
+                  (dirvish--bar-image (car (dv-layout dv)) t)
+                  )))
         (antlers/mode-line-format
           '(epe-fish-path (epe-pwd))
           `(,(antlers/expand
@@ -991,15 +997,15 @@ targets."
                       (format-mode-line nil nil buf)
                       (string-trim)))))
           `(,(antlers/expand
-               '(if (and buf (not (eq buf (current-buffer))))
-                    "-/"
-                  (let ((info (format-mode-line (spaceline--selection-info) nil nil buf)))
-                    (if (s-contains? "/" info)
-                        (list (car (string-split info "/")) ":/")
-                      (list (antlers/s-subtract 1 (car (string-split info ":"))) "/")))))
-            ,(antlers/expand
-               '(antlers/s-subtract 1
-                  (cadr (string-split (antlers/mode-line-percent buf) "[/)]")))))
+               '(list
+                  (if (and buf (not (eq buf (current-buffer))))
+                      "-/"
+                    (let ((info (format-mode-line (spaceline--selection-info) nil nil buf)))
+                      (if (s-contains? "/" info)
+                          (list (car (string-split info "/")) ":/")
+                        (list (antlers/s-subtract 1 (car (string-split info ":"))) "/"))))
+                  (antlers/s-subtract 1
+                    (cadr (string-split (antlers/mode-line-percent buf) "[/)]"))))))
           '(" ")))))
   (advice-add 'dirvish--mode-line-fmt-setter :override
     #'antlers/dirvish--mode-line-fmt-setter))
