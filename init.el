@@ -328,7 +328,7 @@
       ,@center
       mode-line-format-right-align
       ,@right
-      (:eval (moody-wrap evil-mode-line-tag))
+      (:eval (moody-wrap (or evil-mode-line-tag " <?> ")))
       ,@end))
   (defun antlers/set-mode-line-format ()
     (setq-default mode-line-format
