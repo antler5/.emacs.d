@@ -1127,7 +1127,7 @@ targets."
   ;; Tips to speed up connections
   (setq tramp-verbose 0)
   (setq tramp-chunksize 2000)
-  (setq tramp-use-ssh-controlmaster-options nil))
+  (setq tramp-use-ssh-controlmaster-options nil)) ; presumes SSH is already configured
 
 (use-package magit
   :guix    (emacs-magit
@@ -1226,12 +1226,12 @@ targets."
     (setq syntax-propertize-function 'org-mode-<>-syntax-fix)
     (syntax-propertize (point-max))))
 
-;; This is it's own block because `org-agenda-map' isn't loaded by `org'.
 (use-package org-agenda
   :after org
-  :general (org-agenda-mode-map
-            "j" #'evil-next-line
-            "k" #'evil-previous-line))
+  :general-config
+  (org-agenda-mode-map
+   "j" #'evil-next-line
+   "k" #'evil-previous-line))
 
 (use-package org-super-agenda
   :guix emacs-org-super-agenda
@@ -1288,11 +1288,13 @@ targets."
       )))
 
 (use-package ox
-  :guix emacs-htmlize)
+  :guix emacs-htmlize
+  :defer)
 
 (use-package ox-haunt
   :guix emacs-ox-haunt
-  :after ox)
+  :after ox
+  :defer)
 
 
 ;; Roam
@@ -1406,10 +1408,12 @@ targets."
 (use-package eshell
   :after evil
   :gfhook ('emacs-startup-hook #'eshell)
-  :general (evil-leader-map
-            "q" #'eshell)
-           (eshell-mode-map
-            "C-l" #'antlers/clear)
+  :general
+  (evil-leader-map
+   "q" #'eshell)
+  :general-config
+  (eshell-mode-map
+   "C-l" #'antlers/clear)
   :init
   (defun antlers/clear ()
     (interactive)
