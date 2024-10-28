@@ -1651,6 +1651,9 @@ targets."
          emacs-markdown-mode
          emacs-yaml-mode))
 
+(use-package pdf-tools
+  :config (pdf-loader-install))
+
 (use-package nov
   :guix emacs-nov-el
   :after darkroom
@@ -1711,7 +1714,7 @@ targets."
   (eaf-mode-line-format (default-value 'mode-line-format))
   :init
   (defun antlers/eaf-install-and-update ()
-    (eaf-install-and-update 'browser 'org-previewer 'pdf-viewer))
+    (eaf-install-and-update 'browser 'org-previewer))
   (let ((eaf-url "https://github.com/emacs-eaf/emacs-application-framework")
         (eaf-dir (concat (getenv "HOME") "/.emacs.d/site-lisp/emacs-application-framework")))
     (if (not (file-readable-p eaf-dir))
@@ -1765,7 +1768,6 @@ targets."
   :after nerd-icons)
 
 (use-package eaf-org-previewer)
-(use-package eaf-pdf-viewer)
 (use-package eaf-ocap-cad-viewer
   :load-path "~/0/1-project/eaf-ocap-cad-viewer")
 
