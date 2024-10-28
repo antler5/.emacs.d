@@ -259,7 +259,6 @@
                   :underline "#666666"
                   :foreground "#fef8ea")))) ; warmer text
   (mode-line-inactive ((t :background "#383838")))
-  :ghook ('emacs-startup-hook #'antlers/set-mode-line-format)
   :config
   ;; Mostly from nano-modeline.el
   (defun antlers/mode-line-status (&optional status)
@@ -323,16 +322,18 @@
   (defun antlers/set-mode-line-format ()
     (setq-default mode-line-format
       (antlers/mode-line-format
-        '(buffer-name)
+        '(format-mode-line '(-32 . "%b"))
         '((:eval (antlers/mode-line-vcs)))
         '((:eval (spaceline--selection-info))
           (:eval (antlers/mode-line-percent)))
         '("  ")))
     (-map (lambda (b)
-            (when (not (buffer-local-value 'mode-line-format b))
+            (when t ; (not (buffer-local-value 'mode-line-format b))
               (setf (buffer-local-value 'mode-line-format b)
                 (default-value 'mode-line-format))))
-      (buffer-list))))
+      (buffer-list)))
+  ;; Set mode-line after init, but load now.
+  (add-hook 'emacs-startup-hook #'antlers/set-mode-line-format))
 
 
 ;; Theme, Graphics, and Fringe
@@ -381,15 +382,95 @@
 
 ;; Nerd Icons
 (use-package nerd-icons
+  :custom-face
+  (all-the-icons-blue    ((t :inherit 'nerd-icons-blue)))
+  (all-the-icons-dorange ((t :inherit 'nerd-icons-dorange)))
+  (all-the-icons-lblue   ((t :inherit 'nerd-icons-lblue)))
+  (all-the-icons-lgreen  ((t :inherit 'nerd-icons-lgreen)))
+  (all-the-icons-lred    ((t :inherit 'nerd-icons-lred)))
+  (all-the-icons-orange  ((t :inherit 'nerd-icons-orange)))
+  (all-the-icons-dsilver ((t :inherit 'nerd-icons-dsilver)))
+  (all-the-icons-ibuffer-icon-face ((t :inherit 'default)))
+
   :config
-  ;; For dirvish
-  (defun all-the-icons-octicon (icon &rest args)
-    (apply #'nerd-icons-octicon
-      (cons (concat "nf-oct-"
-              (string-replace "-" "_" icon))
-            args)))
-  (defalias #'all-the-icons-icon-for-dir #'nerd-icons-icon-for-dir)
-  (defalias #'all-the-icons-icon-for-file #'nerd-icons-icon-for-file)
+  ;; Bespoke mappings
+  ;; Had a little fun with the kwarg on this one >u<
+  (defmacro antlers/collect-plist (args)
+    (unless (symbolp args)
+      (throw 'wrong-type-argument
+        (list #'macroexp-const-p args)))
+    `(cl-loop for pair on ,args by #'cddr
+              while (keywordp (car pair))
+              nconc (cl-loop for _ to 1 collect (pop ,args))))
+  (defmacro antlers/symbol-concat (&rest syms)
+    "
+
+\(fn [:intern? nil] &rest SYMS)"
+    (-let* ((options (antlers/collect-plist syms))
+            ((&plist :intern?) options))
+      `(,(if intern? #'intern #'make-symbol)
+        (apply #'concat (-map #'symbol-name (list . ,syms))))))
+  (defmacro antlers/define-icon-mappings (&rest clauses)
+    (cons 'progn
+      (cl-loop for ((src-family src-icon)
+                    (dest-family dest-short-name dest-icon))
+               on clauses by #'cddr collect
+        (let ((dest-short-name (symbol-name dest-short-name))
+              (all-the-icons
+                (antlers/symbol-concat :intern? t
+                  'all-the-icons src-family))
+              (advice
+                (antlers/symbol-concat :intern? t
+                  'antlers/all-the-icons- src-family '- src-icon))
+              (nerd-icons
+                (antlers/symbol-concat
+                  'nerd-icons- dest-family)))
+          `(progn
+             (unless (boundp ',all-the-icons)
+               (defun ,all-the-icons (icon &rest _)
+                 (display-warning (define-icon-mappings ,src-family)
+                                  "No mapping found for icon" icon)
+                 (nerd-icons-mdicon "nf-md-close_box_outline"))
+             (defun ,advice (icon &rest args)
+               (when (equal icon ,(symbol-name src-icon))
+                 (apply #',nerd-icons
+                   (cons (concat ,(concat "nf-" dest-short-name "-")
+                                 ,(subst-char-in-string ?- ?_
+                                    (symbol-name dest-icon)))
+                         args))))
+             (advice-add ',all-the-icons :before-until
+               #',advice)))))))
+
+  (antlers/define-icon-mappings
+    (fileicon org)     (sucicon custom orgmode)
+    (fileicon jupyter) (mdicon md notebook-multiple)
+    (alltheicon html5) (mdicon md language-html5))
+
+  (defmacro antlers/define-icon-adapter (family short-name)
+    (let ((short-name
+            (symbol-name short-name))
+          (all-the-icons
+            (antlers/symbol-concat :intern? t 'all-the-icons '- family))
+          (nerd-icons
+            (antlers/symbol-concat :intern? t 'nerd-icons '- family)))
+      `(defun ,all-the-icons (icon &rest args)
+         (apply #',nerd-icons
+           (cons (concat ,(concat "nf-" short-name "-")
+                         (subst-char-in-string ?- ?_ icon))
+                 args)))))
+
+  (antlers/define-icon-adapter octicon oct) ; for dirvish
+  (antlers/define-icon-adapter faicon fa) ; for eaf
+
+  (defalias 'all-the-icons-icon-for-dir #'nerd-icons-icon-for-dir)
+  (defalias 'all-the-icons-icon-for-file #'nerd-icons-icon-for-file)
+  (defalias 'all-the-icons-icon-for-buffer #'nerd-icons-icon-for-buffer)
+  (defalias 'all-the-icons-match-to-alist #'nerd-icons-match-to-alist)
+  (defalias 'all-the-icons-auto-mode-match? 'nerd-icons-auto-mode-match?)
+  (defvar all-the-icons-ibuffer-icon-size 12)
+  (defvar all-the-icons-ibuffer-icon-v-adjust 0)
+  (defvar all-the-icons-ibuffer-color-icon t)
+
   (provide 'all-the-icons))
 
 (use-package nerd-icons-completion
@@ -1625,7 +1706,9 @@ targets."
          xcb-util-wm
          xdotool)
   :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
-  :after evil
+  :after evil moody
+  :custom
+  (eaf-mode-line-format (default-value 'mode-line-format))
   :init
   (defun antlers/eaf-install-and-update ()
     (eaf-install-and-update 'browser 'org-previewer 'pdf-viewer))
@@ -1642,7 +1725,8 @@ targets."
           (file-attribute-modification-time)
           (time-since)
           (time-less-p (days-to-time 7))
-          (unless (add-hook 'after-init-hook #'antlers/eaf-install-and-update)))))
+          (unless
+            (add-hook 'after-init-hook #'antlers/eaf-install-and-update)))))
   :config
   (antlers/append-to-path
     (concat (getenv "GUIX_ENVIRONMENT") "/lib")
@@ -1659,13 +1743,27 @@ targets."
               (start-process-shell-command "patchelf" nil
                 (concat "patchelf --set-interpreter " interpreter " " (concat (getenv "HOME") file))))
         '("/.local/lib/python3.10/site-packages/PyQt6/Qt6/libexec/QtWebEngineProcess"
-          "/.local/lib/python3.10/site-packages/PyQt6/Qt6/lib/libQt6Core.so.6"))))
+          "/.local/lib/python3.10/site-packages/PyQt6/Qt6/lib/libQt6Core.so.6")))
+
+  (with-eval-after-load 'consult
+    (setq consult-preview-excluded-buffers
+      '(derived-mode . eaf-mode))))
+
+(use-package eaf-browser
+  :config
+  ;; I tried to write a general.el definer for this, but it's a macro.
+  ;; *Maybe* possible, but I don't have time for that.
+  ;; I would like it to loop over eaf modes though.
+  (eaf-bind-key evil-window-map "C-w" eaf-browser-keybinding)
+  (eaf-bind-key evil-ex ":" eaf-browser-keybinding))
 
 (use-package eaf-evil
   :after eaf-browser
   :config (eaf-enable-evil-intergration))
 
-(use-package eaf-browser)
+(use-package eaf-all-the-icons
+  :after nerd-icons)
+
 (use-package eaf-org-previewer)
 (use-package eaf-pdf-viewer)
 (use-package eaf-ocap-cad-viewer
