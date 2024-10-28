@@ -906,10 +906,9 @@ targets."
 (use-package dired-avfs
   :guix (emacs-dired-hacks avfs)
   :config
-  (defun antlers/find-file-noselect (filename &rest _)
-    (unless (and (file-readable-p (concat (getenv "HOME") "/.avfs"))
-                 (= 0 (call-process "mountpoint" nil nil nil (concat (getenv "HOME") "/.avfs"))))
-    (start-process-shell-command "mountavfs" nil "mountavfs"))))
+  (unless (and (file-readable-p (concat (getenv "HOME") "/.avfs"))
+               (= 0 (call-process "mountpoint" nil nil nil (concat (getenv "HOME") "/.avfs"))))
+    (start-process-shell-command "mountavfs" nil "mountavfs")))
 
 ;; Dired Font Lock -- for colors!
 (use-package diredfl
