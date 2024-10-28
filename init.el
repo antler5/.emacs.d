@@ -221,23 +221,6 @@
   (Man-underline ((t (:inherit font-lock-keyword-face :underline t)))))
 
 
-;; XXX: Breaks daemon init :c
-;; ;; Dashboard
-;; ;; TODO: easy link to eshell / sync dired+dashboard+bookmarks? (remember harpoon?)
-;; ;; TODO: Make "r" into an avy-line-like command?
-;; (use-package dashboard
-;;   :guix emacs-dashboard
-;;   :general (evil-leader-map "\\" #'dashboard-open)
-;;   :config
-;;   (dashboard-setup-startup-hook)
-;;   :init
-;;   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-;;   :custom
-;;   (dashboard-startup-banner
-;;     (expand-file-name "Mx-butterfly.png" user-emacs-directory))
-;;   (dashboard-footer-messages '("Someone loves you <3")))
-
-
 ;; Mode-line
 (use-package emacs
   :config
