@@ -994,7 +994,7 @@ targets."
      ("s" "~/Sync"     "Sync")
      ))
   (dired-listing-switches
-    "-lv --escape --almost-all --human-readable --group-directories-first --no-group")
+    "-lv --almost-all --human-readable --group-directories-first --no-group")
   (dirvish-header-line-height moody-mode-line-height)
   (dirvish-mode-line-height moody-mode-line-height)
   :init
