@@ -80,7 +80,8 @@ antlers@citrus ~/.emacs.d$ ./run.sh
          when (and (string-prefix-p "antlers" (symbol-name sym))
                    (or (boundp sym) (fboundp sym)))
          collect (list (antlers/symbol-to-gh-search-link sym)
-                       (antlers/symbol-to-synopsis sym)))
+                       (antlers/symbol-to-synopsis sym))
+         into acc finally return (sort acc :key #'car))
 #+END_SRC
 
 * Export                                                           :noexport:
