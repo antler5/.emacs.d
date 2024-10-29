@@ -59,20 +59,20 @@ antlers@citrus ~/.emacs.d$ ./run.sh
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/all-the-icons-alltheicon-html5&amp;type=code">antlers/all-the-icons-alltheicon-html5</a></td>
-<td><code class="verbatim">all-the-icons</code> shim powered by <code
-class="verbatim">nerd-icons</code>.</td>
+<td>Narrow <code class="verbatim">all-the-icons</code> shim powered by
+<code class="verbatim">nerd-icons</code>.</td>
 </tr>
 <tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/all-the-icons-fileicon-jupyter&amp;type=code">antlers/all-the-icons-fileicon-jupyter</a></td>
-<td><code class="verbatim">all-the-icons</code> shim powered by <code
-class="verbatim">nerd-icons</code>.</td>
+<td>Narrow <code class="verbatim">all-the-icons</code> shim powered by
+<code class="verbatim">nerd-icons</code>.</td>
 </tr>
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/all-the-icons-fileicon-org&amp;type=code">antlers/all-the-icons-fileicon-org</a></td>
-<td><code class="verbatim">all-the-icons</code> shim powered by <code
-class="verbatim">nerd-icons</code>.</td>
+<td>Narrow <code class="verbatim">all-the-icons</code> shim powered by
+<code class="verbatim">nerd-icons</code>.</td>
 </tr>
 <tr class="even">
 <td><a
@@ -108,8 +108,8 @@ href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/define-icon-mappings&amp;type=code">antlers/define-icon-mappings</a></td>
-<td>Install individual <code class="verbatim">all-the-icons</code>
-&lt;-&gt; <code class="verbatim">nerd-icons</code> shims.</td>
+<td>Install narrow <code class="verbatim">all-the-icons</code> &lt;-&gt;
+<code class="verbatim">nerd-icons</code> shims.</td>
 </tr>
 <tr class="even">
 <td><a

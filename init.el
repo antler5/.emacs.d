@@ -427,7 +427,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
       `(,(if intern? #'intern #'make-symbol)
         (apply #'concat (-map #'symbol-name (list . ,syms))))))
   (defmacro antlers/define-icon-mappings (&rest clauses)
-    "Install individual =all-the-icons= <-> =nerd-icons= shims.
+    "Install narrow =all-the-icons= <-> =nerd-icons= shims.
 
 \(fn ((SRC-FAMILY SRC-ICON) (DEST-FAMILY DEST-SHORT-NAME DEST-ICON)) ...)"
     (cons 'progn
@@ -437,7 +437,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
         (let ((dest-short-name (symbol-name dest-short-name))
               (all-the-icons
                 (antlers/symbol-concat :intern? t
-                  'all-the-icons src-family))
+                  'all-the-icons '- src-family))
               (advice
                 (antlers/symbol-concat :intern? t
                   'antlers/all-the-icons- src-family '- src-icon))
@@ -447,12 +447,12 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
           `(progn
              (unless (boundp ',all-the-icons)
                (defun ,all-the-icons (icon &rest _)
-                 "=all-the-icons= shim powered by =nerd-icons=."
+                 "Narrow =all-the-icons= shims powered by =nerd-icons=."
                  (display-warning (define-icon-mappings ,src-family)
                                   "No mapping found for icon" icon)
                  (nerd-icons-mdicon "nf-md-close_box_outline"))
              (defun ,advice (icon &rest args)
-               "=all-the-icons= shim powered by =nerd-icons=."
+               "Narrow =all-the-icons= shim powered by =nerd-icons=."
                (when (equal icon ,(symbol-name src-icon))
                  (apply #',nerd-icons
                    (cons (concat ,(concat "nf-" dest-short-name "-")
@@ -476,6 +476,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
           (nerd-icons
             (antlers/symbol-concat :intern? t 'nerd-icons '- family)))
       `(defun ,all-the-icons (icon &rest args)
+         "Broad =all-the-icons= shim powered by =nerd-icons=."
          (apply #',nerd-icons
            (cons (concat ,(concat "nf-" short-name "-")
                          (subst-char-in-string ?- ?_ icon))
