@@ -48,7 +48,7 @@ They just get stripped from the elisp and "tangled" out into a command like this
 > extracted via `set -x` and edited for clarity.
 @@
 
-#+BEGIN_SRC bash
+#+BEGIN_SRC bash :noeval
 antlers@citrus ~/.emacs.d$ ./run.sh
 + [...]
 + guix shell --pure --container --network                                \
