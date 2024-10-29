@@ -18,7 +18,7 @@ mechanism.
 ``` bash
 git fetch origin keyring:keyring
 guix git authenticate \
-  'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' \
+  '91ab69b25fb8d64d6e73d2eab3b2ad008a829a16' \
   'DACB 035F B9B0 EE9C 7E13  1AAA C310 15D9 6620 A955'
 ```
 

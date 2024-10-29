@@ -14,7 +14,7 @@
 package=".emacs.d"
 channel_url="https://github.com/antler5/$package"
 keyring_url="https://github.com/antler5/$package"
-commit="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+commit="91ab69b25fb8d64d6e73d2eab3b2ad008a829a16"
 fingerprint="DACB 035F B9B0 EE9C 7E13  1AAA C310 15D9 6620 A955"
 format() { printf '#+BEGIN_SRC %s\n%s\n#+END_SRC\n' "$1" "$2"; }
 #+END_SRC
