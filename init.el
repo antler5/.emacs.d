@@ -891,6 +891,9 @@ targets."
        nil
        (window-parameters (mode-line-format . none)))))
 
+(use-package embark-consult
+  :after (embark consult))
+
 (use-package consult
   :guix (emacs-consult
          ripgrep)
@@ -1700,6 +1703,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          emacs-debbugs
          emacs-json-mode
          emacs-markdown-mode
+         emacs-wgrep
          emacs-yaml-mode))
 
 (use-package pdf-tools
