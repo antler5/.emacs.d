@@ -78,16 +78,42 @@ antlers@citrus ~/.emacs.d$ ./run.sh
                   (ignore-errors (documentation sym)))))
     (seq-take-while (lambda (c) (not (char-equal c ?\n)))
       (if (seqp doc) doc '()))))
-(cl-loop with init.el = (expand-file-name (locate-user-emacs-file "init.el"))
-         with early-init.el = (expand-file-name (locate-user-emacs-file "early-init.el"))
-         for sym being the symbols
-         when (and (or (string-prefix-p "antlers" (symbol-name sym))
-                       (string-prefix-p "spaceline" (symbol-name sym))
-                       (string-suffix-p ":guix" (symbol-name sym)))
-                   (or (boundp sym) (fboundp sym)))
-         collect (list (antlers/symbol-to-gh-search-link sym)
-                       (antlers/symbol-to-synopsis sym))
-         into acc finally return (sort acc :key #'car))
+  (defun antlers/symbol-to-section (sym)
+  "Return the section under which =SYM= is defined."
+    (condition-case nil
+      (save-window-excursion
+        (switch-to-buffer (find-file antlers/init.el))
+        (goto-char (point-min))
+        (search-forward (symbol-name sym))
+        (let ((first-ref (point)))
+          (search-backward "\n\n;;;")
+          (search-forward ";;; ")
+          (list
+            (point)
+            first-ref
+            (buffer-substring (point) (line-end-position)))))
+      (error (list (expt 2 32) (expt 2 32)))))
+(let ((lst
+        (cl-loop with init.el = (expand-file-name (locate-user-emacs-file "init.el"))
+                 with early-init.el = (expand-file-name (locate-user-emacs-file "early-init.el"))
+                 for sym being the symbols
+                 when (and (or (string-prefix-p "antlers" (symbol-name sym))
+                               (string-prefix-p "spaceline" (symbol-name sym))
+                               (string-suffix-p ":guix" (symbol-name sym)))
+                           (or (boundp sym) (fboundp sym)))
+                 collect (list (antlers/symbol-to-gh-search-link sym)
+                               (antlers/symbol-to-synopsis sym)
+                               (antlers/symbol-to-section sym))
+                 into acc finally return (sort acc :key #'caddr))))
+  (let ((last-section nil)
+        (acc '()))
+    (cl-loop for row on lst
+             do (when (not (equal (car (caddar row)) last-section))
+                  (push 'hline acc)
+                  (push (list (concat "*" (or (caddr (caddar row)) "Un-categorized") "*") "") acc))
+             do (push (butlast (car row)) acc)
+             do (setq last-section (car (caddar row))))
+    (reverse acc)))
 #+END_SRC
 
 * Export                                                           :noexport:
