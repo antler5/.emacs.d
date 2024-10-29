@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024 antlers <antlers@illucid.net>
+# SPDX-License-Identifier: CC0-1.0
+
 * TODO bind recenter-top-bottom to =z z=?
 * TODO hey what if dired had color ranges for sizes and date-times
 - Color by ext / mime-type?
@@ -55,7 +58,7 @@
 
 * TODO Looser, smex-style orderless?
 * TODO Indent comment to column on tab
-* TODO Absorb https://www.reddit.com/r/emacs/comments/18qa15/dired_discussion/
+* TODO Absort https://codeberg.org/jcastp/emacs.d/src/branch/main/emacs-config.org
 * TODO Absorb remaining ref-config
 * TODO Absorb https://github.com/angrybacon/dotemacs/
 * TODO Configure lispyville? (evil-)paredit?

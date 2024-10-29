@@ -46,6 +46,7 @@
 ;; These will get populated later
 (let ((orig frame-title-format))
   (defun antlers/restore-frame-title-format ()
+    "Restore =frame-title-format= once Emacs has initialized."
     (setq-default frame-title-format orig))
   (add-hook 'emacs-startup-hook #'antlers/restore-frame-title-format))
 (setq-default frame-title-format nil)

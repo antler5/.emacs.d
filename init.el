@@ -77,6 +77,7 @@
 
 ;; Register privileged binaries
 (defun antlers/append-to-path (dir &optional path)
+  "Add DIR to PATH, duplicating it and updating =exec-path= when appropriate."
   (let ((path (or path "PATH")))
     (when (file-directory-p dir)
       (setenv path
@@ -149,13 +150,14 @@
 
   ;; Leader-key shortcuts
   :init
-  (defun antlers/find-file (path)
+  (defun antlers/find-file (filename)
+    "Edit file FILENAME. (=find-file=, but it's a =command=)"
     (lambda ()
       (interactive)
-      (find-file path)))
+      (find-file filename)))
   (defvar antlers/init.el
-    (concat (getenv "HOME")
-            "/.emacs.d/init.el"))
+    (concat (getenv "HOME") "/.emacs.d/init.el")
+    "Path to =init.el=")
 
   :general ("<wheel-left>" #'(lambda () (interactive) (scroll-left 1))
             "<wheel-right>" #'(lambda () (interactive) (scroll-right 1)))
@@ -181,6 +183,7 @@
         (forward-char 1))))
 
   (defun antlers/grep-elisp-load-path (regex)
+    "Run =grep=, searching for REGEX in =elisp-load-path-roots=."
     (interactive (list (read-shell-command "Regex: " nil 'grep-history)))
     (->> (elisp-load-path-roots)
          (-filter #'file-exists-p)
@@ -261,7 +264,8 @@
   (mode-line-inactive ((t :background "#383838")))
   :config
   ;; Mostly from nano-modeline.el
-  (defun antlers/mode-line-status (&optional status)
+  (defun antlers/mode-line-status (&optional _status)
+    "Return a =nerd-icon= representing the state of the current buffer."
     (cl-flet ((icon (lambda (i)
                       (nerd-icons-faicon i))))
       (pcase (format-mode-line "%*")
@@ -269,6 +273,7 @@
         ("-"   (icon "nf-fa-link"))
         ("%"   (icon "nf-fa-lock")))))
   (defun antlers/mode-line-percent (&optional buffer)
+    "Return =point= position (as a percentage) and buffer length (in lines)."
     (format "%-7s "
       (format "(%d%%%%/%d)"
         (/ (window-start) 0.01 (point-max))
@@ -276,6 +281,7 @@
             (car (buffer-line-statistics buffer))
           (- (line-number-at-pos (point-max)) 1)))))
   (defun antlers/mode-line-vcs ()
+    "Return current buffer's =vc-state=, truncated, with a =nerd-icon=."
     (when vc-mode
       (when-let* ((file (buffer-file-name))
                   (limit (- (window-total-width) 67)) ; XXX: Lazy
@@ -291,6 +297,7 @@
           (nerd-icons-devicon "nf-dev-git_branch")
           branch state))))
   (defun antlers/mode-line-file-size ()
+    "Return the file-size of =buffer-file-name=, formatted for the mode-line."
     (if-let* ((file-name (buffer-file-name))
               (file-attributes (file-attributes file-name))
               (file-size (file-attribute-size file-attributes))
@@ -298,10 +305,14 @@
         (format " (%s)" file-size)
       ""))
   (defun antlers/mode-line-dedicated ()
+    "Return a pin =nerd-icon= when =current-buffer= is =dedicated=."
     (cond ((not (window-dedicated-p)) "")
           (t (list (nerd-icons-octicon "nf-oct-pin") " "))))
   (moody-replace-eldoc-minibuffer-message-function)
   (defun antlers/mode-line-format (title center right end)
+    "Return =mode-line-format= with =TITLE= and widgets =CENTER=, =RIGHT=, and =END=.
+
+=RIGHT= goes before =evil-mode-line-tag=, =END= goes after."
     `(" "
       (:eval (antlers/mode-line-dedicated))
       (:eval (antlers/mode-line-status))
@@ -320,6 +331,9 @@
       (:eval (moody-wrap (or evil-mode-line-tag " <?> ")))
       ,@end))
   (defun antlers/set-mode-line-format ()
+    "Sets the default =mode-line-format= and updates open buffers.
+
+Skips buffers with buffer-local =mode-line-format= values."
     (setq-default mode-line-format
       (antlers/mode-line-format
         '(format-mode-line '(-32 . "%b"))
@@ -328,7 +342,7 @@
           (:eval (antlers/mode-line-percent)))
         '("  ")))
     (-map (lambda (b)
-            (when t ; (not (buffer-local-value 'mode-line-format b))
+            (when (not (buffer-local-value 'mode-line-format b))
               (setf (buffer-local-value 'mode-line-format b)
                 (default-value 'mode-line-format))))
       (buffer-list)))
@@ -396,6 +410,7 @@
   ;; Bespoke mappings
   ;; Had a little fun with the kwarg on this one >u<
   (defmacro antlers/collect-plist (args)
+    "Destructively collect leading =plist= from =ARGS=."
     (unless (symbolp args)
       (throw 'wrong-type-argument
         (list #'macroexp-const-p args)))
@@ -403,7 +418,8 @@
               while (keywordp (car pair))
               nconc (cl-loop for _ to 1 collect (pop ,args))))
   (defmacro antlers/symbol-concat (&rest syms)
-    "
+    "Flatten symbols in list =SYMS= into a new symbol.
+Intern that symbol when leading plist key =:intern?= is non-nil.
 
 \(fn [:intern? nil] &rest SYMS)"
     (-let* ((options (antlers/collect-plist syms))
@@ -411,6 +427,9 @@
       `(,(if intern? #'intern #'make-symbol)
         (apply #'concat (-map #'symbol-name (list . ,syms))))))
   (defmacro antlers/define-icon-mappings (&rest clauses)
+    "Install individual =all-the-icons= <-> =nerd-icons= shims.
+
+\(fn ((SRC-FAMILY SRC-ICON) (DEST-FAMILY DEST-SHORT-NAME DEST-ICON)) ...)"
     (cons 'progn
       (cl-loop for ((src-family src-icon)
                     (dest-family dest-short-name dest-icon))
@@ -428,10 +447,12 @@
           `(progn
              (unless (boundp ',all-the-icons)
                (defun ,all-the-icons (icon &rest _)
+                 "=all-the-icons= shim powered by =nerd-icons=."
                  (display-warning (define-icon-mappings ,src-family)
                                   "No mapping found for icon" icon)
                  (nerd-icons-mdicon "nf-md-close_box_outline"))
              (defun ,advice (icon &rest args)
+               "=all-the-icons= shim powered by =nerd-icons=."
                (when (equal icon ,(symbol-name src-icon))
                  (apply #',nerd-icons
                    (cons (concat ,(concat "nf-" dest-short-name "-")
@@ -447,6 +468,7 @@
     (alltheicon html5) (mdicon md language-html5))
 
   (defmacro antlers/define-icon-adapter (family short-name)
+    "Install broad =all-the-icons= <-> =nerd-icons= shims."
     (let ((short-name
             (symbol-name short-name))
           (all-the-icons
@@ -933,14 +955,17 @@ targets."
            dirvish-directory-view-mode-hook))
 
 (use-package vc-git
+  :after em-unix ; XXX: alt., require it?
   :config
   ;; Improve handling of .git and untracked directories
   (defun antlers/vc-git-state (file)
+    "Mark =.git= as =ignored= for =vc-git=."
     (when (equal (eshell/basename file) ".git")
       'ignored))
   (advice-add 'vc-git-state :before-until
     #'antlers/vc-git-state)
   (defun antlers/vc-git--git-status-to-vc-state (code-list)
+    "Avoid marking =unregistered= directories as =edited= for =vc-git=."
     (when (and code-list
                (listp code-list)
                (-every? (-cut equal <> "??") code-list))
@@ -998,6 +1023,7 @@ targets."
   (dirvish-mode-line-height moody-mode-line-height)
   :init
   (defun antlers/disable-indicate-buffer-boundaries ()
+    "Disable buffer boundary indicators in =Dired= buffers."
     (setq-local indicate-buffer-boundaries nil))
   :ghook ('dired-mode-hook #'antlers/disable-indicate-buffer-boundaries)
   :config
@@ -1009,13 +1035,16 @@ targets."
       mode-line-format-right-align
       (:eval (progn (setq mode-line-format mode-line-format-bak) nil))))
   (defun antlers/s-subtract (n str)
+    "Return a numeric string which is =N= less than numeric string =STR=."
     (number-to-string (- (string-to-number str) n)))
   (defun antlers/dirvish--mode-line-fmt-setter (left right &optional header)
+    "Call =antlers/mode-line-format= for dirvish buffers."
     (cl-labels ((expand (segments)
                   (cl-loop for s in segments collect
                            (if (stringp s) s
                              `(:eval (,(intern (format "dirvish-%s-ml" s)) (dirvish-curr))))))
                 (antlers/expand (segments)
+                  "Expands mode-line segments with =dv= and =buf= in-scope."
                   `(:eval
                     (let* ((dv (dirvish-curr))
                            (buf (and (car (dv-layout dv)) (cdr (dv-index dv)))))
@@ -1059,8 +1088,8 @@ targets."
 
 (use-package dirvish-collapse
   :config
-  ;; Replace `\` with `|` in collapsed paths.
   (defun antlers/dirvish-collapse--cache (x)
+    "Replace =backslash= with =vertical-pipe= for =dirvish-collapse--cache=."
     (or (and (not (stringp (car x))) x)
         (cons (apply #'propertize
                 (subst-char-in-string ?| ?/ (car x) t)
@@ -1072,7 +1101,7 @@ targets."
 (use-package dirvish-widgets
   :config
   (defun antlers/dirvish-file-modes-ml (str)
-    "Replicates diredfl colors."
+    "Replicates =diredfl= colors for =dirvish-file-modes-ml=."
     (prog1 str
       (-map-indexed (pcase-lambda (i `(,char . ,face))
                       (put-text-property i (1+ i)
@@ -1093,6 +1122,7 @@ targets."
     #'antlers/dirvish-file-modes-ml)
 
   (defun antlers/dirvish-free-space-ml (str)
+    "Propertize =STR= with face =dired-ignore= for =dirvish-free-space-ml=."
     (propertize str 'face 'dired-ignored))
   (advice-add 'dirvish-free-space-ml :filter-return
     #'antlers/dirvish-free-space-ml))
@@ -1120,6 +1150,7 @@ targets."
 
   ;; Use git-gutter for vc-state
   (defun antlers/magit-post-refresh-hook (&optional _)
+    "Revert =dired= buffers for =magit=."
     (-map (lambda (b)
             (when (eq (buffer-local-value 'major-mode b) #'dired-mode)
               (save-window-excursion
@@ -1130,14 +1161,21 @@ targets."
     (add-hook 'magit-post-refresh-hook
       #'antlers/magit-post-refresh-hook))
 
-  (defvar antlers/vc-state-cache (make-hash-table :test #'equal))
+  (defvar antlers/vc-state-cache (make-hash-table :test #'equal)
+    "=vc-state= cache for =dirvish-git-gutter=.
+
+This _shouldn't_ be necessary (dirvish does it's own caching), but
+that cache is full of nonsense and I can't be bothered to figure it
+out.")
   (defun antlers/clear-vc-state-cache ()
+    "Clear =antlers/vc-state-cache= and trigger gutter refresh."
     (clrhash antlers/vc-state-cache)
     (git-gutter:clear-gutter))
   (add-hook 'dirvish-after-revert-hook
     #'antlers/clear-vc-state-cache)
 
   (defun antlers/dirvish-subtree-remove (ret)
+    "Clear gutter for =dirvish-subtree-remove=."
     (git-gutter:clear-gutter)
     ret)
   (advice-add 'dirvish-subtree-remove :filter-return
@@ -1146,6 +1184,7 @@ targets."
     #'antlers/magit-post-refresh-hook)
 
   (defun antlers/dirvish--render-attrs (ret)
+    "Mark gutter up-to-date for =render-attrs=."
     (setq git-gutter:last-chars-modified-tick
       (buffer-chars-modified-tick))
     ret)
@@ -1153,6 +1192,7 @@ targets."
     #'antlers/dirvish--render-attrs)
 
   (defun antlers/dirvish-find-entry-hook (_key _buffer)
+    "Clear gutter for =dirvish-find-entry-hook=."
     (git-gutter:clear-gutter))
   (add-hook 'dirvish-find-entry-hook
     #'antlers/dirvish-find-entry-hook)
@@ -1479,6 +1519,7 @@ targets."
    "C-l" #'antlers/clear)
   :init
   (defun antlers/clear ()
+    "Clear =eshell= (=eshell/clear= errors out)."
     (interactive)
     (evil-goto-line)
     (evil-scroll-line-to-top
@@ -1713,6 +1754,7 @@ targets."
   (eaf-mode-line-format (default-value 'mode-line-format))
   :init
   (defun antlers/eaf-install-and-update ()
+    "Install and update =EAF Core= and the subset of modules that I use."
     (eaf-install-and-update 'browser 'org-previewer))
   (let ((eaf-url "https://github.com/emacs-eaf/emacs-application-framework")
         (eaf-dir (concat (getenv "HOME") "/.emacs.d/site-lisp/emacs-application-framework")))
@@ -1800,3 +1842,4 @@ targets."
          zip ; for org/ox-odt.el (not that i use it)
          ))
 (put 'narrow-to-page 'disabled nil)
+(put 'narrow-to-region 'disabled nil)

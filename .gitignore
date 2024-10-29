@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2024 antlers <antlers@illucid.net>
+# SPDX-License-Identifier: CC0-1.0
+
+.org-id-locations
+auto-save-list/
+eaf/
+eln-cache/
+org-roam.db
+places
+site-lisp/
+transient/
+tree-sitter/
+var/

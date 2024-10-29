@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2024 antlers <antlers@illucid.net>
+# SPDX-License-Identifier: GPL-3.0-or-later
 set -x
 
 export GUIX_PACKAGE_PATH+="$HOME/.emacs.d/modules"
@@ -15,7 +17,7 @@ CONTAINER_ARGS=(
 ARGS=()
 if [[ $1 == '-C' ]]; then
   shift;
-  ARGS+=(${CONTAINER_ARGS[@]})
+  ARGS+=("${CONTAINER_ARGS[@]}")
 fi
 
 guix shell ${ARGS[@]} \
@@ -27,6 +29,7 @@ guix shell ${ARGS[@]} \
   --with-input=emacs-general=emacs-general-next \
   --without-tests=emacs-lispy \
   emacs \
+  $(~/.emacs.d/extract-packages.scm < ~/.emacs.d/README.md.src) \
   $(~/.emacs.d/extract-packages.scm < ~/.emacs.d/init.el) \
   $(~/.emacs.d/extract-packages.scm < ~/.emacs.d/early-init.el) \
-  -- emacs $@
+  -- emacs "${@}"

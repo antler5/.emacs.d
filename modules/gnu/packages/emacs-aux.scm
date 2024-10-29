@@ -1,4 +1,5 @@
-;;; Copyright © 2024 antlers <antlers@illucid.net>
+;; SPDX-FileCopyrightText: 2024 antlers <antlers@illucid.net>
+;; SPDX-License-Identifier: GPL-3.0-or-later
 
 (define-module (gnu packages emacs-aux)
   #:use-module ((guix licenses) #:prefix license:)
