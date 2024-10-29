@@ -77,7 +77,7 @@
 
 ;; Register privileged binaries
 (defun antlers/append-to-path (dir &optional path)
-  "Add DIR to PATH, duplicating it and updating =exec-path= when appropriate."
+  "Add =DIR= to =PATH=, duplicating it and updating =exec-path= when appropriate."
   (let ((path (or path "PATH")))
     (when (file-directory-p dir)
       (setenv path
@@ -151,7 +151,7 @@
   ;; Leader-key shortcuts
   :init
   (defun antlers/find-file (filename)
-    "Edit file FILENAME. (=find-file=, but it's a =command=)"
+    "Edit file =FILENAME= (it's =find-file=, but a =command=)."
     (lambda ()
       (interactive)
       (find-file filename)))
@@ -183,7 +183,7 @@
         (forward-char 1))))
 
   (defun antlers/grep-elisp-load-path (regex)
-    "Run =grep=, searching for REGEX in =elisp-load-path-roots=."
+    "Run =grep=, searching for =REGEX= in =elisp-load-path-roots=."
     (interactive (list (read-shell-command "Regex: " nil 'grep-history)))
     (->> (elisp-load-path-roots)
          (-filter #'file-exists-p)
@@ -228,7 +228,7 @@
 (use-package emacs
   :config
   (defun spaceline--column-number-at-pos (pos)
-    "Column number at POS.  Analog to `line-number-at-pos'."
+    "Column number at POS.  Analog to =line-number-at-pos=."
     (save-excursion (goto-char pos) (current-column)))
   (defun spaceline--selection-info ()
     "Information about the size of the current selection, when applicable.
@@ -1023,7 +1023,7 @@ targets."
   (dirvish-mode-line-height moody-mode-line-height)
   :init
   (defun antlers/disable-indicate-buffer-boundaries ()
-    "Disable buffer boundary indicators in =Dired= buffers."
+    "Disable =indicate-buffer-boundaries= in =Dired= buffers."
     (setq-local indicate-buffer-boundaries nil))
   :ghook ('dired-mode-hook #'antlers/disable-indicate-buffer-boundaries)
   :config

@@ -107,7 +107,8 @@ class="verbatim">render-attrs</code>.</td>
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/append-to-path&amp;type=code">antlers/append-to-path</a></td>
-<td>Add DIR to PATH, duplicating it and updating <code
+<td>Add <code class="verbatim">DIR</code> to <code
+class="verbatim">PATH</code>, duplicating it and updating <code
 class="verbatim">exec-path</code> when appropriate.</td>
 </tr>
 <tr class="even">
@@ -125,8 +126,8 @@ new symbol.</td>
 <tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/disable-indicate-buffer-boundaries&amp;type=code">antlers/disable-indicate-buffer-boundaries</a></td>
-<td>Disable buffer boundary indicators in <code
-class="verbatim">Dired</code> buffers.</td>
+<td>Disable <code class="verbatim">indicate-buffer-boundaries</code> in
+<code class="verbatim">Dired</code> buffers.</td>
 </tr>
 <tr class="odd">
 <td><a
@@ -206,7 +207,8 @@ dirvish buffers.</td>
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/grep-elisp-load-path&amp;type=code">antlers/grep-elisp-load-path</a></td>
-<td>Run <code class="verbatim">grep</code>, searching for REGEX in <code
+<td>Run <code class="verbatim">grep</code>, searching for <code
+class="verbatim">REGEX</code> in <code
 class="verbatim">elisp-load-path-roots</code>.</td>
 </tr>
 <tr class="even">
