@@ -6,11 +6,11 @@
 
 * Org-mode Variables                                               :noexport:
 
-#+BEGIN_SRC elisp :session :results none
+#+BEGIN_SRC elisp :session :results none :exports none
 (setq org-pandoc-options '((shift-heading-level-by . 1)))
 #+END_SRC
 
-#+BEGIN_SRC sh :session shared :results none
+#+BEGIN_SRC sh :session shared :results none :exports none
 package=".emacs.d"
 channel_url="https://github.com/antler5/$package"
 keyring_url="https://github.com/antler5/$package"
@@ -83,49 +83,8 @@ antlers@citrus ~/.emacs.d$ ./run.sh
                        (antlers/symbol-to-synopsis sym)))
 #+END_SRC
 
-#+RESULTS:
-| Symbol                                     | Description                                                                      |
-|--------------------------------------------+----------------------------------------------------------------------------------|
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-percent&type=code][antlers/mode-line-percent]]                  | Return =point= position (as a percentage) and buffer length (in lines).          |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-format&type=code][antlers/mode-line-format]]                   | Return =mode-line-format= with =TITLE= and widgets =CENTER=, =RIGHT=, and =END=. |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/vc-git-state&type=code][antlers/vc-git-state]]                       | Mark =.git= as =ignored= for =vc-git=.                                           |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/find-file&type=code][antlers/find-file]]                          | Edit file FILENAME. (=find-file=, but it’s a =command=)                          |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/clear-vc-state-cache&type=code][antlers/clear-vc-state-cache]]               | Clear =antlers/vc-state-cache= and trigger gutter refresh.                       |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/vc-git--git-status-to-vc-state&type=code][antlers/vc-git--git-status-to-vc-state]]     | Avoid marking =unregistered= directories as =edited= for =vc-git=.               |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/define-icon-adapter&type=code][antlers/define-icon-adapter]]                | Install broad =all-the-icons= <-> =nerd-icons= shims.                            |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/magit-post-refresh-hook&type=code][antlers/magit-post-refresh-hook]]            | Revert =dired= buffers for =magit=.                                              |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/set-mode-line-format&type=code][antlers/set-mode-line-format]]               | Sets the default =mode-line-format= and updates open buffers.                    |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/vc-state-cache&type=code][antlers/vc-state-cache]]                     | =vc-state= cache for =dirvish-git-gutter=.                                       |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/grep-elisp-load-path&type=code][antlers/grep-elisp-load-path]]               | Run =grep=, searching for REGEX in =elisp-load-path-roots=.                      |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/symbol-to-gh-search-link&type=code][antlers/symbol-to-gh-search-link]]           | Return an Org-formatted link to a GitHub search for =SYM=.                       |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish--mode-line-fmt-setter&type=code][antlers/dirvish--mode-line-fmt-setter]]      | Call =antlers/mode-line-format= for dirvish buffers.                             |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/all-the-icons-fileicon-jupyter&type=code][antlers/all-the-icons-fileicon-jupyter]]     | =all-the-icons= shim powered by =nerd-icons=.                                    |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish-file-modes-ml&type=code][antlers/dirvish-file-modes-ml]]              | Replicates =diredfl= colors for =dirvish-file-modes-ml=.                         |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/collect-plist&type=code][antlers/collect-plist]]                      | Destructively collect leading =plist= from =ARGS=.                               |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish-free-space-ml&type=code][antlers/dirvish-free-space-ml]]              | Propertize =STR= with face =dired-ignore= for =dirvish-free-space-ml=.           |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-file-size&type=code][antlers/mode-line-file-size]]                | Return the file-size of =buffer-file-name=, formatted for the mode-line.         |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/all-the-icons-alltheicon-html5&type=code][antlers/all-the-icons-alltheicon-html5]]     | =all-the-icons= shim powered by =nerd-icons=.                                    |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-status&type=code][antlers/mode-line-status]]                   | Return a =nerd-icon= representing the state of the current buffer.               |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/restore-frame-title-format&type=code][antlers/restore-frame-title-format]]         | Restore =frame-title-format= once Emacs has initialized.                         |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/all-the-icons-fileicon-org&type=code][antlers/all-the-icons-fileicon-org]]         | =all-the-icons= shim powered by =nerd-icons=.                                    |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish-collapse--cache&type=code][antlers/dirvish-collapse--cache]]            | Replace =backslash= with =vertical-pipe= for =dirvish-collapse--cache=.          |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/symbol-to-synopsis&type=code][antlers/symbol-to-synopsis]]                 | Return a short description of =SYM=.                                             |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/s-subtract&type=code][antlers/s-subtract]]                         | Return a numeric string which is =N= less than numeric string =STR=.             |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/disable-indicate-buffer-boundaries&type=code][antlers/disable-indicate-buffer-boundaries]] | Disable buffer boundary indicators in =Dired= buffers.                           |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/symbol-concat&type=code][antlers/symbol-concat]]                      | Flatten symbols in list =SYMS= into a new symbol.                                |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-vcs&type=code][antlers/mode-line-vcs]]                      | Return current buffer’s =vc-state=, truncated, with a =nerd-icon=.               |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/append-to-path&type=code][antlers/append-to-path]]                     | Add DIR to PATH, duplicating it and updating =exec-path= when appropriate.       |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish--render-attrs&type=code][antlers/dirvish--render-attrs]]              | Mark gutter up-to-date for =render-attrs=.                                       |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish-subtree-remove&type=code][antlers/dirvish-subtree-remove]]             | Clear gutter for =dirvish-subtree-remove=.                                       |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/clear&type=code][antlers/clear]]                              | Clear =eshell= (=eshell/clear= errors out).                                      |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish-find-entry-hook&type=code][antlers/dirvish-find-entry-hook]]            | Clear gutter for =dirvish-find-entry-hook=.                                      |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/eaf-install-and-update&type=code][antlers/eaf-install-and-update]]             | Install and update =EAF Core= and the subset of modules that I use.              |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-dedicated&type=code][antlers/mode-line-dedicated]]                | Return a pin =nerd-icon= when =current-buffer= is =dedicated=.                   |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/init.el&type=code][antlers/init.el]]                            | Path to =init.el=                                                                |
-| [[https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/define-icon-mappings&type=code][antlers/define-icon-mappings]]               | Install individual =all-the-icons= <-> =nerd-icons= shims.                       |
-
 * Export                                                           :noexport:
-#+begin_src emacs-lisp :results none
+#+begin_src emacs-lisp :results none :exports none
 '(:guix (emacs-ox-pandoc
          pandoc))
 (progn
