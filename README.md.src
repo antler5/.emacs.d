@@ -109,15 +109,15 @@ antlers@citrus ~/.emacs.d$ ./run.sh
            into acc finally return (sort acc :key #'caddr)))
 (defun antlers/format-table (table)
   "Convert the last column of sorted custom-symbol =TABLE= into row-group dividers and labels."
-  (let ((last-section nil)
-        (acc '()))
-    (cl-loop for row on table
-             do (when (not (equal (car (caddar row)) last-section))
-                  (push 'hline acc)
-                  (push (list (concat "*" (or (caddr (caddar row)) "Un-categorized") "*") "") acc))
-             do (push (butlast (car row)) acc)
-             do (setq last-section (car (caddar row))))
-    (reverse acc)))
+  (cl-loop with last-section = nil
+           with acc = nil
+           for row on table
+           do (when (not (equal (car (caddar row)) last-section))
+                (push 'hline acc)
+                (push (list (concat "*" (or (caddr (caddar row)) "Un-categorized") "*") "") acc))
+           do (push (butlast (car row)) acc)
+           do (setq last-section (car (caddar row)))
+           finally return (reverse acc)))
 
 (antlers/format-table (antlers/collect-symbols))
 #+END_SRC
