@@ -67,9 +67,10 @@ antlers@citrus ~/.emacs.d$ ./run.sh
 #+BEGIN_SRC elisp :exports results :results table :colnames '("Symbol" "Description")
 (defun antlers/symbol-to-gh-search-link (sym)
   "Return an Org-formatted link to a GitHub search for =SYM=."
-  (format "[[%1$s%2$s&type=code][%2$s]]"
+  (format "[[%s%s&type=code][%s]]"
     "https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+"
-    (url-encode-url (symbol-name sym))))
+    (url-encode-url (symbol-name sym))
+    (symbol-name sym)))
 (defun antlers/symbol-to-synopsis (sym)
   "Return a short description of =SYM=."
   (let* ((sym (indirect-variable sym))

@@ -239,13 +239,13 @@ truncated, with a <code class="verbatim">nerd-icon</code>.</td>
 </tr>
 <tr class="even">
 <td><a
-href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-mode-%3C%3E-syntax-fix&amp;type=code">antlers/org-mode-%3C%3E-syntax-fix</a></td>
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-mode-%3C%3E-syntax-fix&amp;type=code">antlers/org-mode-&lt;&gt;-syntax-fix</a></td>
 <td>Change syntax of characters ?&lt; and ?&gt; to symbol within source
 code blocks.</td>
 </tr>
 <tr class="odd">
 <td><a
-href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-setup-%3C%3E-syntax-fix&amp;type=code">antlers/org-setup-%3C%3E-syntax-fix</a></td>
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-setup-%3C%3E-syntax-fix&amp;type=code">antlers/org-setup-&lt;&gt;-syntax-fix</a></td>
 <td>Setup for characters ?&lt; and ?&gt; in source code blocks.</td>
 </tr>
 <tr class="even">
