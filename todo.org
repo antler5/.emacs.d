@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2024 antlers <antlers@illucid.net>
 # SPDX-License-Identifier: CC0-1.0
 
+* TODO [#A] evil-insert bugs out?
 * TODO bind recenter-top-bottom to =z z=?
 * TODO hey what if dired had color ranges for sizes and date-times
 - Color by ext / mime-type?
@@ -28,7 +29,7 @@
 * TODO Based on gentoo eflags, remove lisp i dont use
 - viper-mode
 - cedet
-- gamesgames
+- games
 - print / lpr
 - mail (pick one package & it's deps?)
 * TODO Fix embark binding conflicts

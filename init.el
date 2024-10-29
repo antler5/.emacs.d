@@ -56,9 +56,11 @@
 ;; (It's pulled out by a stand-alone script.)
 (push ':guix use-package-keywords)
 (defun use-package-normalize/:guix (_ keyword args)
+  "Normalize \:guix keyword into a no-op."
   (use-package-as-one (symbol-name keyword) args
     (lambda (label arg) '())))
 (defun use-package-handler/:guix (name-symbol keyword archive-name rest state)
+  "Handle \:guix keyword (by doing nothing)."
   (use-package-process-keywords name-symbol rest state))
 
 
@@ -232,7 +234,7 @@
     (save-excursion (goto-char pos) (current-column)))
   (defun spaceline--selection-info ()
     "Information about the size of the current selection, when applicable.
-  Supports both Emacs and Evil cursor conventions."
+Supports both Emacs and Evil cursor conventions."
     (if (or mark-active
               (and (bound-and-true-p evil-local-mode)
                    (eq 'visual evil-state)))
@@ -311,7 +313,6 @@
   (moody-replace-eldoc-minibuffer-message-function)
   (defun antlers/mode-line-format (title center right end)
     "Return =mode-line-format= with =TITLE= and widgets =CENTER=, =RIGHT=, and =END=.
-
 =RIGHT= goes before =evil-mode-line-tag=, =END= goes after."
     `(" "
       (:eval (antlers/mode-line-dedicated))
@@ -332,7 +333,6 @@
       ,@end))
   (defun antlers/set-mode-line-format ()
     "Sets the default =mode-line-format= and updates open buffers.
-
 Skips buffers with buffer-local =mode-line-format= values."
     (setq-default mode-line-format
       (antlers/mode-line-format
@@ -1164,8 +1164,7 @@ targets."
 
   (defvar antlers/vc-state-cache (make-hash-table :test #'equal)
     "=vc-state= cache for =dirvish-git-gutter=.
-
-This _shouldn't_ be necessary (dirvish does it's own caching), but
+This _shouldn't_ be necessary (dirvish does its own caching), but
 that cache is full of nonsense and I can't be bothered to figure it
 out.")
   (defun antlers/clear-vc-state-cache ()
@@ -1304,12 +1303,12 @@ out.")
             "C-c ]" nil)
   :gfhook #'visual-line-mode
           #'flyspell-mode
-          #'org-setup-<>-syntax-fix
+          #'antlers/org-setup-<>-syntax-fix
           #'(lambda () (setq-local tab-width 8))
   :config
-  ;; Credit: https://emacs.stackexchange.com/a/52209
-  (defun org-mode-<>-syntax-fix (start end)
-    "Change syntax of characters ?< and ?> to symbol within source code blocks."
+  (defun antlers/org-mode-<>-syntax-fix (start end)
+    "Change syntax of characters ?< and ?> to symbol within source code blocks.
+Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     (let ((case-fold-search t))
       (when (eq major-mode 'org-mode)
         (save-excursion
@@ -1322,12 +1321,10 @@ out.")
               ;; This is a < or > in an org-src block
               (put-text-property (point) (1- (point))
                                  'syntax-table (string-to-syntax "_"))))))))
-
-  (defun org-setup-<>-syntax-fix ()
-    "Setup for characters ?< and ?> in source code blocks.
-     Add this function to `org-mode-hook'."
+  (defun antlers/org-setup-<>-syntax-fix ()
+    "Setup for characters ?< and ?> in source code blocks."
     (make-local-variable 'syntax-propertize-function)
-    (setq syntax-propertize-function 'org-mode-<>-syntax-fix)
+    (setq syntax-propertize-function 'antlers/org-mode-<>-syntax-fix)
     (syntax-propertize (point-max))))
 
 (use-package org-agenda
@@ -1542,52 +1539,53 @@ out.")
     (apply 'eshell/my-find-file args))
 
   ;; Ooo, now here's something bold:
-  (defun quit-to-eshell ()
+  (defun antlers/quit-to-eshell ()
+    "Close current window, maybe kill its buffer, maybe open eshell."
     (interactive)
-    (if (> (count-windows) 1)
+    (if (> (count-windows nil t) 1)
         (let ((buffer (current-buffer)))
           (delete-window)
           (when (not (get-buffer-window buffer))
             (kill-buffer buffer)))
       (kill-buffer)
       (eshell)))
-  (defun quit-all-to-eshell ()
+  (defun antlers/quit-all-to-eshell ()
+    "Close all windows, maybe kill their buffers, and open eshell."
     (interactive)
     (let ((target (window-frame (get-buffer-window (current-buffer)))))
       (-map (lambda (b)
               (when (eq (window-frame (get-buffer-window b)) target)
-                (with-current-buffer b (quit-to-eshell))))
+                (with-current-buffer b (antlers/quit-to-eshell))))
             (buffer-list))))
-  (defun save-and-quit-to-eshell (&optional arg)
+  (defun antlers/save-and-quit-to-eshell (&optional arg)
+    "Save and call =antlers/quit-to-eshell=."
     (interactive)
-    ;; This filters over all buffers, but had the `pred' behavior that I want...
+    ;; This filters over all buffers, but has the `pred' behavior that I want...
     (let ((target (current-buffer)))
       (save-some-buffers arg (lambda () (eq (current-buffer) target))))
-    (quit-to-eshell))
-  (defun save-and-quit-to-eshell* (&optional arg)
+    (antlers/quit-to-eshell))
+  (defun antlers/save-and-quit-to-eshell* (&optional arg)
+    "Save and call =antlers/quit-to-eshell= (without asking)."
     (interactive)
-    (save-and-quit-to-eshell t))
-  (defun save-and-quit-all-to-eshell (&optional arg)
+    (antlers/save-and-quit-to-eshell t))
+  (defun antlers/save-and-quit-all-to-eshell (&optional arg)
+    "Save all and call =antlers/quit-all-to-eshell=."
     (interactive)
     (let ((target (window-frame (get-buffer-window (current-buffer)))))
       (save-some-buffers arg
         (lambda () (get-buffer-window (current-buffer) target))))
-    (quit-all-to-eshell))
-  (defun save-and-quit-all-to-eshell* (&optional arg)
+    (antlers/quit-all-to-eshell))
+  (defun antlers/save-and-quit-all-to-eshell* (&optional arg)
+    "Save all and call =antlers/quit-all-to-eshell= (without asking)."
     (interactive)
-    (save-and-quit-all-to-eshell t))
-  (defun save-and-kill-frame (&optional arg)
-    (condition-case nil
-        (delete-frame)
-        (error (save-buffers-kill-terminal))))
-  (evil-ex-define-cmd "exit"    #'save-and-kill-frame)
-  (evil-ex-define-cmd "q[uit]"  #'quit-to-eshell)
-  (evil-ex-define-cmd "qa[ll]"  #'quit-all-to-eshell)
-  (evil-ex-define-cmd "wq"      #'save-and-quit-to-eshell)
-  (evil-ex-define-cmd "wqa[ll]" #'save-and-quit-to-eshell*)
-  (evil-ex-define-cmd "qa[ll]"  #'save-and-quit-all-to-eshell)
-  (evil-ex-define-cmd "wqa[ll]" #'save-and-quit-all-to-eshell*)
-  (defalias 'save-buffers-kill-terminal #'save-and-quit-all-to-eshell))
+    (antlers/save-and-quit-all-to-eshell t))
+  (evil-ex-define-cmd "q[uit]"  #'antlers/quit-to-eshell)
+  (evil-ex-define-cmd "qa[ll]"  #'antlers/quit-all-to-eshell)
+  (evil-ex-define-cmd "wq"      #'antlers/save-and-quit-to-eshell)
+  (evil-ex-define-cmd "wqa[ll]" #'antlers/save-and-quit-to-eshell*)
+  (evil-ex-define-cmd "qa[ll]"  #'antlers/save-and-quit-all-to-eshell)
+  (evil-ex-define-cmd "wqa[ll]" #'antlers/save-and-quit-all-to-eshell*)
+  (defalias 'save-buffers-kill-terminal #'antlers/save-and-quit-all-to-eshell))
 
 (use-package eshell-syntax-highlighting
   :guix   emacs-eshell-syntax-highlighting

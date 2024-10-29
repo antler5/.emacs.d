@@ -72,12 +72,17 @@ antlers@citrus ~/.emacs.d$ ./run.sh
     (url-encode-url (symbol-name sym))))
 (defun antlers/symbol-to-synopsis (sym)
   "Return a short description of =SYM=."
-  (seq-take-while (lambda (c) (not (char-equal c ?\n)))
-    (let ((sym (indirect-variable sym)))
-      (or (get sym 'variable-documentation)
-          (ignore-errors (documentation sym))))))
-(cl-loop for sym being the symbols
-         when (and (string-prefix-p "antlers" (symbol-name sym))
+  (let* ((sym (indirect-variable sym))
+         (doc (or (get sym 'variable-documentation)
+                  (ignore-errors (documentation sym)))))
+    (seq-take-while (lambda (c) (not (char-equal c ?\n)))
+      (if (seqp doc) doc '()))))
+(cl-loop with init.el = (expand-file-name (locate-user-emacs-file "init.el"))
+         with early-init.el = (expand-file-name (locate-user-emacs-file "early-init.el"))
+         for sym being the symbols
+         when (and (or (string-prefix-p "antlers" (symbol-name sym))
+                       (string-prefix-p "spaceline" (symbol-name sym))
+                       (string-suffix-p ":guix" (symbol-name sym)))
                    (or (boundp sym) (fboundp sym)))
          collect (list (antlers/symbol-to-gh-search-link sym)
                        (antlers/symbol-to-synopsis sym))
