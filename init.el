@@ -1764,11 +1764,16 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :custom
   (eaf-mode-line-format (default-value 'mode-line-format))
   :init
+  (setq eaf-dir
+    (concat (getenv "HOME")
+            "/.emacs.d/site-lisp/emacs-application-framework"))
   (defun antlers/eaf-install-and-update ()
     "Install and update =EAF Core= and the subset of modules that I use."
-    (eaf-install-and-update 'browser 'org-previewer))
-  (let ((eaf-url "https://github.com/emacs-eaf/emacs-application-framework")
-        (eaf-dir (concat (getenv "HOME") "/.emacs.d/site-lisp/emacs-application-framework")))
+    (eaf-install-and-update 'browser 'org-previewer)
+    (call-process-shell-command
+      (concat "touch "
+              (shell-quote-argument (concat eaf-dir "/.git/FETCH_HEAD")))))
+  (let ((eaf-url "https://github.com/emacs-eaf/emacs-application-framework"))
     (if (not (file-readable-p eaf-dir))
         (progn
           (mkdir (file-name-directory eaf-dir) t)
