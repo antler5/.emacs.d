@@ -24,9 +24,8 @@ guix git authenticate \
 
 ## Running
 
-I use a custom use-package keyword to pull in guix packages.
-They just get stripped from the elisp and "tangled" out into a command
-like this:
+I use a custom use-package keyword to pull in guix packages. They just
+get stripped from the elisp and "tangled" out into a command like this:
 
 > [!NOTE]
 > I don't run this (probably out-of-date) psudo-code directly.</br>
@@ -60,7 +59,7 @@ antlers@citrus ~/.emacs.d$ ./run.sh
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+:guix&amp;type=code">:guix</a></td>
-<td>nil</td>
+<td>No-op use-package keyword.</td>
 </tr>
 <tr class="even">
 <td><a
@@ -340,12 +339,14 @@ applicable.</td>
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+use-package-handler/:guix&amp;type=code">use-package-handler/:guix</a></td>
-<td>Handle :guix keyword (by doing nothing).</td>
+<td>Handle <code class="verbatim">:guix</code> keyword (by doing
+nothing).</td>
 </tr>
 <tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+use-package-normalize/:guix&amp;type=code">use-package-normalize/:guix</a></td>
-<td>Normalize :guix keyword into a no-op.</td>
+<td>Normalize <code class="verbatim">:guix</code> keyword into a
+no-op.</td>
 </tr>
 </tbody>
 </table>

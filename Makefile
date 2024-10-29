@@ -9,7 +9,7 @@ all: README.md
 
 README.md: SHELL != realpath ./run.sh
 README.md: .SHELLFLAGS = -nw --batch -l ./early-init.el -l ./init.el --eval
-README.md: README.md.src
+README.md: README.md.src init.el early-init.el
 	(progn
 	  (find-file "./README.md.src")
 	  (org-mode)

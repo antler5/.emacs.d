@@ -55,12 +55,14 @@
 ;; Setup `:guix` as a no-op use-package keyword
 ;; (It's pulled out by a stand-alone script.)
 (push ':guix use-package-keywords)
+(put ':guix 'variable-documentation
+  "No-op use-package keyword.")
 (defun use-package-normalize/:guix (_ keyword args)
-  "Normalize \:guix keyword into a no-op."
+  "Normalize =\:guix= keyword into a no-op."
   (use-package-as-one (symbol-name keyword) args
     (lambda (label arg) '())))
 (defun use-package-handler/:guix (name-symbol keyword archive-name rest state)
-  "Handle \:guix keyword (by doing nothing)."
+  "Handle =\:guix= keyword (by doing nothing)."
   (use-package-process-keywords name-symbol rest state))
 
 
