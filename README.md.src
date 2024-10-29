@@ -36,6 +36,32 @@ guix git authenticate \\
   '$fingerprint'"
 #+END_SRC
 
+* Running
+
+I use a custom use-package keyword to pull in guix packages.
+They just get stripped from the elisp and "tangled" out into a command like this:
+
+@@html:
+> [!NOTE]
+> I don't run this (probably out-of-date) psudo-code directly.</br>
+> This is a representation of the command assembled by <code>run.sh</code>,</br>
+> extracted via `set -x` and edited for clarity.
+@@
+
+#+BEGIN_SRC bash
+antlers@citrus ~/.emacs.d$ ./run.sh
++ [...]
++ guix shell --pure --container --network                                \
++   emacs emacs-use-package emacs-dash alsa-lib at-spi2-core bzip2 cairo \
++   cups dbus gcc-toolchain gdk-pixbuf glib gst-plugins-base gstreamer   \
++   gtk+ jq libxcomposite libxkbcommon libxkbfile libxrandr libxrender   \
++   libxtst mesa mit-krb5 mysql node nss pango patchelf pcsc-lite        \
++   postgresql pulseaudio python speech-dispatcher unixodbc wmctrl       \
++   xcb-util-cursor xcb-util-image xcb-util-keysyms xcb-util-wm xdotool  \
++   python-psutil python-pygments python-qtconsole                       \
++   -- emacs $@
+#+END_SRC
+
 * Defined Symbols
 
 #+BEGIN_SRC elisp :exports results :results table :colnames '("Symbol" "Description")

@@ -22,6 +22,30 @@ guix git authenticate \
   'DACB 035F B9B0 EE9C 7E13  1AAA C310 15D9 6620 A955'
 ```
 
+## Running
+
+I use a custom use-package keyword to pull in guix packages. They just
+get stripped from the elisp and "tangled" out into a command like this:
+
+> [!NOTE]
+> I don't run this (probably out-of-date) psudo-code directly.</br>
+> This is a representation of the command assembled by <code>run.sh</code>,</br>
+> extracted via `set -x` and edited for clarity.
+
+``` bash
+antlers@citrus ~/.emacs.d$ ./run.sh
++ [...]
++ guix shell --pure --container --network                                \
++   emacs emacs-use-package emacs-dash alsa-lib at-spi2-core bzip2 cairo \
++   cups dbus gcc-toolchain gdk-pixbuf glib gst-plugins-base gstreamer   \
++   gtk+ jq libxcomposite libxkbcommon libxkbfile libxrandr libxrender   \
++   libxtst mesa mit-krb5 mysql node nss pango patchelf pcsc-lite        \
++   postgresql pulseaudio python speech-dispatcher unixodbc wmctrl       \
++   xcb-util-cursor xcb-util-image xcb-util-keysyms xcb-util-wm xdotool  \
++   python-psutil python-pygments python-qtconsole                       \
++   -- emacs $@
+```
+
 ## Defined Symbols
 
 <table>
@@ -218,8 +242,9 @@ trigger gutter refresh.</td>
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/find-file&amp;type=code">antlers/find-file</a></td>
-<td>Edit file FILENAME. (<code class="verbatim">find-file</code>, but
-it’s a <code class="verbatim">command</code>)</td>
+<td>Edit file <code class="verbatim">FILENAME</code> (it’s <code
+class="verbatim">find-file</code>, but a <code
+class="verbatim">command</code>).</td>
 </tr>
 <tr class="even">
 <td><a
