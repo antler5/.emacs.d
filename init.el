@@ -252,7 +252,14 @@ Supports both Emacs and Evil cursor conventions."
            (rect (format " %d×%d " lines (if evil cols (1- cols))))
            (multi-line (format " %d/%d " lines chars))
            (t (format " 1×%d " (if evil chars (1- chars))))))
-      " %l:%c ")))
+      " %l:%c "))
+  (defun antlers/force-mode-line-update (&rest _)
+    "Call =force-mode-line-update= to keep =selection-info= up-to-date for =evil= commands."
+    (when (eq evil-state 'visual)
+      (force-mode-line-update)))
+  (general-add-advice
+    '(evil-backward-char evil-next-line evil-previous-line evil-forward-char)
+    :after #'antlers/force-mode-line-update))
 
 (use-package moody
   :guix emacs-moody
