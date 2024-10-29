@@ -376,5 +376,16 @@ href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME
 <td>Return a short description of <code
 class="verbatim">SYM</code>.</td>
 </tr>
+<tr class="even">
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/format-table&amp;type=code">antlers/format-table</a></td>
+<td>Convert the last column of sorted custom-symbol <code
+class="verbatim">TABLE</code> into row-group dividers and labels.</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/collect-symbols&amp;type=code">antlers/collect-symbols</a></td>
+<td>Return a table of custom-symbols, sorted in definition order.</td>
+</tr>
 </tbody>
 </table>
