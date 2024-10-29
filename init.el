@@ -1551,7 +1551,10 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (defun antlers/quit-to-eshell ()
     "Close current window, maybe kill its buffer, maybe open eshell."
     (interactive)
-    (if (> (count-windows) 1)
+    (if (> (apply #'+
+             (-map (lambda (f) (length (window-list f 'other)))
+                               (minibuffer-frame-list)))
+           1)
         (let ((buffer (current-buffer)))
           (delete-window)
           (when (not (get-buffer-window buffer))
