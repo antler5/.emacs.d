@@ -945,6 +945,14 @@ targets."
                (= 0 (call-process "mountpoint" nil nil nil (concat (getenv "HOME") "/.avfs"))))
     (start-process-shell-command "mountavfs" nil "mountavfs")))
 
+;; I'm a tagsistant *evangelist* ^u^
+(use-package dired-tagsistant
+  :guix (emacs-dired-hacks tagsistant)
+  :config
+  (unless (and (file-readable-p (concat (getenv "HOME") "/.avfs"))
+               (= 0 (call-process "mountpoint" nil nil nil (concat (getenv "HOME") "/.avfs"))))
+    (start-process-shell-command "mountavfs" nil "mountavfs")))
+
 ;; Dired Font Lock -- for colors!
 (use-package diredfl
   :guix emacs-diredfl
