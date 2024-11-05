@@ -1,4 +1,4 @@
-;; init.el -*- lexical-binding: t; -*-
+;; init.el -*- lexical-binding: t -*-
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 ;; SPDX-FileCopyrightText: (c) 2024 antlers <antlers@illucid.net>
@@ -23,7 +23,7 @@
 (setq bidi-inhibit-bpa t)
 (setq idle-update-delay 1.0)
 
-;; Apparently can make posframes more responsive, cool
+;; Apparently can make posframes more responsive, cool.
 (when (boundp 'pgtk-wait-for-event-timeout)
   (setq pgtk-wait-for-event-timeout 0.001))
 
@@ -228,7 +228,7 @@
   (Man-underline ((t (:inherit font-lock-keyword-face :underline t)))))
 
 
-;; Mode-line
+;;; Mode-line
 (use-package emacs
   :config
   (defun spaceline--column-number-at-pos (pos)
@@ -360,7 +360,7 @@ Skips buffers with buffer-local =mode-line-format= values."
     #'antlers/set-mode-line-format))
 
 
-;; Theme, Graphics, and Fringe
+;;; Theme, Graphics, and Fringe
 (use-package emacs
   :guix (fontconfig ; needs specified, else `guix shell` won't export search path
          font-mononoki)
@@ -535,7 +535,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
                #'nerd-icons-corfu-formatter))
 
 
-;; Butlers
+;;; Butlers
 (use-package no-littering
   :guix   emacs-no-littering
   :config (no-littering-theme-backups)
@@ -547,7 +547,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   :config (ws-butler-global-mode t))
 
 
-;; Undo
+;;; Undo
 (use-package undo-tree
   :guix emacs-undo-tree
   :custom
@@ -557,7 +557,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   :config (global-undo-tree-mode t))
 
 
-;; Lisp Parens
+;;; Lisp Parens
 (use-package rainbow-delimiters
   :guix emacs-rainbow-delimiters
   :ghook 'prog-mode-hook
@@ -579,7 +579,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
       (cl-callf color-darken-name (face-foreground face) 30))))
 
 
-;; Evil
+;;; Evil
 (use-package evil
   ;; see also: emacs-evil-org-mode
   :guix emacs-evil
@@ -641,7 +641,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
 ;             "'" #'devil))
 
 
-;; Other Navigation
+;;; Other Navigation
 (use-package avy
   :guix   emacs-avy
   :after  (evil)
@@ -1271,7 +1271,7 @@ out.")
             "l" `("ledger" . (antlers/find-file ledger-dir))))
 
 
-;; Org
+;;; Org
 (use-package org
   :guix emacs-org
   :custom
@@ -1427,7 +1427,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     #'antlers/org-export-as:after))
 
 
-;; Roam
+;;; Roam
 (use-package org-roam
   :guix emacs-org-roam
   :custom
@@ -1525,7 +1525,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
               #'org-node-fakeroam-daily-note-p))
 
 
-;; Eshell
+;;; Eshell
 (use-package eat
   :guix emacs-eat
   :custom
@@ -1628,7 +1628,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
           (eshell-prompt-function 'epe-theme-lambda))
 
 
-;; Minor Modes
+;;; Minor Modes
 
 ; (use-package beacon
 ;   :load-path "/home/maddhappy/projects/beacon"
@@ -1776,7 +1776,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :custom  (darkroom-text-scale-increase 1.25))
 
 
-;; EAF
+;;; EAF
 (use-package eaf
   :guix (alsa-lib
          at-spi2-core
@@ -1888,7 +1888,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :load-path "~/0/1-project/eaf-ocap-cad-viewer")
 
 
-;; Other Dependencies
+;;; Other Dependencies
 ;; For eg. `guix shell --container --network emacs'
 ;; - Some lisp sources, like filecache.el, have store paths inlined.
 ;;   Others, like locate.el, do not?
