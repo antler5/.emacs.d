@@ -1717,40 +1717,6 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          emacs-yaml-mode))
 
 
-;; Moving forward with `:org-mode/insert-file-link?` for now.
-;; (use-package org-roam-logseq
-;;   :guix emacs-org-roam-logseq
-;;   :custom
-;;   (bill/logseq-folder (concat (getenv "HOME") "/Sync/app/org"))
-;;   (bill/logseq-exclude-pattern (concat "^" bill/logseq-folder "/logseq/.*$"))
-;;   :config
-;;   (defun antlers/org-roam-logseq ()
-;;     "Normalize logseq page IDs for =org-roam-logseq= every 2min."
-;;     (bill/check-logseq)
-;;     (run-with-timer 120 nil
-;;       #'antlers/org-roam-logseq))
-;;   (antlers/org-roam-logseq))
-(use-package org-logseq
-  :guix emacs-org-logseq
-  :init
-  (require 'f)
-  :custom
-  (org-logseq-dir (concat (getenv "HOME") "/Sync/app/org"))
-  (org-logseq-new-page-p t)
-  :config
-  (defalias 'github-dir 'org-logseq-dir)
-
-  (defun antlers/org-logseq-grep-query (page-or-id)
-    "Prevent Grep from resolving symlinks for =org-logseq=."
-    (let ((type (car page-or-id))
-          (query (cdr page-or-id)))
-      (format (pcase type
-                ('page "grep -nir \"^#+\\(TITLE\\|ALIAS\\): *%s\" %s --exclude-dir=.git" )
-                ('id "grep -nir \":id: *%s\" %s --exclude-dir=.git"))
-              query (shell-quote-argument (f-expand org-logseq-dir)))))
-  (advice-add 'org-logseq-grep-query :override
-    #'antlers/org-logseq-grep-query))
-
 (use-package pdf-tools
   :config (pdf-loader-install))
 
