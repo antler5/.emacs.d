@@ -8,7 +8,32 @@
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix packages)
-  #:use-module (gnu packages emacs-xyz))
+  #:use-module (gnu packages emacs-xyz)
+  #:use-module (gnu packages password-utils))
+
+(define-public emacs-keepass
+  (let ((commit "0ff1e121331c9d464c5d9285680c28bc7d0f654c")
+        (revision "0"))
+    (package
+      (name "emacs-keepass")
+      (version (git-version "0" revision commit))
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://gitlab.com/grinn.amy/keepass.el")
+                      (commit commit)))
+                (file-name (git-file-name name version))
+                (sha256
+                  (base32 "0s7s83lcqfk796f85c81i959xkwwrp054f6jp0x8rmgqw5shvykv"))))
+      (build-system emacs-build-system)
+      (inputs (list keepassxc))
+      (home-page "https://gitlab.com/grinn.amy/keepass.el")
+      (synopsis "Retrieve passwords to the kill ring from KeePass.")
+      (description "This package provides the command keepass-picker to quickly
+retrieve selected KeePass passwords from within Emacs using
+keepassxc-cli.")
+      (license license:gpl3))))
+
 (define-public emacs-org-roam-logseq
   (let ((commit "b76a900d938f829facf59d73006e8bddcc8c0363")
         (revision "0"))

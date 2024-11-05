@@ -830,7 +830,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   :guix emacs-cape
   ;; Defaults from the cape README.
   :ghook ('completion-at-point-functions #'cape-file)
-  :general ("C-c p" #'cape-prefix-map))
+  :general ("C-c P" #'cape-prefix-map))
 
 (use-package embark
   :guix (emacs-embark)
@@ -1715,6 +1715,36 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :config
   (add-hook 'after-init-hook
     #'explain-pause-mode))
+
+;; XXX: Breaks `mode-line-format-right-align`, somehow
+(use-package keepass
+  :guix emacs-keepass
+  :custom
+  (keepass-db (concat (getenv "HOME") "/Sync/passwords.kdbx"))
+  (keepass-yubikey "2:20604081")
+  (password-cache-expiry 35)
+  :config
+  (defun antlers/keepass--update-mode-line (desc)
+    "Update mode line with DESC for =keepass--update-mode-line=."
+    (setq keepass--mode-line-string
+          `(:eval
+            (moody-wrap
+              ,(format "KP: %s (%d)" desc keepass--time) nil 'up)))
+    (walk-windows
+     (lambda (win)
+       (with-selected-window win
+         (when (and mode-line-format
+                    (not (and (listp mode-line-format)
+                              (assq 'keepass--mode-line-string mode-line-format))))
+           (setq mode-line-format (list "" '(keepass--mode-line-string
+                                             (" " keepass--mode-line-string))
+                                        mode-line-format))))))
+    (force-mode-line-update t))
+  (advice-add 'keepass--update-mode-line :override
+    #'antlers/keepass--update-mode-line)
+
+  (keepass-global "C-c p")
+  (keepass-register "s" "Google" :name "Google"))
 
 
 ;; On-demand Minor Modes
