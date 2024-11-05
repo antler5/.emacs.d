@@ -1730,6 +1730,27 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 ;;     (run-with-timer 120 nil
 ;;       #'antlers/org-roam-logseq))
 ;;   (antlers/org-roam-logseq))
+(use-package org-logseq
+  :guix emacs-org-logseq
+  :init
+  (require 'f)
+  :custom
+  (org-logseq-dir (concat (getenv "HOME") "/Sync/app/org"))
+  (org-logseq-new-page-p t)
+  :config
+  (defalias 'github-dir 'org-logseq-dir)
+
+  (defun antlers/org-logseq-grep-query (page-or-id)
+    "Prevent Grep from resolving symlinks for =org-logseq=."
+    (let ((type (car page-or-id))
+          (query (cdr page-or-id)))
+      (format (pcase type
+                ('page "grep -nir \"^#+\\(TITLE\\|ALIAS\\): *%s\" %s --exclude-dir=.git" )
+                ('id "grep -nir \":id: *%s\" %s --exclude-dir=.git"))
+              query (shell-quote-argument (f-expand org-logseq-dir)))))
+  (advice-add 'org-logseq-grep-query :override
+    #'antlers/org-logseq-grep-query))
+
 (use-package pdf-tools
   :config (pdf-loader-install))
 

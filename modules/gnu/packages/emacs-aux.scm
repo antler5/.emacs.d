@@ -4,10 +4,73 @@
 (define-module (gnu packages emacs-aux)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix build-system emacs)
+  #:use-module (guix download)
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix packages)
   #:use-module (gnu packages emacs-xyz))
+(define-public emacs-org-roam-logseq
+  (let ((commit "b76a900d938f829facf59d73006e8bddcc8c0363")
+        (revision "0"))
+    (package
+      (name "emacs-org-roam-logseq")
+      (version (git-version "0" revision commit))
+      (source
+       (origin
+         (method url-fetch)
+         (uri (string-append
+               "https://gist.githubusercontent.com/zot/ddf1a89a567fea73bc3c8a209d48f527/raw/"
+               commit "/org-roam-logseq.el"))
+         (sha256
+          (base32 "04ijjz9yshc0840yrqxac1cgxplhn3yrhyfsryh6i0h54lcqk8hb"))))
+      (build-system emacs-build-system)
+      (arguments
+       (list
+        #:phases
+        #~(modify-phases %standard-phases
+            (add-after 'unpack 'subst
+              (lambda* (#:key source #:allow-other-keys)
+                (use-modules (ice-9 binary-ports))
+                (substitute* "org-roam-logseq.el"
+                  (("(;; put the directory you use here)" all)
+                   (string-append all "\n(require 'f)")))
+                (with-atomic-file-replacement "org-roam-logseq.el"
+                  (lambda (in out)
+                    (let loop ()
+                      (let ((u8 (get-u8 in)))
+                        (unless (eof-object? u8)
+                          (put-u8 out u8)
+                          (loop))))
+                    (display "\n(provide 'org-roam-logseq)\n" out))))))))
+      (propagated-inputs
+       (list emacs-f))
+      (home-page "https://gist.github.com/zot/ddf1a89a567fea73bc3c8a209d48f527")
+      (synopsis "")
+      (description "")
+      (license license:gpl3))))
+
+(define-public emacs-org-logseq
+  (let ((commit "054b4ba6fff43ae50be9c8fa6cf1da9f4e54b52b")
+        (revision "0"))
+    (package
+      (name "emacs-org-logseq")
+      (version (git-version "0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/llcc/org-logseq")
+               (commit commit)))
+         (sha256
+          (base32 "106vjnc9z2wyr4l6k9vzb9b6ajrwfk385sl2cbyg9azn7dm0r9lr"))
+         (file-name (git-file-name name version))))
+      (build-system emacs-build-system)
+      (propagated-inputs
+       (list emacs-dash))
+      (home-page "https://github.com/llcc/org-logseq")
+      (synopsis "")
+      (description "")
+      (license license:agpl3))))
 
 (define-public emacs-general-next
   (let ((commit "826bf2b97a0fb4a34c5eb96ec2b172d682fd548f")
