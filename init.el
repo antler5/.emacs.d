@@ -761,7 +761,15 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   :after       vertico
   :custom      (vertico-posframe-parameters '((frame-border-width . 8)))
   :custom-face (vertico-posframe-border ((t :background "#555")))
-  :init        (general-after-gui (vertico-posframe-mode 1)))
+  :init        (general-after-gui (vertico-posframe-mode 1))
+  :config
+  (with-eval-after-load 'consult-mu
+    (defun antlers/consult-mu (orig args)
+      "Disable =vertico-posframe-mode= for =consult-mu=."
+      (let ((vertico-posframe-mode nil))
+        (apply orig args)))
+    (advice-add 'consult-mu :around
+      #'antlers/consult-mu)))
 
 (use-package marginalia
   :guix    emacs-marginalia
