@@ -9,7 +9,30 @@
   #:use-module (guix git-download)
   #:use-module (guix packages)
   #:use-module (gnu packages emacs-xyz)
+  #:use-module (gnu packages mail)
   #:use-module (gnu packages password-utils))
+
+(define-public emacs-consult-mu
+  (let ((commit "90db1c6e3d0ec16126a347f6c15426c2a8ce0125")
+        (revision "0"))
+    (package
+      (name "emacs-consult-mu")
+      (version (git-version "0" revision commit))
+      (source (origin
+                (method git-fetch)
+                (uri (git-reference
+                      (url "https://github.com/armindarvish/consult-mu")
+                      (commit commit)))
+                (file-name (git-file-name name version))
+                (sha256
+                  (base32 "0n7rxs6v3pcdvyb01l7l9msfdcfns94qj8gknkcsm7y75vgvjnmj"))))
+      (build-system emacs-build-system)
+      (propagated-inputs
+        (list emacs-consult emacs-embark mu))
+      (home-page "https://github.com/armindarvish/consult-mu")
+      (synopsis "")
+      (description "")
+      (license license:gpl3))))
 
 (define-public emacs-keepass
   (let ((commit "0a14707fac0a74311cffbbcd2b6c7ee578977809")
