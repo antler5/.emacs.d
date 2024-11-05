@@ -32,8 +32,6 @@
 (setq ffap-machine-p-known 'reject)
 
 ;; Scolling optimization and tweaks
-;; (setq jit-lock-defer-time 0)
-;; (setq redisplay-skip-fontification-on-input t)
 (setq redisplay-dont-pause t)
 (setq mouse-wheel-progressive-speed nil)
 
