@@ -1307,6 +1307,18 @@ out.")
   ;; ;; open the message in mu4e-view-buffer when selected.
   ;; (consult-mu-action #'consult-mu--view-action)
   )
+
+(use-package elfeed
+  :guix (emacs-elfeed
+         emacs-elfeed-org)
+  :defer)
+
+(use-package mastodon
+  :guix emacs-mastodon
+  :init
+  (setq mastodon-instance-url "https://oldbytes.space")
+  (setq mastodon-active-user "antlers"))
+
 
 ;;; Org
 (use-package org
