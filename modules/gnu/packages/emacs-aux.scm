@@ -20,11 +20,11 @@
       (source (origin
                 (method git-fetch)
                 (uri (git-reference
-                      (url "https://gitlab.com/grinn.amy/keepass.el")
+                      (url "https://gitlab.com/antler5/keepass.el")
                       (commit commit)))
                 (file-name (git-file-name name version))
                 (sha256
-                  (base32 "0s7s83lcqfk796f85c81i959xkwwrp054f6jp0x8rmgqw5shvykv"))))
+                  (base32 "15l7yz9yi17dr873mgwibbi4wv5g3yw4nsx98lj8iqiqm5a5jnd8"))))
       (build-system emacs-build-system)
       (inputs (list keepassxc))
       (home-page "https://gitlab.com/grinn.amy/keepass.el")

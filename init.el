@@ -1731,9 +1731,20 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (defun antlers/keepass--update-mode-line (desc)
     "Update mode line with DESC for =keepass--update-mode-line=."
     (setq keepass--mode-line-string
-          `(:eval
-            (moody-wrap
-              ,(format "KP: %s (%d)" desc keepass--time) nil 'up)))
+      `(:eval
+        (propertize
+          ,(format " KP: %s (%d) " desc keepass--time)
+          'face
+          (list :inherit    (if (moody-window-active-p)
+                                'mode-line-active
+                              'mode-line-inactive)
+                :background (face-background 'default)
+                :overline   (if (moody-window-active-p)
+                                (face-attribute 'mode-line :overline nil t)
+                              (face-attribute 'mode-line-inactive :background nil t))
+                :underline  (if (moody-window-active-p)
+                                (face-attribute 'mode-line :underline nil t)
+                              (face-attribute 'mode-line-inactive :background nil t))))))
     (walk-windows
      (lambda (win)
        (with-selected-window win
