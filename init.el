@@ -1410,8 +1410,21 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 
 (use-package ox-haunt
   :guix emacs-ox-haunt
-  :after ox
-  :defer)
+  :defer
+  :config
+  ;; Prevent whitespace-mode artifacts in HTML exported from fontified
+  ;; buffers.
+  (defun antlers/org-export-as:before (&rest _)
+    (setq whitespace-style-bak whitespace-style)
+    (setq whitespace-style '()))
+  (advice-add 'org-export-as :before
+    #'antlers/org-export-as:before)
+
+  (defun antlers/org-export-as:after (&rest _)
+    (setq whitespace-style whitespace-style-bak)
+    (setq whitespace-style '()))
+  (advice-add 'org-export-as :after
+    #'antlers/org-export-as:after))
 
 
 ;; Roam
