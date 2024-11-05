@@ -320,13 +320,17 @@ Supports both Emacs and Evil cursor conventions."
     (cond ((not (window-dedicated-p)) "")
           (t (list (nerd-icons-octicon "nf-oct-pin") " "))))
   (moody-replace-eldoc-minibuffer-message-function)
+  (setq mode-line-front-space
+    '(:eval (if (display-graphic-p)
+                (propertize " " 'display `((space :align-to 0)))
+                " ")))
   (defun antlers/mode-line-format (title center right end)
     "Return =mode-line-format= with =TITLE= and widgets =CENTER=, =RIGHT=, and =END=.
 =RIGHT= goes before =evil-mode-line-tag=, =END= goes after."
     `(" "
       (:eval (antlers/mode-line-dedicated))
       (:eval (antlers/mode-line-status))
-      moody-mode-line-front-space
+      mode-line-front-space
       ,@(if title
             `((:eval
                (moody-tab
@@ -351,9 +355,9 @@ Skips buffers with buffer-local =mode-line-format= values."
           (:eval (antlers/mode-line-percent)))
         '("  ")))
     (-map (lambda (b)
-            (when (not (buffer-local-value 'mode-line-format b))
-              (setf (buffer-local-value 'mode-line-format b)
-                (default-value 'mode-line-format))))
+            (when (buffer-local-boundp 'mode-line-format b))
+              (with-current-buffer b
+                (kill-local-variable 'mode-line-format)))
       (buffer-list)))
   ;; Set mode-line after init, but load now.
   (add-hook 'emacs-startup-hook
