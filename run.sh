@@ -27,7 +27,9 @@ guix shell ${ARGS[@]} \
   --with-input=emacs-minimal=emacs-next-minimal \
   --with-input=emacs-dirvish=emacs-dirvish-patched \
   --with-input=emacs-general=emacs-general-next \
+  --with-input=emacs-embark=emacs-embark-patched \
   --without-tests=emacs-lispy \
+  --without-tests=emacs-explain-pause-mode \
   emacs \
   $(~/.emacs.d/extract-packages.scm < ~/.emacs.d/README.md.src) \
   $(~/.emacs.d/extract-packages.scm < ~/.emacs.d/init.el) \

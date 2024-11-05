@@ -26,6 +26,21 @@
           (base32 "1jillsr80l4wfbcqsxh3zbgbvmbfih2wcz518mgw9p9pwg4xwvy7"))
          (file-name (git-file-name name version)))))))
 
+(define-public emacs-embark-patched
+  (package
+    (inherit emacs-embark)
+    (name "emacs-embark-patched")
+    (version "0.0.0")
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url "https://github.com/antler5/embark")
+                    (commit "73369d8f92fafccfda5aef74f9b7d4353f393c2f")))
+              (sha256
+               (base32
+                "0mjxvymxgmjb0wp3cxlkqjawkpl8njw3bjwncfrnhw8vvvv4dv8z"))
+              (file-name (git-file-name name version))))))
+
 (define-public emacs-dirvish-patched
   (package
     (inherit emacs-dirvish)
@@ -46,7 +61,7 @@
         (revision "0"))
     (package
       (name "emacs-nerd-icons-corfu")
-      (version (git-version "0.1" revision commit))
+      (version (git-version "0" revision commit))
       (source
        (origin
          (method git-fetch)

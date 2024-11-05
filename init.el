@@ -4,7 +4,7 @@
 ;; SPDX-FileCopyrightText: (c) 2024 antlers <antlers@illucid.net>
 
 ;; Substantial portions inspired by:
-;; - [doomemacs](https://github.com/doomemacs/doomemacs)
+;; - [[https://github.com/doomemacs/doomemacs][doomemacs]]
 ;; - emacs-bedrock
 ;; - mnewt's dotemacs repo
 ;; - kristofferbalintona.me
@@ -171,6 +171,8 @@
 
   :config
   (defalias 'yes-or-no-p 'y-or-n-p) ; Replace yes/no prompts with y/n
+  (put 'narrow-to-page 'disabled nil)
+  (put 'narrow-to-region 'disabled nil)
 
   ;; GPG / Pinentry
   (setq epa-pinentry-mode 'loopback)
@@ -356,7 +358,8 @@ Skips buffers with buffer-local =mode-line-format= values."
                 (default-value 'mode-line-format))))
       (buffer-list)))
   ;; Set mode-line after init, but load now.
-  (add-hook 'emacs-startup-hook #'antlers/set-mode-line-format))
+  (add-hook 'emacs-startup-hook
+    #'antlers/set-mode-line-format))
 
 
 ;; Theme, Graphics, and Fringe
@@ -390,9 +393,9 @@ Skips buffers with buffer-local =mode-line-format= values."
   :custom (display-line-numbers-width 3))
 
 (use-package prettify-symbols-mode
-  :ghook ('lisp-mode-hook
-          'lisp-data-mode-hook
-          'eshell-mode-hook))
+  :ghook 'lisp-mode-hook
+         'lisp-data-mode-hook
+         'eshell-mode-hook)
 
 (use-package highlight-indent-guides
   :guix emacs-highlight-indent-guides
@@ -508,8 +511,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
 (use-package nerd-icons-completion
   :guix  emacs-nerd-icons-completion
   :after marginalia
-  :ghook ('marginalia-mode-hook
-          #'nerd-icons-completion-marginalia-setup)
+  :ghook ('marginalia-mode-hook #'nerd-icons-completion-marginalia-setup)
   :config
   (let ((font-dest
           (cond ;; Default Linux install directories
@@ -581,6 +583,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
 
 ;; Evil
 (use-package evil
+  ;; see also: emacs-evil-org-mode
   :guix emacs-evil
   :demand
   :general-config
@@ -711,6 +714,11 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
     (goto-char pt))
   (setf (alist-get ?  avy-dispatch-alist) 'avy-action-mark-to-char))
 
+(use-package link-hint
+  :guix emacs-link-hint
+  :general (:state 'normal
+            "M-s g" 'link-hint-open-link))
+
 
 ;;; Completion-at-point Stack
 (use-package orderless
@@ -795,7 +803,8 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
       (setq-local corfu-auto nil) ; only in buffer
       (corfu-mode 1)))
   ;; Hook depth! Very fancy.
-  (add-hook 'minibuffer-setup-hook 'corfu-enable-always-in-minibuffer 1)
+  (add-hook 'minibuffer-setup-hook
+    'corfu-enable-always-in-minibuffer 1)
 
   ;; Enable in Eshell
   (add-hook 'eshell-mode-hook
@@ -826,10 +835,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   :general ("C-c p" #'cape-prefix-map))
 
 (use-package embark
-  :guix (emacs-embark ; This refers to my fork with a page-able which-key pop-up on `embark-collect'
-          ; --with-git-url=emacs-embark=file:///home/maddhappy/projects/oantolin/embark
-          ; --with-branch=emacs-embark=fix/issue-647
-          )
+  :guix (emacs-embark)
   :after evil evil-repeat
   :general ("C->" #'embark-act  ; pick some comfortable binding
             "C-;" #'embark-dwim ; good alternative: M-.
@@ -912,7 +918,6 @@ targets."
             "M-g i"   #'consult-imenu
             ;; M-s bindings (search-map)
             "M-s d"   #'consult-find
-            "M-s g"   #'consult-grep
             "M-s G"   #'consult-git-grep
             "M-s r"   #'consult-ripgrep
             "C-s"     #'consult-line
@@ -964,8 +969,9 @@ targets."
   (diredfl-read-priv   ((t :inherit font-lock-keyword-face :foreground unspecified :background unspecified)))
   (diredfl-write-priv  ((t :inherit font-lock-builtin-face :foreground unspecified :background unspecified)))
   (diredfl-executable-tag ((t :inherit dired-directory     :foreground unspecified :background unspecified)))
-  :ghook '(dired-mode-hook
-           dirvish-directory-view-mode-hook))
+  :config
+  :ghook 'dired-mode-hook
+         'dirvish-directory-view-mode-hook)
 
 (use-package vc-git
   :after em-unix ; XXX: alt., require it?
@@ -1274,8 +1280,8 @@ out.")
   (org-startup-indented      t)
   (org-default-priority      ?C)
   (org-lowest-priority       ?D)
-  (org-agenda-files          '("~/Sync/org"))
-  (diary-file                "~/Sync/org/diary")
+  (org-agenda-files          (list (concat (getenv "HOME") "/Sync/app/org")))
+  (diary-file                nil)
   (org-archive-location      "%s_archive::* Archived Tasks")
   (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
   (org-todo-keywords         '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
@@ -1289,7 +1295,7 @@ out.")
   (org-agenda-compact-blocks t)
   (org-return-follows-link   t)
   ;; Refile
-  (org-default-notes-file    "~/Sync/org/refile.org")
+  (org-default-notes-file    "~/Sync/app/org/refile.org")
   (org-refile-targets        '((nil :maxlevel . 9)
                                (org-agenda-files :maxlevel . 9)))
   (org-refile-use-outline-path t)
@@ -1414,7 +1420,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 (use-package org-roam
   :guix emacs-org-roam
   :custom
-  (org-roam-directory "~/Sync/org")
+  (org-roam-directory "~/Sync/app/org")
   (org-roam-completion-everywhere nil)
   :config
   (org-roam-db-autosync-mode))
@@ -1437,16 +1443,14 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
            ("M-s i" 'org-node-insert-link)
            ("M-s s" #'org-node-series-dispatch)
   :custom
-  (org-node-ask-directory "~/Sync/org/roam")
+  (org-node-ask-directory "~/Sync/app/org")
   (org-node-filter-fn
     (lambda (node)
       (not (or (org-node-get-todo node) ;; Ignore headings with todo state
-               (member "drill" (org-node-get-tags node)) ;; Ignore :drill:
                (assoc "ROAM_EXCLUDE" (org-node-get-properties node))
                (string-search "archive" (org-node-get-file-path node))))))
   ;; Seek wide use
-  :ghook ('org-open-at-point-functions
-          #'org-node-try-visit-ref-node)
+  :ghook ('org-open-at-point-functions #'org-node-try-visit-ref-node)
   :config
   (org-node-cache-mode)
   (org-node-complete-at-point-mode)
@@ -1463,7 +1467,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   ;;      :version 2
   ;;      :classifier (lambda (node)
   ;;                    (let ((path (org-node-get-file-path node)))
-  ;;                      (when (string-search (concat (getenv "HOME") "/Sync/org/roam/journals") path)
+  ;;                      (when (string-search (concat (getenv "HOME") "/Sync/app/org/roam/journals") path)
   ;;                        (let ((ymd (org-node-helper-filename->ymd path)))
   ;;                          (when ymd
   ;;                            (cons ymd path))))))
@@ -1476,14 +1480,14 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   ;;                  (org-node-helper-try-visit-file (cdr item)))
   ;;      :creator (lambda (sortstr key)
   ;;                 (let ((org-node-datestamp-format "")
-  ;;                       (org-node-ask-directory "~/Sync/org/roam/journals"))
+  ;;                       (org-node-ask-directory "~/Sync/app/org/roam/journals"))
   ;;                   (org-node-create sortstr (org-id-new) key))))))
   )
 
 (use-package org-node-fakeroam
   :guix emacs-org-node-fakeroam
   :custom
-  (org-node-extra-id-dirs '("~/Sync/org"))
+  (org-node-extra-id-dirs '("~/Sync/app/org"))
   ;; Right from the README.
   (org-node-creation-fn #'org-node-fakeroam-new-via-roam-capture)
   (org-node-slug-fn #'org-node-fakeroam-slugify-via-roam)
@@ -1637,12 +1641,12 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 
 (use-package flyspell
   :guix hunspell hunspell-dict-en-us
-  :ghook ('(prog-mode-hook) #'flyspell-prog-mode)
+  :ghook ('prog-mode-hook #'flyspell-prog-mode)
          'git-commit-mode-hook
   :custom
   (ispell-alternate-dictionary "/tmp/words")
   (ispell-personal-dictionary ; Keep `ispell' dictionary in .emacs.d
-    (concat (getenv "HOME") "/Sync/org/ispell-english.dict"))
+    (concat (getenv "HOME") "/Sync/app/org/ispell-english.dict"))
   (ispell-silently-savep t)   ; Don't ask before saving dict. updates
   :config
   ;; TODO: Should be a Guix package instead of building into /tmp at
@@ -1679,7 +1683,8 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 (use-package git-gutter
   :guix emacs-git-gutter
   :commands (git-gutter:set-window-margin git-gutter:window-margin)
-  :ghook 'prog-mode-hook 'org-mode-hook
+  :ghook 'prog-mode-hook
+         'org-mode-hook
   :custom-face
   (git-gutter:added ((t :foreground "#cae682")))
   (git-gutter:deleted ((t :foreground "#e5786d")))
@@ -1694,6 +1699,12 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :guix emacs-rainbow-mode
   :ghook 'prog-mode-hook)
 
+(use-package explain-pause-mode
+  :guix emacs-explain-pause-mode
+  :config
+  (add-hook 'after-init-hook
+    #'explain-pause-mode))
+
 
 ;; On-demand Minor Modes
 '(:guix (emacs-csv-mode ; used to enable `csv-align-mode', but long line issues
@@ -1701,11 +1712,27 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          ;; emacs-makefile-ts ; not installed yet
          tree-sitter-go
          emacs-debbugs
+         emacs-explain-pause-mode
          emacs-json-mode
          emacs-markdown-mode
          emacs-wgrep
+         emacs-x509-mode
          emacs-yaml-mode))
 
+
+;; Moving forward with `:org-mode/insert-file-link?` for now.
+;; (use-package org-roam-logseq
+;;   :guix emacs-org-roam-logseq
+;;   :custom
+;;   (bill/logseq-folder (concat (getenv "HOME") "/Sync/app/org"))
+;;   (bill/logseq-exclude-pattern (concat "^" bill/logseq-folder "/logseq/.*$"))
+;;   :config
+;;   (defun antlers/org-roam-logseq ()
+;;     "Normalize logseq page IDs for =org-roam-logseq= every 2min."
+;;     (bill/check-logseq)
+;;     (run-with-timer 120 nil
+;;       #'antlers/org-roam-logseq))
+;;   (antlers/org-roam-logseq))
 (use-package pdf-tools
   :config (pdf-loader-install))
 
@@ -1790,7 +1817,8 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
           (time-since)
           (time-less-p (days-to-time 7))
           (unless
-            (add-hook 'after-init-hook #'antlers/eaf-install-and-update)))))
+            (add-hook 'after-init-hook
+              #'antlers/eaf-install-and-update)))))
   :config
   (antlers/append-to-path
     (concat (getenv "GUIX_ENVIRONMENT") "/lib")
@@ -1861,5 +1889,3 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          sshfs  ; for net/tramp-sshfs.el
          zip ; for org/ox-odt.el (not that i use it)
          ))
-(put 'narrow-to-page 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
