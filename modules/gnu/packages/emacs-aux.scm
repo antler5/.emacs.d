@@ -12,7 +12,7 @@
   #:use-module (gnu packages password-utils))
 
 (define-public emacs-keepass
-  (let ((commit "0ff1e121331c9d464c5d9285680c28bc7d0f654c")
+  (let ((commit "0a14707fac0a74311cffbbcd2b6c7ee578977809")
         (revision "0"))
     (package
       (name "emacs-keepass")
