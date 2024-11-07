@@ -258,7 +258,9 @@ Supports both Emacs and Evil cursor conventions."
     (when (eq evil-state 'visual)
       (force-mode-line-update)))
   (general-add-advice
-    '(evil-backward-char evil-next-line evil-previous-line evil-forward-char)
+    '(evil-forward-char evil-backward-char
+      evil-next-line evil-previous-line
+      evil-jump-item)
     :after #'antlers/force-mode-line-update))
 
 (use-package moody
