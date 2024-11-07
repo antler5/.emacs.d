@@ -360,11 +360,10 @@ Skips buffers with buffer-local =mode-line-format= values."
         '((:eval (spaceline--selection-info))
           (:eval (antlers/mode-line-percent)))
         '("  ")))
-    (-map (lambda (b)
-            (when (buffer-local-boundp 'mode-line-format b))
-              (with-current-buffer b
-                (kill-local-variable 'mode-line-format)))
-      (buffer-list)))
+    (dolist (b (buffer-list))
+      (when (buffer-local-boundp 'mode-line-format b)
+        (with-current-buffer b
+          (kill-local-variable 'mode-line-format)))))
   ;; Set mode-line after init, but load now.
   (add-hook 'emacs-startup-hook
     #'antlers/set-mode-line-format))
@@ -405,13 +404,12 @@ Skips buffers with buffer-local =mode-line-format= values."
     (set-face-underline 'mode-line nil)
     (set-face-underline 'mode-line-active nil)
     (set-face-underline 'mode-line-inactive nil)
-    (defun antlers/moody-wrap (out)
+    (defun antlers/moody-wrap (str)
       "Remove mode-line underline for =moody-wrap= in TTY frames."
-      (-map (lambda (c)
-              (propertize c 'face
-                (plist-put (get-text-property 0 'face c)
-                  :underline nil)))
-        out))
+      (dolist (char str)
+        (propertize char 'face
+          (plist-put (get-text-property 0 'face c)
+            :underline nil))))
     (advice-add 'moody-wrap :filter-return
       #'antlers/moody-wrap)
     (add-hook 'window-configuration-change-hook
@@ -478,7 +476,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
     (-let* ((options (antlers/collect-plist syms))
             ((&plist :intern?) options))
       `(,(if intern? #'intern #'make-symbol)
-        (apply #'concat (-map #'symbol-name (list . ,syms))))))
+        (apply #'concat (-map #'symbol-name (list ,@syms))))))
   (defmacro antlers/define-icon-mappings (&rest clauses)
     "Install narrow =all-the-icons= <-> =nerd-icons= shims.
 
@@ -876,8 +874,8 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
         (comint-send-input))))
   (advice-add 'corfu-insert :after 'corfu-send-shell)
   ;; Strongly recommended in the README
-  (-map (-cut advice-add 'pcomplete-completions-at-point :around <>)
-    (list 'cape-wrap-silent 'cape-wrap-purify)))
+  (dolist (proc '(cape-wrap-silent cape-wrap-purify))
+    (advice-add 'pcomplete-completions-at-point :around proc))
 
 (use-package corfu-terminal
   :guix emacs-corfu-terminal
@@ -1237,13 +1235,12 @@ Accounts for =dirvish-git-gutter= and reduces =save-excursion= calls."
 
   (defun antlers/magit-post-refresh-hook (&optional _)
     "Revert =dired= buffers for =magit=."
-    (-map (lambda (b)
-            (when (and (eq (buffer-local-value 'major-mode b) #'dired-mode)
-                       git-gutter:last-chars-modified-tick)
-              (save-window-excursion
-                (switch-to-buffer b)
-                (revert-buffer t t nil))))
-          (buffer-list)))
+    (dolist (b (buffer-list))
+      (when (and (eq (buffer-local-value 'major-mode b) #'dired-mode)
+                 git-gutter:last-chars-modified-tick)
+        (save-window-excursion
+          (switch-to-buffer b)
+          (revert-buffer t t nil)))))
   (with-eval-after-load 'magit-mode
     (add-hook 'magit-post-refresh-hook
       #'antlers/magit-post-refresh-hook))
@@ -1691,11 +1688,11 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (defun eshell/my-find-file (pattern)
     (if (stringp pattern)
         (find-file pattern)
-      (mapc 'find-file (mapcar 'expand-file-name pattern))))
+      (mapc #'find-file (mapcar 'expand-file-name pattern))))
   (defun eshell/nvim (&rest args)
-    (apply 'eshell/my-find-file args))
+    (apply #'eshell/my-find-file args))
   (defun eshell/emacs (&rest args)
-    (apply 'eshell/my-find-file args))
+    (apply #'eshell/my-find-file args))
 
   ;; Ooo, now here's something bold:
   (defun antlers/quit-to-eshell ()
@@ -1703,7 +1700,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     (interactive)
     (if (> (apply #'+
              (-map (lambda (f) (length (window-list f 'other)))
-                               (minibuffer-frame-list)))
+                   (minibuffer-frame-list)))
            1)
         (let ((buffer (current-buffer)))
           (delete-window)
@@ -1715,10 +1712,9 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     "Close all windows, maybe kill their buffers, and open eshell."
     (interactive)
     (let ((target (window-frame (get-buffer-window (current-buffer)))))
-      (-map (lambda (b)
-              (when (eq (window-frame (get-buffer-window b)) target)
-                (with-current-buffer b (antlers/quit-to-eshell))))
-            (buffer-list))))
+      (dolist (b (buffer-list))
+        (when (eq (window-frame (get-buffer-window b)) target)
+          (with-current-buffer b (antlers/quit-to-eshell))))))
   (defun antlers/save-and-quit-to-eshell (&optional arg)
     "Save and call =antlers/quit-to-eshell=."
     (interactive)
