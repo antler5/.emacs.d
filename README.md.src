@@ -114,7 +114,15 @@ antlers@citrus ~/.emacs.d$ ./run.sh
            for row on table
            do (when (not (equal (car (caddar row)) last-section))
                 (push 'hline acc)
-                (push (list (concat "*" (or (caddr (caddar row)) "Un-categorized") "*") "") acc))
+                (push (list (concat "*" (or (caddr (caddar row)) "Un-categorized") "*")
+                            (if (not (caddr (caddar row)))
+                                ""
+                                (save-excursion
+                                  (switch-to-buffer (find-file antlers/init.el))
+                                  (goto-char (car (caddar row)))
+                                  (concat (number-to-string (car (page--count-lines-page)))
+                                          " lines"))))
+                      acc))
            do (push (butlast (car row)) acc)
            do (setq last-section (car (caddar row)))
            finally return (reverse acc)))

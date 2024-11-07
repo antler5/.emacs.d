@@ -52,7 +52,7 @@ antlers@citrus ~/.emacs.d$ ./run.sh
 <tbody>
 <tr class="odd">
 <td><strong>Use-Package</strong></td>
-<td></td>
+<td>24 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -73,7 +73,7 @@ nothing).</td>
 </tr>
 <tr class="odd">
 <td><strong>Guix Integration</strong></td>
-<td></td>
+<td>24 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -84,7 +84,7 @@ class="verbatim">exec-path</code> when appropriate.</td>
 </tr>
 <tr class="odd">
 <td><strong>Native Emacs Configuration</strong></td>
-<td></td>
+<td>122 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -107,7 +107,7 @@ class="verbatim">elisp-load-path-roots</code>.</td>
 </tr>
 <tr class="odd">
 <td><strong>Mode-line</strong></td>
-<td></td>
+<td>138 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -176,7 +176,7 @@ updates open buffers.</td>
 </tr>
 <tr class="even">
 <td><strong>Theme, Graphics, and Fringe</strong></td>
-<td></td>
+<td>209 lines</td>
 </tr>
 <tr class="odd">
 <td><a
@@ -216,7 +216,7 @@ href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME
 </tr>
 <tr class="odd">
 <td><strong>Application Packages</strong></td>
-<td></td>
+<td>384 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -305,7 +305,7 @@ class="verbatim">dirvish-find-entry-hook</code>.</td>
 </tr>
 <tr class="even">
 <td><strong>Org</strong></td>
-<td></td>
+<td>161 lines</td>
 </tr>
 <tr class="odd">
 <td><a
@@ -322,7 +322,7 @@ blocks.</td>
 </tr>
 <tr class="odd">
 <td><strong>Roam</strong></td>
-<td></td>
+<td>119 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -332,7 +332,7 @@ class="verbatim">org-node</code>.</td>
 </tr>
 <tr class="odd">
 <td><strong>Eshell</strong></td>
-<td></td>
+<td>103 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -371,7 +371,7 @@ asking).</td>
 </tr>
 <tr class="even">
 <td><strong>Minor Modes</strong></td>
-<td></td>
+<td>130 lines</td>
 </tr>
 <tr class="odd">
 <td><a
@@ -381,7 +381,7 @@ class="verbatim">keepass--update-mode-line</code>.</td>
 </tr>
 <tr class="even">
 <td><strong>EAF</strong></td>
-<td></td>
+<td>112 lines</td>
 </tr>
 <tr class="odd">
 <td><a
