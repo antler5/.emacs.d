@@ -431,6 +431,7 @@ Skips buffers with buffer-local =mode-line-format= values."
   (cursor         ((t (:background"#ddaa6f"))))
   (isearch        ((t (:background ,(face-background 'cursor)))))
   (lazy-highlight ((t (:background "#6b8dff"))))
+  (success        ((t (:foreground "#95e454"))))
   ;; Highlights
   (custom-highlight
     "My custom face for highlights and regions."
