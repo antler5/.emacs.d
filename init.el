@@ -895,7 +895,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   (advice-add 'corfu-insert :after 'corfu-send-shell)
   ;; Strongly recommended in the README
   (dolist (proc '(cape-wrap-silent cape-wrap-purify))
-    (advice-add 'pcomplete-completions-at-point :around proc))
+    (advice-add 'pcomplete-completions-at-point :around proc)))
 
 (use-package corfu-terminal
   :guix emacs-corfu-terminal
@@ -1335,7 +1335,7 @@ out.")
 (use-package transient-posframe
   :guix emacs-transient-posframe
   :after transient
-  :config (general-after-gui (transient-posframe-mode 1))
+  :config (general-after-gui (transient-posframe-mode 1)))
 
 (use-package magit
   :guix    (emacs-magit
