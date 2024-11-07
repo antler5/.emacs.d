@@ -1887,14 +1887,24 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (keepass-register "s" "Google" :name "Google"))
 
 
-;; On-demand Minor Modes
-'(:guix (emacs-csv-mode ; used to enable `csv-align-mode', but long line issues
-         ;; emacs-go-mode ; gonna try tree-sitter first
-         ;; emacs-makefile-ts ; not installed yet
-         tree-sitter-go
+;;; On-demand Minor Modes
+'(:guix (;; emacs-makefile-ts ; not installed yet
+         emacs-calfw ; vs emacs-org-timeblock
+         emacs-calibredb
+         ;; These don't really map to evil bindings, but do *work*
+         emacs-casual-avy
+         emacs-casual-calc
+         emacs-casual-dired
+         emacs-casual-info
+         emacs-csv-mode ; used to enable `csv-align-mode', but long line issues
          emacs-debbugs
+         emacs-ebuku ; see: grimoire
+         emacs-el2org
          emacs-json-mode
          emacs-markdown-mode
+         emacs-mixed-pitch
+         emacs-org-timeblock ; vs emacs-calfw
+         emacs-polymode-org
          emacs-wgrep
          emacs-x509-mode
          emacs-yaml-mode))
