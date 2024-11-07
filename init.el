@@ -1712,7 +1712,6 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          ;; emacs-makefile-ts ; not installed yet
          tree-sitter-go
          emacs-debbugs
-         emacs-explain-pause-mode
          emacs-json-mode
          emacs-markdown-mode
          emacs-wgrep
