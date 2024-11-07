@@ -1910,7 +1910,8 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          emacs-x509-mode
          emacs-yaml-mode))
 
-(use-package pdf-tools
+(use-package pdf-loader
+  :guix emacs-pdf-tools
   :config (pdf-loader-install))
 
 (use-package nov
