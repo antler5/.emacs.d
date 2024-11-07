@@ -106,57 +106,61 @@ class="verbatim">REGEX</code> in <code
 class="verbatim">elisp-load-path-roots</code>.</td>
 </tr>
 <tr class="odd">
+<td><strong>Mode-line</strong></td>
+<td></td>
+</tr>
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+spaceline--column-number-at-pos&amp;type=code">spaceline–column-number-at-pos</a></td>
 <td>Column number at POS. Analog to <code
 class="verbatim">line-number-at-pos</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+spaceline--selection-info&amp;type=code">spaceline–selection-info</a></td>
 <td>Information about the size of the current selection, when
 applicable.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/force-mode-line-update&amp;type=code">antlers/force-mode-line-update</a></td>
 <td>Call <code class="verbatim">force-mode-line-update</code> to keep
 <code class="verbatim">selection-info</code> up-to-date for <code
 class="verbatim">evil</code> commands.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-status&amp;type=code">antlers/mode-line-status</a></td>
 <td>Return a <code class="verbatim">nerd-icon</code> representing the
 state of the current buffer.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-percent&amp;type=code">antlers/mode-line-percent</a></td>
 <td>Return <code class="verbatim">point</code> position (as a
 percentage) and buffer length (in lines).</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-vcs&amp;type=code">antlers/mode-line-vcs</a></td>
 <td>Return current buffer’s <code class="verbatim">vc-state</code>,
 truncated, with a <code class="verbatim">nerd-icon</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-file-size&amp;type=code">antlers/mode-line-file-size</a></td>
 <td>Return the file-size of <code
 class="verbatim">buffer-file-name</code>, formatted for the
 mode-line.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-dedicated&amp;type=code">antlers/mode-line-dedicated</a></td>
 <td>Return a pin <code class="verbatim">nerd-icon</code> when <code
 class="verbatim">current-buffer</code> is <code
 class="verbatim">dedicated</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/mode-line-format&amp;type=code">antlers/mode-line-format</a></td>
 <td>Return <code class="verbatim">mode-line-format</code> with <code
@@ -164,11 +168,27 @@ class="verbatim">TITLE</code> and widgets <code
 class="verbatim">CENTER</code>, <code class="verbatim">RIGHT</code>, and
 <code class="verbatim">END</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/set-mode-line-format&amp;type=code">antlers/set-mode-line-format</a></td>
 <td>Sets the default <code class="verbatim">mode-line-format</code> and
 updates open buffers.</td>
+</tr>
+<tr class="even">
+<td><strong>Theme, Graphics, and Fringe</strong></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/change-window-divider&amp;type=code">antlers/change-window-divider</a></td>
+<td>Set <code class="verbatim">vertical-border</code> to use a longer
+unicode char.</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/moody-wrap&amp;type=code">antlers/moody-wrap</a></td>
+<td>Remove mode-line underline for <code
+class="verbatim">moody-wrap</code> in TTY frames.</td>
 </tr>
 <tr class="odd">
 <td><a
@@ -238,91 +258,130 @@ class="verbatim">dirvish-free-space-ml</code>.</td>
 </tr>
 <tr class="even">
 <td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/git-gutter:update-all-windows&amp;type=code">antlers/git-gutter:update-all-windows</a></td>
+<td>Update visible buffers for git-gutter:update-all-windows.</td>
+</tr>
+<tr class="odd">
+<td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/magit-post-refresh-hook&amp;type=code">antlers/magit-post-refresh-hook</a></td>
 <td>Revert <code class="verbatim">dired</code> buffers for <code
 class="verbatim">magit</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/vc-state-cache&amp;type=code">antlers/vc-state-cache</a></td>
 <td><code class="verbatim">vc-state</code> cache for <code
 class="verbatim">dirvish-git-gutter</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/clear&amp;type=code">antlers/clear</a></td>
 <td>Clear <code class="verbatim">eshell</code> (<code
 class="verbatim">eshell/clear</code> errors out).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/clear-vc-state-cache&amp;type=code">antlers/clear-vc-state-cache</a></td>
 <td>Clear <code class="verbatim">antlers/vc-state-cache</code> and
 trigger gutter refresh.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish-subtree-remove&amp;type=code">antlers/dirvish-subtree-remove</a></td>
 <td>Clear gutter for <code
 class="verbatim">dirvish-subtree-remove</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish--render-attrs&amp;type=code">antlers/dirvish–render-attrs</a></td>
 <td>Mark gutter up-to-date for <code
 class="verbatim">render-attrs</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/dirvish-find-entry-hook&amp;type=code">antlers/dirvish-find-entry-hook</a></td>
 <td>Clear gutter for <code
 class="verbatim">dirvish-find-entry-hook</code>.</td>
 </tr>
+<tr class="even">
+<td><strong>Org</strong></td>
+<td></td>
+</tr>
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-setup-%3C%3E-syntax-fix&amp;type=code">antlers/org-setup-&lt;&gt;-syntax-fix</a></td>
-<td>Setup for characters ?&lt; and ?&gt; in source code blocks.</td>
+<td>Setup for characters <code class="verbatim">?&lt;</code> and <code
+class="verbatim">?&gt;</code> in source code blocks.</td>
 </tr>
 <tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-mode-%3C%3E-syntax-fix&amp;type=code">antlers/org-mode-&lt;&gt;-syntax-fix</a></td>
-<td>Change syntax of characters ?&lt; and ?&gt; to symbol within source
-code blocks.</td>
+<td>Change syntax of characters <code class="verbatim">?&lt;</code> and
+<code class="verbatim">?&gt;</code> to symbol within source code
+blocks.</td>
 </tr>
 <tr class="odd">
+<td><strong>Roam</strong></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-node-helper-filename-%3Eymd&amp;type=code">antlers/org-node-helper-filename-&gt;ymd</a></td>
+<td>Process underscore-separated dates for <code
+class="verbatim">org-node</code>.</td>
+</tr>
+<tr class="odd">
+<td><strong>Eshell</strong></td>
+<td></td>
+</tr>
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/quit-to-eshell&amp;type=code">antlers/quit-to-eshell</a></td>
 <td>Close current window, maybe kill its buffer, maybe open eshell.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/quit-all-to-eshell&amp;type=code">antlers/quit-all-to-eshell</a></td>
 <td>Close all windows, maybe kill their buffers, and open eshell.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/save-and-quit-to-eshell&amp;type=code">antlers/save-and-quit-to-eshell</a></td>
 <td>Save and call <code
 class="verbatim">antlers/quit-to-eshell</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/save-and-quit-to-eshell*&amp;type=code">antlers/save-and-quit-to-eshell*</a></td>
 <td>Save and call <code class="verbatim">antlers/quit-to-eshell</code>
 (without asking).</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/save-and-quit-all-to-eshell&amp;type=code">antlers/save-and-quit-all-to-eshell</a></td>
 <td>Save all and call <code
 class="verbatim">antlers/quit-all-to-eshell</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/save-and-quit-all-to-eshell*&amp;type=code">antlers/save-and-quit-all-to-eshell*</a></td>
 <td>Save all and call <code
 class="verbatim">antlers/quit-all-to-eshell</code> (without
 asking).</td>
+</tr>
+<tr class="even">
+<td><strong>Minor Modes</strong></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/keepass--update-mode-line&amp;type=code">antlers/keepass–update-mode-line</a></td>
+<td>Update mode line with DESC for <code
+class="verbatim">keepass--update-mode-line</code>.</td>
+</tr>
+<tr class="even">
+<td><strong>EAF</strong></td>
+<td></td>
 </tr>
 <tr class="odd">
 <td><a

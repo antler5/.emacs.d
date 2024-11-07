@@ -394,7 +394,7 @@ Skips buffers with buffer-local =mode-line-format= values."
   ;; No underlines across mode-line or window dividers in TTY frames.
   (general-after-tty
     (defun antlers/change-window-divider ()
-      "Set =vertical-border= =│= instead of =|=."
+      "Set =vertical-border= to use a longer unicode char."
       (let ((display-table (or buffer-display-table standard-display-table)))
         (set-display-table-slot display-table 5 ?│)
         (set-window-display-table (selected-window) display-table)))
@@ -1432,7 +1432,7 @@ out.")
           #'(lambda () (setq-local tab-width 8))
   :config
   (defun antlers/org-mode-<>-syntax-fix (start end)
-    "Change syntax of characters ?< and ?> to symbol within source code blocks.
+    "Change syntax of characters =?<= and =?>= to symbol within source code blocks.
 Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     (let ((case-fold-search t))
       (when (eq major-mode 'org-mode)
@@ -1447,7 +1447,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
               (put-text-property (point) (1- (point))
                                  'syntax-table (string-to-syntax "_"))))))))
   (defun antlers/org-setup-<>-syntax-fix ()
-    "Setup for characters ?< and ?> in source code blocks."
+    "Setup for characters =?<= and =?>= in source code blocks."
     (make-local-variable 'syntax-propertize-function)
     (setq syntax-propertize-function 'antlers/org-mode-<>-syntax-fix)
     (syntax-propertize (point-max))))
@@ -1615,6 +1615,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
      "id" :follow #'org-id-open :store #'org-id-store-link-maybe))
 
   (defun antlers/org-node-helper-filename->ymd (path)
+    "Process underscore-separated dates for =org-node=."
     (let ((str (file-name-base path)))
       (when (string-match
               (rx bol (= 4 digit) "_" (= 2 digit) "_" (= 2 digit))
