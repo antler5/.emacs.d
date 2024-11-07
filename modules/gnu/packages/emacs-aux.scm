@@ -2,7 +2,6 @@
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
 (define-module (gnu packages emacs-aux)
-  #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix build-system emacs)
   #:use-module (guix download)
   #:use-module (guix gexp)
@@ -10,7 +9,8 @@
   #:use-module (guix packages)
   #:use-module (gnu packages emacs-xyz)
   #:use-module (gnu packages mail)
-  #:use-module (gnu packages password-utils))
+  #:use-module (gnu packages password-utils)
+  #:use-module ((guix licenses) #:prefix license:))
 
 (define-public emacs-consult-mu
   (let ((commit "90db1c6e3d0ec16126a347f6c15426c2a8ce0125")

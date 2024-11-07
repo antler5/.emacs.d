@@ -94,6 +94,11 @@
 (antlers/append-to-path "/run/privileged/bin/")
 (antlers/append-to-path "/run/setuid-programs/")
 
+(antlers/append-to-path (concat (getenv "GUIX_ENVIRONMENT") "/lib")
+                        "LD_LIBRARY_PATH")
+(antlers/append-to-path (concat (getenv "GUIX_ENVIRONMENT") "/lib/nss")
+                        "LD_LIBRARY_PATH")
+
 
 ;;; Garbage Collection Pt. 2
 ;; (Re: `early-init.el`)
@@ -150,8 +155,14 @@
   ;; Debug, Warnings, and Errors
   (native-comp-async-report-warnings-errors nil)
 
+  :general ("<wheel-left>" #'(lambda () (interactive) (scroll-left 1))
+            "<wheel-right>" #'(lambda () (interactive) (scroll-right 1)))
+           (evil-leader-map
+            "s" #'scratch-buffer
+            "e" `("init.el" . ,(antlers/find-file antlers/init.el)))
+
+  :config
   ;; Leader-key shortcuts
-  :init
   (defun antlers/find-file (filename)
     "Edit file =FILENAME= (it's =find-file=, but a =command=)."
     (lambda ()
@@ -161,13 +172,6 @@
     (concat (getenv "HOME") "/.emacs.d/init.el")
     "Path to =init.el=")
 
-  :general ("<wheel-left>" #'(lambda () (interactive) (scroll-left 1))
-            "<wheel-right>" #'(lambda () (interactive) (scroll-right 1)))
-           (evil-leader-map
-            "s" #'scratch-buffer
-            "e" `("init.el" . ,(antlers/find-file antlers/init.el)))
-
-  :config
   (defalias 'yes-or-no-p 'y-or-n-p) ; Replace yes/no prompts with y/n
   (put 'narrow-to-page 'disabled nil)
   (put 'narrow-to-region 'disabled nil)
@@ -415,12 +419,11 @@ Skips buffers with buffer-local =mode-line-format= values."
 
 ;; XXX: Has not been fully integrated.
 (use-package heaven-and-hell
-  :init
-  (setq heaven-and-hell-theme-type 'dark)
-  (setq heaven-and-hell-themes '((light . tsdh-light)
-                                 (dark . wombat)))
   :custom
   (heaven-and-hell-load-theme-no-confirm t)
+  (heaven-and-hell-theme-type 'dark)
+  (heaven-and-hell-themes '((light . tsdh-light)
+                            (dark . wombat)))
   :ghook ('after-init-hook #'heaven-and-hell-init-hook)
   :bind (("C-c <f6>" . heaven-and-hell-load-default-theme)
          ("<f6>" . heaven-and-hell-toggle-theme)))
@@ -622,7 +625,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
 ;;; Evil
 (use-package evil
   :guix emacs-evil
-  :demand
+  :defer nil
   :general-config
   ("C-M-u" #'universal-argument) ; evil-want-Y-yank-to-eol
   ;; Swap evil section keys with emacs defaults
@@ -655,10 +658,9 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   (evil-want-integration t)
   (evil-want-keybinding nil)
 
-  :init
+  :config
   (evil-mode t)
 
-  :config
   ;; enable leader key, bound to \ and C-SPC in normal mode
   ;; XXX: C-SPC doesn't work in TUI frames :/
   (define-prefix-command 'evil-leader-map)
@@ -777,13 +779,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   :guix emacs-vertico
   ;; https://kristofferbalintona.me/posts/202202211546/
   :after (savehist orderless)
-  :init
-  (defun kb/vertico-quick-embark (&optional arg)
-    "Embark on candidate using quick keys."
-    (interactive)
-    (when (vertico-quick-jump)
-      (embark-act arg)))
-  (vertico-mode t)
+  :defer nil
   :custom
   (enable-recursive-minibuffers t) ; i need this
   (minibuffer-depth-indicate-mode t)
@@ -796,7 +792,14 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
    "C-l"           #'kb/vertico-quick-embark
    "<backspace>"   #'vertico-directory-delete-char
    "C-<backspace>" #'vertico-directory-delete-word
-   "RET"           #'vertico-directory-enter))
+   "RET"           #'vertico-directory-enter)
+  :config
+  (defun kb/vertico-quick-embark (&optional arg)
+    "Embark on candidate using quick keys."
+    (interactive)
+    (when (vertico-quick-jump)
+      (embark-act arg)))
+  (vertico-mode t))
 
 (use-package vertico-posframe
   :guix        emacs-vertico-posframe
@@ -814,11 +817,12 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
       #'antlers/consult-mu)))
 
 (use-package marginalia
-  :guix    emacs-marginalia
-  :after   vertico
+  :guix   emacs-marginalia
+  :after  vertico
+  :defer  nil
+  :config (marginalia-mode t)
   :general-config
-  (minibuffer-local-map "M-A" #'marginalia-cycle)
-  :init    (marginalia-mode t))
+  (minibuffer-local-map "M-A" #'marginalia-cycle))
 
 (use-package corfu
   :guix  emacs-corfu
@@ -1092,12 +1096,11 @@ targets."
     "-lv --almost-all --human-readable --group-directories-first --no-group")
   (dirvish-header-line-height moody-mode-line-height)
   (dirvish-mode-line-height moody-mode-line-height)
-  :init
+  :ghook ('dired-mode-hook #'antlers/disable-indicate-buffer-boundaries)
+  :config
   (defun antlers/disable-indicate-buffer-boundaries ()
     "Disable =indicate-buffer-boundaries= in =Dired= buffers."
     (setq-local indicate-buffer-boundaries nil))
-  :ghook ('dired-mode-hook #'antlers/disable-indicate-buffer-boundaries)
-  :config
   (require 's)
   ;; Customize header-line and mode-line
   (defvar header-line-format-right-align
@@ -1315,14 +1318,18 @@ out.")
   (setq tramp-chunksize 2000)
   (setq tramp-use-ssh-controlmaster-options nil)) ; presumes SSH is already configured
 
+(use-package transient-posframe
+  :guix emacs-transient-posframe
+  :after transient
+  :config (general-after-gui (transient-posframe-mode 1))
+
 (use-package magit
   :guix    (emacs-magit
-            emacs-transient-posframe
             diffutils)
-  :general (evil-leader-map "g" #'magit)
-           (magit-status-mode-map "M-RET" #'magit-diff-visit-file-other-window)
   :custom  (magit-diff-refine-hunk t)
-  :init    (general-after-gui (transient-posframe-mode 1)))
+  :general (evil-leader-map "g" #'magit)
+  :general-config
+  (magit-status-mode-map "M-RET" #'magit-diff-visit-file-other-window))
 
 (defvar ledger-dir
   (concat (getenv "HOME") "/Sync/ledger"))
@@ -1370,9 +1377,9 @@ out.")
 
 (use-package mastodon
   :guix emacs-mastodon
-  :init
-  (setq mastodon-instance-url "https://oldbytes.space")
-  (setq mastodon-active-user "antlers"))
+  :custom
+  (mastodon-instance-url "https://oldbytes.space")
+  (mastodon-active-user "antlers"))
 
 
 ;;; Org
@@ -1571,10 +1578,8 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :general ("M-s f" 'org-node-find)
            ("M-s i" 'org-node-insert-link)
            ("M-s s" #'org-node-series-dispatch)
-  :init
-  (setq org-node-fakeroam-daily-dir
-    (concat (getenv "HOME") "/Sync/app/org/journals"))
   :custom
+  (org-node-fakeroam-daily-dir (concat (getenv "HOME") "/Sync/app/org/journals"))
   (org-node-ask-directory (concat (getenv "HOME") "/Sync/app/org/pages"))
   (org-node-filter-fn
     (lambda (node)
@@ -1667,12 +1672,13 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :after evil
   :gfhook ('emacs-startup-hook #'eshell)
   :general
-  (evil-leader-map
-   "q" #'eshell)
+  (evil-leader-map "q" #'eshell)
   :general-config
-  (eshell-mode-map
-   "C-l" #'antlers/clear)
-  :init
+  (eshell-mode-map "C-l" #'antlers/clear)
+  :custom
+  (eshell-scroll-to-bottom-on-output nil)
+  (eshell-scroll-show-maximum-output nil)
+  :config
   (defun antlers/clear ()
     "Clear =eshell= (=eshell/clear= errors out)."
     (interactive)
@@ -1680,10 +1686,6 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     (evil-scroll-line-to-top
       (string-to-number
         (format-mode-line "%l"))))
-  :custom
-  (eshell-scroll-to-bottom-on-output nil)
-  (eshell-scroll-show-maximum-output nil)
-  :config
   ;; Clever rebinding of nvim/emacs -> :edit
   ;; TODO: More of these, built into guix home config?
   (defun eshell/my-find-file (pattern)
@@ -1916,10 +1918,10 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 
 (use-package nov
   :guix emacs-nov-el
-  :after darkroom
+  :defer
   :gfhook #'darkroom-tentative-mode
   :custom (nov-text-width 80)
-  :init (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode)))
+  :init (add-to-list 'auto-mode-alist (cons "\\.epub\\'" #'nov-mode)))
 
 (use-package darkroom
   :guix    emacs-darkroom
@@ -1972,7 +1974,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :after evil moody
   :custom
   (eaf-mode-line-format (default-value 'mode-line-format))
-  :init
+  :config
   (setq eaf-dir
     (concat (getenv "HOME")
             "/.emacs.d/site-lisp/emacs-application-framework"))
@@ -1997,15 +1999,8 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
           (unless
             (add-hook 'after-init-hook
               #'antlers/eaf-install-and-update)))))
-  :config
-  (antlers/append-to-path
-    (concat (getenv "GUIX_ENVIRONMENT") "/lib")
-    "LD_LIBRARY_PATH")
-  (antlers/append-to-path
-    (concat (getenv "GUIX_ENVIRONMENT") "/lib/nss")
-    "LD_LIBRARY_PATH")
-  (let* ((sh-bin (shell-command-to-string "which sh"))
-         (sh-bin (shell-command-to-string (concat "realpath " sh-bin)))
+
+  (let* ((sh-bin (shell-command-to-string "realpath $(which sh)"))
          (interpreter (shell-command-to-string (concat "patchelf --print-interpreter " sh-bin)))
          (interpreter (string-trim-right interpreter)))
       (-map (lambda (file)
