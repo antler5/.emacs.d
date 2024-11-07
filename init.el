@@ -53,6 +53,35 @@
 ;; Disable custom-file persistence
 (setq custom-file (make-temp-file "custom-" nil ".el"))
 
+;; Setup =:set= to use =general-setq=
+(push ':set use-package-keywords)
+(defmacro antlers/setq (&rest settings)
+  "Like =general-setq=, but falls back to =set-default=."
+  (macroexp-progn
+    (cl-loop for (var val) on settings by 'cddr
+             collect `(funcall (or (get ',var 'custom-set) #'set-default)
+                               ',var ,val))))
+(defun antlers/use-package-handler/:set (name _keyword args rest state)
+  "Like =:custom=, but uses =antlers/setq= during =:init=."
+  (use-package-concat
+   (let (bindings comments)
+     (-each args
+      (-lambda ((variable value comment))
+        (unless (and comment
+                     (stringp comment)
+                     (not (string= comment "")))
+          (setq comment (format "Customized with use-package %s" name)))
+        (push value bindings)
+        (push variable bindings)
+        (push `(put ',variable 'customized-variable-comment ,comment) comments)))
+     `((general-setq ,@bindings)
+       ,@comments))
+   (use-package-process-keywords name rest state)))
+(defalias 'use-package-handler/:set
+  #'antlers/use-package-handler/:set)
+(defalias 'use-package-normalize/:set
+  #'use-package-normalize/:custom)
+
 ;; Setup =:guix= as a no-op use-package keyword
 ;; (It's pulled out by a stand-alone script.)
 (push ':guix use-package-keywords)
@@ -376,6 +405,19 @@ Skips buffers with buffer-local =mode-line-format= values."
   (add-hook 'emacs-startup-hook
     #'antlers/set-mode-line-format))
 
+(use-package eldoc
+  :defer
+  :config
+  ;; XXX: Had issues with =mode-line-format-right-align= with both
+  ;; this and =keepass.el=.
+  (defun antlers/eldoc-minibuffer--cleanup ()
+    "Prevent empty eldoc-mode-line-string from persisting in mode-line."
+    (pcase mode-line-format
+      (`("" (eldoc-mode-line-string . ,_) . ,rest)
+       (setq mode-line-format rest))))
+  (advice-add 'eldoc-minibuffer--cleanup :after
+    #'antlers/eldoc-minibuffer--cleanup))
+
 
 ;;; Theme, Graphics, and Fringe
 (use-package emacs
@@ -425,11 +467,13 @@ Skips buffers with buffer-local =mode-line-format= values."
 
 ;; XXX: Has not been fully integrated.
 (use-package heaven-and-hell
-  :custom
-  (heaven-and-hell-load-theme-no-confirm t)
+  :guix emacs-heaven-and-hell
+  :set
   (heaven-and-hell-theme-type 'dark)
   (heaven-and-hell-themes '((light . tsdh-light)
                             (dark . wombat)))
+  :custom
+  (heaven-and-hell-load-theme-no-confirm t)
   :ghook ('after-init-hook #'heaven-and-hell-init-hook)
   :bind (("C-c <f6>" . heaven-and-hell-load-default-theme)
          ("<f6>" . heaven-and-hell-toggle-theme)))
