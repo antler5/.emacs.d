@@ -50,7 +50,10 @@
 ;; Some hooks are un-usable under the default scheme.
 (setq use-package-hook-name-suffix nil)
 
-;; Setup `:guix` as a no-op use-package keyword
+;; Disable custom-file persistence
+(setq custom-file (make-temp-file "custom-" nil ".el"))
+
+;; Setup =:guix= as a no-op use-package keyword
 ;; (It's pulled out by a stand-alone script.)
 (push ':guix use-package-keywords)
 (put ':guix 'variable-documentation
@@ -64,7 +67,7 @@
   (use-package-process-keywords name-symbol rest state))
 
 
-;;; Packages with `use-package' extensions or no autoloads
+;;; Packages with =use-package= extensions or no autoloads
 (use-package dash :guix emacs-dash)
 (use-package general
   :guix emacs-general
@@ -101,7 +104,7 @@
 
 
 ;;; Garbage Collection Pt. 2
-;; (Re: `early-init.el`)
+;; (Re: =early-init.el=)
 (use-package gcmh
   :guix emacs-gcmh
   :custom
@@ -123,8 +126,6 @@
   (help-window-keep-selected t)        ; Re-use help buffer
   (select-enable-clipboard t)          ; Merge System and Emacs clipboard
   (tab-always-indent 'complete)        ; Preferred TAB behavior
-  (custom-file                         ; Disable custom-file persistence
-   (make-temp-file "custom-" nil ".el"))
 
   ;; Cursor and Windows
   (blink-cursor-mode nil)              ; Disable cursor blinking
@@ -372,7 +373,6 @@ Skips buffers with buffer-local =mode-line-format= values."
       (when (buffer-local-boundp 'mode-line-format b)
         (with-current-buffer b
           (kill-local-variable 'mode-line-format)))))
-  ;; Set mode-line after init, but load now.
   (add-hook 'emacs-startup-hook
     #'antlers/set-mode-line-format))
 
@@ -1857,9 +1857,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 
 (use-package explain-pause-mode
   :guix emacs-explain-pause-mode
-  :config
-  (add-hook 'after-init-hook
-    #'explain-pause-mode))
+  :ghook ('after-init-hook #'explain-pause-mode))
 
 ;; XXX: Breaks `mode-line-format-right-align`, somehow
 (use-package keepass
