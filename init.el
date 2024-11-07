@@ -111,6 +111,12 @@
   (gcmh-mode t))
 
 
+;;; Helpers
+(defun antlers/disable-indicate-buffer-boundaries ()
+  "Disable =indicate-buffer-boundaries=."
+  (setq-local indicate-buffer-boundaries nil))
+
+
 ;;; Native Emacs Configuration
 (use-package emacs
   :custom
@@ -160,6 +166,8 @@
            (evil-leader-map
             "s" #'scratch-buffer
             "e" `("init.el" . ,(antlers/find-file antlers/init.el)))
+
+  :gfhook ('minibuffer-setup-hook #'antlers/disable-indicate-buffer-boundaries)
 
   :config
   ;; Leader-key shortcuts
@@ -574,6 +582,18 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   :config
   (add-to-list 'corfu-margin-formatters
                #'nerd-icons-corfu-formatter))
+
+(use-package spacious-padding
+  :guix emacs-spacious-padding
+  :defer
+  :custom (spacious-padding-widths
+           '(:internal-border-width 15
+             :header-line-width 4
+             :mode-line-width 6
+             :tab-width 4
+             :right-divider-width 30
+             :scroll-bar-width 8
+             :fringe-width 8)))
 
 
 ;;; Butlers
@@ -1096,9 +1116,6 @@ targets."
   (dirvish-mode-line-height moody-mode-line-height)
   :ghook ('dired-mode-hook #'antlers/disable-indicate-buffer-boundaries)
   :config
-  (defun antlers/disable-indicate-buffer-boundaries ()
-    "Disable =indicate-buffer-boundaries= in =Dired= buffers."
-    (setq-local indicate-buffer-boundaries nil))
   (require 's)
   ;; Customize header-line and mode-line
   (defvar header-line-format-right-align

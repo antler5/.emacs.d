@@ -12,6 +12,27 @@
   #:use-module (gnu packages password-utils)
   #:use-module ((guix licenses) #:prefix license:))
 
+(define-public emacs-spacious-padding
+  (let ((commit "216cf9d38c468f2ce7f8685ba19d4d1fcbb87177")
+        (revision "0"))
+    (package
+      (name "emacs-spacious-padding")
+      (version (git-version "0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/protesilaos/spacious-padding")
+               (commit commit)))
+         (sha256
+          (base32 "16j568w1w8g2jn4iighvf37mii83x021x2p4dllyki5hz7x5ssjn"))
+         (file-name (git-file-name name version))))
+      (build-system emacs-build-system)
+      (home-page "https://github.com/protesilaos/spacious-padding")
+      (synopsis "Increase the padding/spacing of frames and windows")
+      (description "Increase the padding/spacing of frames and windows")
+      (license license:gpl3+))))
+
 (define-public emacs-consult-mu
   (let ((commit "90db1c6e3d0ec16126a347f6c15426c2a8ce0125")
         (revision "0"))
