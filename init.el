@@ -1335,7 +1335,9 @@ out.")
   (org-startup-indented      t)
   (org-default-priority      ?C)
   (org-lowest-priority       ?D)
-  (org-agenda-files          (list (concat (getenv "HOME") "/Sync/app/org")))
+  (org-agenda-files          (list (concat (getenv "HOME") "/Sync/app/org")
+                                   (concat (getenv "HOME") "/Sync/app/org/journals")
+                                   (concat (getenv "HOME") "/Sync/app/org/pages")))
   (diary-file                nil)
   (org-archive-location      "%s_archive::* Archived Tasks")
   (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
@@ -1364,7 +1366,10 @@ out.")
       (?D :foreground "grey")))
   :custom-face
   ;; This was comment-grey by default :/
-  (outline-4 ((t :foreground "#c0a6f5")))
+  (outline-4         ((t :foreground "#c0a6f5")))
+  (org-headline-done ((t :inherit font-lock-comment-face
+                         :foreground unspecified
+                         :strike-through t)))
   :general (evil-leader-map
             "a" #'org-agenda
             "t" #'org-todo-list
@@ -1490,8 +1495,17 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :custom
   (org-roam-directory "~/Sync/app/org")
   (org-roam-completion-everywhere nil)
+  (org-roam-capture-templates
+    '(("d" "default" plain "%?"
+       :target (file+head "journals/${slug}.org" "#+title: ${title}\n")
+       :unnarrowed t)))
   :config
   (org-roam-db-autosync-mode))
+
+;; XXX: Make sure it's using org-node?
+(use-package consult-org-roam
+  :guix emacs-consult-org-roam
+  :config (consult-org-roam-mode))
 
 (use-package websocket
   :guix  emacs-websocket
@@ -1510,13 +1524,38 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :general ("M-s f" 'org-node-find)
            ("M-s i" 'org-node-insert-link)
            ("M-s s" #'org-node-series-dispatch)
+  :init
+  (setq org-node-fakeroam-daily-dir
+    (concat (getenv "HOME") "/Sync/app/org/journals"))
   :custom
-  (org-node-ask-directory "~/Sync/app/org")
+  (org-node-ask-directory (concat (getenv "HOME") "/Sync/app/org/pages"))
   (org-node-filter-fn
     (lambda (node)
       (not (or (org-node-get-todo node) ;; Ignore headings with todo state
                (assoc "ROAM_EXCLUDE" (org-node-get-properties node))
                (string-search "archive" (org-node-get-file-path node))))))
+  (org-node-series-defs
+    (list
+     '("d" :name "Daily-files"
+       :version 2
+       :classifier (lambda (node)
+                     (let ((path (expand-file-name (org-node-get-file-path node))))
+                       (when (string-search (org-node--guess-daily-dir) path)
+                         (let ((ymd (org-node-helper-filename->ymd path)))
+                           (when ymd
+                             (cons ymd path))))))
+       :whereami (lambda ()
+                   (org-node-helper-filename->ymd buffer-file-name))
+       :prompter (lambda (key)
+                   (let ((org-node-series-that-marks-calendar key))
+                     (org-read-date)))
+       :try-goto (lambda (item)
+                   (org-node-helper-try-visit-file (cdr item)))
+       :creator (lambda (sortstr key)
+                  ;; XXX: Use some kind of macro for this.
+                  (let ((org-node-datestamp-format "")
+                        (org-node-ask-directory (org-node--guess-daily-dir)))
+                    (org-node-create sortstr (org-id-new) key))))))
   ;; Seek wide use
   :ghook ('org-open-at-point-functions #'org-node-try-visit-ref-node)
   :config
@@ -1528,29 +1567,15 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     (org-link-set-parameters
      "id" :follow #'org-id-open :store #'org-id-store-link-maybe))
 
-  ;; "Old Default Setting", from:
-  ;; https://github.com/meedstrom/org-node/wiki/Configuring-series#old-default-setting
-  ;; (setq org-node-series-defs
-  ;;   (list '("d" :name "Dailies"
-  ;;      :version 2
-  ;;      :classifier (lambda (node)
-  ;;                    (let ((path (org-node-get-file-path node)))
-  ;;                      (when (string-search (concat (getenv "HOME") "/Sync/app/org/roam/journals") path)
-  ;;                        (let ((ymd (org-node-helper-filename->ymd path)))
-  ;;                          (when ymd
-  ;;                            (cons ymd path))))))
-  ;;      :whereami (lambda ()
-  ;;                  (org-node-helper-filename->ymd buffer-file-name))
-  ;;      :prompter (lambda (key)
-  ;;                  (let ((org-node-series-that-marks-calendar key))
-  ;;                    (org-read-date)))
-  ;;      :try-goto (lambda (item)
-  ;;                  (org-node-helper-try-visit-file (cdr item)))
-  ;;      :creator (lambda (sortstr key)
-  ;;                 (let ((org-node-datestamp-format "")
-  ;;                       (org-node-ask-directory "~/Sync/app/org/roam/journals"))
-  ;;                   (org-node-create sortstr (org-id-new) key))))))
-  )
+  (defun antlers/org-node-helper-filename->ymd (path)
+    (let ((str (file-name-base path)))
+      (when (string-match
+              (rx bol (= 4 digit) "_" (= 2 digit) "_" (= 2 digit))
+              str)
+        (subst-char-in-string ?_ ?-
+          (match-string 0 str) t))))
+  (advice-add 'org-node-helper-filename->ymd :before-until
+    #'antlers/org-node-helper-filename->ymd))
 
 (use-package org-node-fakeroam
   :guix emacs-org-node-fakeroam
@@ -1826,7 +1851,6 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          emacs-wgrep
          emacs-x509-mode
          emacs-yaml-mode))
-
 
 (use-package pdf-tools
   :config (pdf-loader-install))
