@@ -413,6 +413,18 @@ Skips buffers with buffer-local =mode-line-format= values."
     (add-hook 'window-configuration-change-hook
       #'antlers/change-window-divider)))
 
+;; XXX: Has not been fully integrated.
+(use-package heaven-and-hell
+  :init
+  (setq heaven-and-hell-theme-type 'dark)
+  (setq heaven-and-hell-themes '((light . tsdh-light)
+                                 (dark . wombat)))
+  :custom
+  (heaven-and-hell-load-theme-no-confirm t)
+  :ghook ('after-init-hook #'heaven-and-hell-init-hook)
+  :bind (("C-c <f6>" . heaven-and-hell-load-default-theme)
+         ("<f6>" . heaven-and-hell-toggle-theme)))
+
 (use-package display-line-numbers
   :general (evil-leader-map
             "#" #'display-line-numbers-mode)
