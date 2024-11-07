@@ -1390,7 +1390,7 @@ out.")
   (magit-status-mode-map "M-RET" #'magit-diff-visit-file-other-window))
 
 (defvar ledger-dir
-  (concat (getenv "HOME") "/Sync/ledger"))
+  (concat (getenv "HOME") "/Sync/app/ledger"))
 (defvar ledger-init-file-name
   (concat ledger-dir "/ledgerrc"))
 (use-package ledger-mode
@@ -1400,7 +1400,7 @@ out.")
           (ledger-post-amount-alignment-column 49)
           (ledger-post-amount-alignment-at :decimal)
   :general (evil-leader-map
-            "l" `("ledger" . (antlers/find-file ledger-dir))))
+            "l" `("ledger" . ,(antlers/find-file ledger-dir))))
 
 (use-package mu4e
   ;; see also: emacs-org-mime
