@@ -1186,10 +1186,23 @@ targets."
         `(left . ,str))))
 
   ;; Use git-gutter for vc-state
+  (defun antlers/git-gutter:update-all-windows ()
+    "Update visible buffers for git-gutter:update-all-windows.
+Accounts for =dirvish-git-gutter= and reduces =save-excursion= calls."
+    (interactive)
+    (dolist (buf (buffer-list))
+      (when (and (get-buffer-window buf 'visible)
+                 (or (buffer-local-value 'git-gutter-mode buf)
+                     (buffer-local-value 'git-gutter:last-chars-modified-tick buf)))
+        (with-current-buffer buf (git-gutter)))))
+  (advice-add 'git-gutter:update-all-windows :override
+    #'antlers/git-gutter:update-all-windows)
+
   (defun antlers/magit-post-refresh-hook (&optional _)
     "Revert =dired= buffers for =magit=."
     (-map (lambda (b)
-            (when (eq (buffer-local-value 'major-mode b) #'dired-mode)
+            (when (and (eq (buffer-local-value 'major-mode b) #'dired-mode)
+                       git-gutter:last-chars-modified-tick)
               (save-window-excursion
                 (switch-to-buffer b)
                 (revert-buffer t t nil))))
