@@ -1645,13 +1645,13 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (org-node-fakeroam-jit-backlinks-mode) ; skip DB for Roam buffer
   ;; Seek wide use
   (advice-add #'org-roam-db-sync :override
-              #'org-node-fakeroam-db-rebuild)
+    #'org-node-fakeroam-db-rebuild)
   (advice-add #'org-roam-list-files :override
-              #'org-node-fakeroam-list-files)
+    #'org-node-fakeroam-list-files)
   (advice-add #'org-roam-dailies--list-files :override
-              #'org-node-fakeroam-list-dailies)
+    #'org-node-fakeroam-list-dailies)
   (advice-add #'org-roam-dailies--daily-note-p :override
-              #'org-node-fakeroam-daily-note-p))
+    #'org-node-fakeroam-daily-note-p))
 
 
 ;;; Eshell
