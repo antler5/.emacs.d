@@ -389,7 +389,29 @@ Skips buffers with buffer-local =mode-line-format= values."
   ;; Fringe
   (fringe           ((t (:foreground "#ddaa6f"))))
   (vertical-border  ((t (:background "#000"))))
-  :config (load-theme 'wombat))
+
+  :config
+  ;; No underlines across mode-line or window dividers in TTY frames.
+  (general-after-tty
+    (defun antlers/change-window-divider ()
+      "Set =vertical-border= =│= instead of =|=."
+      (let ((display-table (or buffer-display-table standard-display-table)))
+        (set-display-table-slot display-table 5 ?│)
+        (set-window-display-table (selected-window) display-table)))
+    (set-face-underline 'mode-line nil)
+    (set-face-underline 'mode-line-active nil)
+    (set-face-underline 'mode-line-inactive nil)
+    (defun antlers/moody-wrap (out)
+      "Remove mode-line underline for =moody-wrap= in TTY frames."
+      (-map (lambda (c)
+              (propertize c 'face
+                (plist-put (get-text-property 0 'face c)
+                  :underline nil)))
+        out))
+    (advice-add 'moody-wrap :filter-return
+      #'antlers/moody-wrap)
+    (add-hook 'window-configuration-change-hook
+      #'antlers/change-window-divider)))
 
 (use-package display-line-numbers
   :general (evil-leader-map
