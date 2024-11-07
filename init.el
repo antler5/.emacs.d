@@ -587,7 +587,6 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
 
 ;;; Evil
 (use-package evil
-  ;; see also: emacs-evil-org-mode
   :guix emacs-evil
   :demand
   :general-config
@@ -638,6 +637,13 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   :after  evil
   :custom (evil-collection-setup-minibuffer t)
   :config (evil-collection-init))
+
+(use-package evil-org-mode
+  :guix emacs-evil-org
+  :after org
+  :ghook 'org-mode
+  :config
+  (evil-org-agenda-set-keys))
 
 ; (use-package devil
 ;   :guix emacs-devil-mode
