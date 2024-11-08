@@ -183,9 +183,9 @@
       (while (eq (plist-get service :status) 'running)
         (sit-for 1)))))
 
-(with-eval-after-load 'plz
-  (advice-add 'plz--respond :before
-    #'antlers/ollama))
+;; (with-eval-after-load 'plz
+;;   (advice-add 'plz--respond :before
+;;     #'antlers/ollama))
 
 
 ;;; Guix Integration
@@ -2079,15 +2079,27 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 (use-package llm-ollama
   :guix emacs-llm)
 
-(use-package gptel
-  :guix emacs-gptel
-  :defer
+(use-package ellama
+  :guix (emacs-ellama
+         ollama)
   :config
-  (gptel-model 'phi3:medium)
-  (gptel-make-ollama "Ollama"
-    :host "localhost:11434"
-    :stream t
-    :models '(phi3:medium)))
+  (setq ellama-providers
+	  '(("phi3:latest" .
+       (make-llm-ollama
+		     :chat-model "phi3:latest"
+		     :embedding-model "phi3:latest")))))
+
+(use-package gptel
+  :guix (curl
+         emacs-gptel)
+  :defer
+  :custom
+  (gptel-model 'phi3:latest)
+  (gptel-backend
+    (gptel-make-ollama "Ollama"
+      :host "localhost:11434"
+      :stream t
+      :models '(phi3:latest))))
 
 
 ;;; EAF

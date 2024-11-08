@@ -43,7 +43,7 @@
 (define-public ollama
   (package
     (name "ollama")
-    (version "0.3.13")
+    (version "0.4.0")
     (source (origin
               (method url-fetch)
               (uri (string-append
@@ -51,20 +51,21 @@
                     version
                     "/ollama-linux-amd64.tgz"))
               (sha256
-               (base32 "1119svddy5zk0dc539xb6x078s5x41m8xfb1rwxnvmfpciwbin0r"))))
+               (base32 "02q8ixlpz6r9qp9zphnj7p0r8f14srdpz5cdvlzl7a0xsadzpcms"))))
     (build-system binary-build-system)
     (arguments
      `(#:validate-runpath? #f
        #:patchelf-plan
-       '(("../bin/ollama"))
+       '(("ollama"))
        #:install-plan
-       '(("../bin" "./bin")
-         ("../lib" "./lib"))))
+       '(("../" "."))))
+    ;; XXX: Works in my emacs profile but not when isolated.
+    ;; Probably needs glib and/or glibc.
     (inputs
       (list gcc-toolchain))
     (home-page "https://ollama.com/")
-    (synopsis "")
-    (description "")
+    (synopsis "Get up and running with large language models.")
+    (description "Get up and running with large language models.")
     (license license:expat)))
 
 (define-public emacs-consult-mu
