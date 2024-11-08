@@ -744,12 +744,11 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   :config
   (evil-org-agenda-set-keys))
 
-; (use-package devil
-;   :guix emacs-devil-mode
-;   :custom (devil-key "'")
-;   :config (global-devil-mode)
-;   :general (:states 'motion
-;             "'" #'devil))
+(use-package devil
+  :guix emacs-devil
+  :config (global-devil-mode)
+  :general (:states 'motion
+            "," #'devil))
 
 
 ;;; Other Navigation
