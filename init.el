@@ -749,6 +749,8 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
 (use-package devil
   :guix emacs-devil
   :config (global-devil-mode)
+  :set
+  (devil-prompt (concat (nerd-icons-mdicon "nf-md-emoticon_devil_outline") " %t"))
   :general (:states 'motion
             "," #'devil))
 
