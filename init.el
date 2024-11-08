@@ -57,6 +57,8 @@
 (push ':set use-package-keywords)
 (defmacro antlers/setq (&rest settings)
   "Like =general-setq=, but falls back to =set-default=."
+  ;; The general.el README and discussion threads make it sound like
+  ;; no one else wants this, but I do.
   (macroexp-progn
     (cl-loop for (var val) on settings by 'cddr
              collect `(funcall (or (get ',var 'custom-set) #'set-default)
@@ -1630,6 +1632,10 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :custom  (org-roam-ui-sync-theme t)
            (org-roam-ui-open-on-start nil))
 
+(use-package org-node-fakeroam
+  :set (org-node-fakeroam-daily-dir
+         (concat (getenv "HOME") "/Sync/app/org/journals")))
+
 (use-package org-node
   :guix    emacs-org-node
   :after   org org-roam
@@ -1637,7 +1643,6 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
            ("M-s i" 'org-node-insert-link)
            ("M-s s" #'org-node-series-dispatch)
   :custom
-  (org-node-fakeroam-daily-dir (concat (getenv "HOME") "/Sync/app/org/journals"))
   (org-node-ask-directory (concat (getenv "HOME") "/Sync/app/org/pages"))
   (org-node-filter-fn
     (lambda (node)
