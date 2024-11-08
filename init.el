@@ -304,6 +304,7 @@ Supports both Emacs and Evil cursor conventions."
   (general-add-advice
     '(evil-forward-char evil-backward-char
       evil-next-line evil-previous-line
+      evil-next-visual-line evil-previous-visual-line
       evil-jump-item)
     :after #'antlers/force-mode-line-update))
 
