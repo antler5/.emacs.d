@@ -26,6 +26,7 @@ guix shell ${ARGS[@]} \
   --with-input=emacs=emacs-next \
   --with-input=emacs-minimal=emacs-next-minimal \
   --with-input=emacs-dirvish=emacs-dirvish-patched \
+  --with-input=emacs-ellama=emacs-ellama-next \
   --with-input=emacs-general=emacs-general-next \
   --with-input=emacs-embark=emacs-embark-patched \
   --without-tests=emacs-lispy \

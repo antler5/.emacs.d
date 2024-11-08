@@ -105,6 +105,89 @@
   :config (general-evil-setup))
 
 
+;;; Process Management
+;; It's this, but longer:
+;; find /tmp -iname ollama_llama_server -exec patchelf [...]
+
+;; see also: emacs-async, emacs-differed, emacs-async-await
+(require 'eshell)
+(defvar antlers/interpreter
+  (let* ((sh-bin (eshell-search-path "sh")))
+    (string-trim
+      (shell-command-to-string
+        (concat "patchelf --print-interpreter " sh-bin))))
+  "ELF interpreter as parsed from =sh=.")
+
+(defun antlers/patchelf (file-path &optional sentinel)
+  "Spawn patchelf to set interpreter of executable =file-path=."
+  (let (output)
+    (make-process
+     :name "patchelf"
+     :command (list "patchelf" "--set-interpreter" antlers/interpreter file-path)
+     :filter (lambda (_ str) (setq output str))
+     :sentinel (lambda (proc _)
+                 (when sentinel
+                   (funcall sentinel proc output))))))
+
+(use-package prodigy
+  :guix emacs-prodigy
+  :config
+  (prodigy-define-service
+    :name "ollama"
+    :command "ollama"
+    :args '("serve")
+    :on-output
+    (let ((dir nil))
+      (lambda (&rest args)
+        (let ((output (plist-get args :output))
+              (service (plist-get args :service)))
+          ;; Set runner directory
+          (unless dir
+            (when (string-match "extracting embedded files\" dir=\\(.+\\)" output)
+              (setq dir (match-string 1 output))))
+          ;; Spawn patchelf processes
+          (when (string-match "Dynamic LLM libraries\" runners=\"\\[\\(.+\\)\\]" output)
+            ;; This list will go from strings -> processes -> nil
+            ;; XXX: Tried to refactor the `let' away, it's not happening.
+            (cl-loop with runners = (string-split (match-string 1 output) " ")
+                     for r in runners
+                     for tail = (memq r runners) do
+              (setcar tail
+                (antlers/patchelf
+                  (concat dir "/" r "/ollama_llama_server")
+                  (lambda (proc output)
+                    (if (and (-any #'identity runners)
+                             (eq (process-status proc) 'exit)
+                             (> (process-exit-status proc) 0))
+                        ;; If a process fails, stop the service and other processes
+                        ;; XXX: Can't get a failed status to stick :/
+                        (progn (prodigy-stop-service service)
+                               (cl-loop for r in-ref runners do
+                                 (when (process-live-p r) (stop-process r))
+                                 (setf r nil))
+                               (user-error (string-trim output)))
+                      ;; If all processes succeed, mark the service as ready
+                      (setcar tail nil)
+                      (when (eq (plist-get service :status) 'running)
+                        (unless (-any #'identity runners)
+                          (prodigy-set-status service 'ready))))))))))))))
+
+(defun antlers/ollama (&rest _)
+  "Ensure prodigy service =ollama= is ready."
+  (let ((service (prodigy-find-by-id 'ollama)))
+    (unless (eq (plist-get service :status) 'ready)
+      (message "Starting ollama...")
+      (prodigy-start-service service)
+      (while (not (eq (plist-get service :status) 'running))
+        (sit-for 1))
+      (while (eq (plist-get service :status) 'running)
+        (sit-for 1)))))
+
+(with-eval-after-load 'plz
+  (advice-add 'plz--respond :before
+    #'antlers/ollama))
+
+
 ;;; Guix Integration
 (use-package guix
   :guix    (emacs-guix guile)
@@ -1990,6 +2073,21 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :guix    emacs-darkroom
   :general (evil-leader-map "f" #'darkroom-tentative-mode)
   :custom  (darkroom-text-scale-increase 1.25))
+
+;; AI
+
+(use-package llm-ollama
+  :guix emacs-llm)
+
+(use-package gptel
+  :guix emacs-gptel
+  :defer
+  :config
+  (gptel-model 'phi3:medium)
+  (gptel-make-ollama "Ollama"
+    :host "localhost:11434"
+    :stream t
+    :models '(phi3:medium)))
 
 
 ;;; EAF

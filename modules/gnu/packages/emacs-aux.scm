@@ -7,9 +7,11 @@
   #:use-module (guix gexp)
   #:use-module (guix git-download)
   #:use-module (guix packages)
+  #:use-module (gnu packages commencement)
   #:use-module (gnu packages emacs-xyz)
   #:use-module (gnu packages mail)
   #:use-module (gnu packages password-utils)
+  #:use-module (nonguix build-system binary)
   #:use-module ((guix licenses) #:prefix license:))
 
 (define-public emacs-spacious-padding
@@ -32,6 +34,38 @@
       (synopsis "Increase the padding/spacing of frames and windows")
       (description "Increase the padding/spacing of frames and windows")
       (license license:gpl3+))))
+
+;; CAVEAT:
+;; Ollama runs a self-extracted binary that needs patchelf'd.
+;; I'm sure I could write a clever wrapper that monitors its output
+;; and patches the files as they're extracted, but since it's just for
+;; me I'm going to choose to handle this at the service-management level.
+(define-public ollama
+  (package
+    (name "ollama")
+    (version "0.3.13")
+    (source (origin
+              (method url-fetch)
+              (uri (string-append
+                    "https://github.com/ollama/ollama/releases/download/v"
+                    version
+                    "/ollama-linux-amd64.tgz"))
+              (sha256
+               (base32 "1119svddy5zk0dc539xb6x078s5x41m8xfb1rwxnvmfpciwbin0r"))))
+    (build-system binary-build-system)
+    (arguments
+     `(#:validate-runpath? #f
+       #:patchelf-plan
+       '(("../bin/ollama"))
+       #:install-plan
+       '(("../bin" "./bin")
+         ("../lib" "./lib"))))
+    (inputs
+      (list gcc-toolchain))
+    (home-page "https://ollama.com/")
+    (synopsis "")
+    (description "")
+    (license license:expat)))
 
 (define-public emacs-consult-mu
   (let ((commit "90db1c6e3d0ec16126a347f6c15426c2a8ce0125")
@@ -77,6 +111,20 @@
 retrieve selected KeePass passwords from within Emacs using
 keepassxc-cli.")
       (license license:gpl3))))
+
+(define-public emacs-ellama-next
+  (package
+    (inherit emacs-ellama)
+    (name "emacs-ellama-next")
+    (version "0.12.4")
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url "https://github.com/s-kostyaev/ellama")
+                    (commit version)))
+              (file-name (git-file-name name version))
+              (sha256
+                (base32 "0b55m87dqrc07y6jbjf3lf4d2gjyd0s6ndvap43y3fpwz1yq28fp"))))))
 
 (define-public emacs-org-roam-logseq
   (let ((commit "b76a900d938f829facf59d73006e8bddcc8c0363")
