@@ -1458,7 +1458,7 @@ out.")
   (diary-file                nil)
   (org-archive-location      "%s_archive::* Archived Tasks")
   (org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
-  (org-todo-keywords         '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
+  (org-todo-keywords         '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d!)")
                                (sequence "WAITING(w@/!)" "HOLD(h)" "|" "CANCELLED(c@/!)")))
   (org-todo-keyword-faces    '(("TODO" . org-todo)
                                ("NEXT" :foreground "blue" :weight bold)
@@ -1475,7 +1475,6 @@ out.")
   (org-refile-use-outline-path t)
   (org-refile-allow-creating-parent-nodes '(confirm))
   ;; Misc
-  (org-treat-S-cursor-todo-selection-as-state-change nil)
   (org-priority-faces
     '((?A :foreground "red")
       (?B :foreground "orange")
@@ -1520,7 +1519,13 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     "Setup for characters =?<= and =?>= in source code blocks."
     (make-local-variable 'syntax-propertize-function)
     (setq syntax-propertize-function 'antlers/org-mode-<>-syntax-fix)
-    (syntax-propertize (point-max))))
+    (syntax-propertize (point-max)))
+
+  (defun antlers/org-insert-heading ()
+    (org-set-property "CREATED"
+      (format-time-string (org-time-stamp-format t t))))
+  (add-hook 'org-insert-heading-hook
+    #'antlers/org-insert-heading))
 
 (use-package org-agenda
   :after org
@@ -1614,6 +1619,9 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (org-roam-completion-everywhere nil)
   (org-roam-capture-templates
     '(("d" "default" plain "%?"
+       :target (file+head "pages/${slug}.org" "#+title: ${title}\n")
+       :unnarrowed t)
+      ("j" "journal" plain "%?"
        :target (file+head "journals/${slug}.org" "#+title: ${title}\n")
        :unnarrowed t)))
   :config
@@ -1642,9 +1650,11 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 (use-package org-node
   :guix    emacs-org-node
   :after   org org-roam
-  :general ("M-s f" 'org-node-find)
-           ("M-s i" 'org-node-insert-link)
-           ("M-s s" #'org-node-series-dispatch)
+  :general ("M-s f" 'org-node-find
+            "M-s i" 'org-node-insert-link
+            "M-s s" #'org-node-series-dispatch)
+           ('eshell-hist-mode-map
+            "M-s" nil)
   :custom
   (org-node-ask-directory (concat (getenv "HOME") "/Sync/app/org/pages"))
   (org-node-filter-fn
