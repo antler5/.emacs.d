@@ -15,3 +15,7 @@ README.md: README.md.src init.el early-init.el
 	  (org-mode)
 	  (setq org-confirm-babel-evaluate nil)
 	  (org-babel-execute-buffer))
+
+current: init.el early-init.el run.sh
+	./run.sh -P
+	touch -h ./current
