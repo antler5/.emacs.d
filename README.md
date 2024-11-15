@@ -328,7 +328,7 @@ class="verbatim">dirvish-find-entry-hook</code>.</td>
 </tr>
 <tr class="even">
 <td><strong>Org</strong></td>
-<td>167 lines</td>
+<td>168 lines</td>
 </tr>
 <tr class="odd">
 <td><a
@@ -346,7 +346,8 @@ blocks.</td>
 <tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-insert-heading&amp;type=code">antlers/org-insert-heading</a></td>
-<td>nil</td>
+<td>Set <code class="verbatim">CREATED</code> property on new headings
+for <code class="verbatim">org</code>.</td>
 </tr>
 <tr class="even">
 <td><strong>Roam</strong></td>

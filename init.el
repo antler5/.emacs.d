@@ -1523,6 +1523,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     (syntax-propertize (point-max)))
 
   (defun antlers/org-insert-heading ()
+    "Set =CREATED= property on new headings for =org=."
     (org-set-property "CREATED"
       (format-time-string (org-time-stamp-format t t))))
   (add-hook 'org-insert-heading-hook
