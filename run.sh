@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-FileCopyrightText: 2024 antlers <antlers@illucid.net>
 # SPDX-License-Identifier: GPL-3.0-or-later
-set -x
+set -xeuo pipefail
 
 export GUIX_PACKAGE_PATH+="$HOME/.emacs.d/modules"
 
@@ -15,14 +15,16 @@ CONTAINER_ARGS=(
 )
 
 ARGS=()
-if [[ $1 == '-C' ]]; then
+if [[ ${1:-} == '-C' ]]; then
   shift;
   ARGS+=("${CONTAINER_ARGS[@]}")
 fi
 
 cd ~/.config/emacs
-if [[ $1 == '-P' ]]; then
+if [[ ${1:-} == '-P' ]]; then
   shift;
+  [[ -L $HOME/.config/emacs/current ]] \
+    && unlink "$HOME"/.config/emacs/current
   guix shell ${ARGS[@]} \
     --root="$HOME"/.config/emacs/current \
     -L ~/.emacs.d/modules \
