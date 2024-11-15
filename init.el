@@ -1735,6 +1735,9 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (advice-add #'org-roam-dailies--daily-note-p :override
     #'org-node-fakeroam-daily-note-p))
 
+(use-package org-transclusion
+  :guix emacs-org-transclusion)
+
 
 ;;; Eshell
 (use-package eat
