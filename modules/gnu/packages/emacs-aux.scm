@@ -12,6 +12,49 @@
   #:use-module (gnu packages password-utils)
   #:use-module ((guix licenses) #:prefix license:))
 
+(define-public emacs-tabspaces
+  (let ((commit "aef95c052a51fd27ebc996173b7ad866b28fa355")
+        (revision "0"))
+    (package
+      (name "emacs-tabspaces")
+      (version (git-version "0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/mclear-tools/tabspaces")
+               (commit commit)))
+         (sha256
+          (base32 "08nwpmrlrkrxmwbjjnzbngjf39wygmmhvjkn9alr4xxrpl9nnv6h"))
+         (file-name (git-file-name name version))))
+      (build-system emacs-build-system)
+      (home-page "https://github.com/mclear-tools/tabspaces")
+      (synopsis "")
+      (description "")
+      (license license:gpl3+))))
+
+#;
+(define-public emacs-org-transclusion
+  (let ((commit "216cf9d38c468f2ce7f8685ba19d4d1fcbb87177")
+        (revision "0"))
+    (package
+      (name "emacs-org-transclusion")
+      (version (git-version "0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/nobiot/org-transclusion")
+               (commit commit)))
+         (sha256
+          (base32 "16j568w1w8g2jn4iighvf37mii83x021x2p4d0lyki5hz7x5ssjn"))
+         (file-name (git-file-name name version))))
+      (build-system emacs-build-system)
+      (home-page "https://nobiot.github.io/org-transclusion/")
+      (synopsis "Emacs package to enable transclusion with Org Mode")
+      (description "Emacs package to enable transclusion with Org Mode")
+      (license license:gpl3))))
+
 (define-public emacs-spacious-padding
   (let ((commit "216cf9d38c468f2ce7f8685ba19d4d1fcbb87177")
         (revision "0"))
