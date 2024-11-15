@@ -1490,11 +1490,12 @@ out.")
             "a" #'org-agenda
             "t" #'org-todo-list
             "c" #'org-capture)
-           (org-mode-map
-            "C-c l" #'org-store-link
-            "C-c b" #'org-switchb
-            "C-c [" nil
-            "C-c ]" nil)
+  :general-config
+  (org-mode-map
+   "C-c l" #'org-store-link
+   "C-c b" #'org-switchb
+   "C-c [" nil
+   "C-c ]" nil)
   :gfhook #'visual-line-mode
           #'flyspell-mode
           #'antlers/org-setup-<>-syntax-fix
@@ -1616,6 +1617,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :guix emacs-org-roam
   :custom
   (org-roam-directory "~/Sync/app/org")
+  (org-roam-dailies-directory "/journals")
   (org-roam-completion-everywhere nil)
   (org-roam-capture-templates
     '(("d" "default" plain "%?"
@@ -1652,9 +1654,13 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :after   org org-roam
   :general ("M-s f" 'org-node-find
             "M-s i" 'org-node-insert-link
-            "M-s s" #'org-node-series-dispatch)
+            "M-s s" #'org-node-series-dispatch
+            "M-s M-g" #'org-node-grep)
            ('eshell-hist-mode-map
             "M-s" nil)
+  :general-config
+  (org-mode-map
+   "C-c t" #'org-node-tag-add)
   :custom
   (org-node-ask-directory (concat (getenv "HOME") "/Sync/app/org/pages"))
   (org-node-filter-fn
