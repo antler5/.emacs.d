@@ -136,9 +136,6 @@ antlers@citrus ~/.emacs.d$ ./run.sh
          pandoc))
 (progn
   (require 'ox-pandoc)
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((shell . t)))
   (org-pandoc-export-to-commonmark)
   (while (seq-filter (lambda (p) (equal (process-name p) "pandoc"))
                      (process-list))

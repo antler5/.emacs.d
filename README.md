@@ -52,12 +52,25 @@ antlers@citrus ~/.emacs.d$ ./run.sh
 <tbody>
 <tr class="odd">
 <td><strong>Use-Package</strong></td>
-<td>24 lines</td>
+<td>58 lines</td>
 </tr>
 <tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+:guix&amp;type=code">:guix</a></td>
 <td>No-op use-package keyword.</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/setq&amp;type=code">antlers/setq</a></td>
+<td>Like <code class="verbatim">general-setq</code>, but falls back to
+<code class="verbatim">set-default</code>.</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/use-package-handler/:set&amp;type=code">antlers/use-package-handler/:set</a></td>
+<td>Like <code class="verbatim">:custom</code>, but uses <code
+class="verbatim">antlers/setq</code> during <code
+class="verbatim">:init</code>.</td>
 </tr>
 <tr class="odd">
 <td><a
@@ -73,7 +86,7 @@ nothing).</td>
 </tr>
 <tr class="odd">
 <td><strong>Guix Integration</strong></td>
-<td>24 lines</td>
+<td>29 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -83,8 +96,18 @@ class="verbatim">PATH</code>, duplicating it and updating <code
 class="verbatim">exec-path</code> when appropriate.</td>
 </tr>
 <tr class="odd">
+<td><strong>Helpers</strong></td>
+<td>6 lines</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/disable-indicate-buffer-boundaries&amp;type=code">antlers/disable-indicate-buffer-boundaries</a></td>
+<td>Disable <code
+class="verbatim">indicate-buffer-boundaries</code>.</td>
+</tr>
+<tr class="odd">
 <td><strong>Native Emacs Configuration</strong></td>
-<td>122 lines</td>
+<td>121 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -107,7 +130,7 @@ class="verbatim">elisp-load-path-roots</code>.</td>
 </tr>
 <tr class="odd">
 <td><strong>Mode-line</strong></td>
-<td>138 lines</td>
+<td>150 lines</td>
 </tr>
 <tr class="even">
 <td><a
@@ -175,54 +198,54 @@ href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME
 updates open buffers.</td>
 </tr>
 <tr class="even">
-<td><strong>Theme, Graphics, and Fringe</strong></td>
-<td>209 lines</td>
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/eldoc-minibuffer--cleanup&amp;type=code">antlers/eldoc-minibuffer–cleanup</a></td>
+<td>Prevent empty eldoc-mode-line-string from persisting in
+mode-line.</td>
 </tr>
 <tr class="odd">
+<td><strong>Theme, Graphics, and Fringe</strong></td>
+<td>222 lines</td>
+</tr>
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/change-window-divider&amp;type=code">antlers/change-window-divider</a></td>
 <td>Set <code class="verbatim">vertical-border</code> to use a longer
 unicode char.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/moody-wrap&amp;type=code">antlers/moody-wrap</a></td>
 <td>Remove mode-line underline for <code
 class="verbatim">moody-wrap</code> in TTY frames.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/collect-plist&amp;type=code">antlers/collect-plist</a></td>
 <td>Destructively collect leading <code class="verbatim">plist</code>
 from <code class="verbatim">ARGS</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/symbol-concat&amp;type=code">antlers/symbol-concat</a></td>
 <td>Flatten symbols in list <code class="verbatim">SYMS</code> into a
 new symbol.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/define-icon-mappings&amp;type=code">antlers/define-icon-mappings</a></td>
 <td>Install narrow <code class="verbatim">all-the-icons</code> &lt;-&gt;
 <code class="verbatim">nerd-icons</code> shims.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/define-icon-adapter&amp;type=code">antlers/define-icon-adapter</a></td>
 <td>Install broad <code class="verbatim">all-the-icons</code> &lt;-&gt;
 <code class="verbatim">nerd-icons</code> shims.</td>
 </tr>
-<tr class="odd">
-<td><strong>Application Packages</strong></td>
-<td>384 lines</td>
-</tr>
 <tr class="even">
-<td><a
-href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/disable-indicate-buffer-boundaries&amp;type=code">antlers/disable-indicate-buffer-boundaries</a></td>
-<td>Disable <code class="verbatim">indicate-buffer-boundaries</code> in
-<code class="verbatim">Dired</code> buffers.</td>
+<td><strong>Application Packages</strong></td>
+<td>383 lines</td>
 </tr>
 <tr class="odd">
 <td><a
@@ -305,7 +328,7 @@ class="verbatim">dirvish-find-entry-hook</code>.</td>
 </tr>
 <tr class="even">
 <td><strong>Org</strong></td>
-<td>161 lines</td>
+<td>167 lines</td>
 </tr>
 <tr class="odd">
 <td><a
@@ -321,127 +344,132 @@ href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME
 blocks.</td>
 </tr>
 <tr class="odd">
-<td><strong>Roam</strong></td>
-<td>119 lines</td>
+<td><a
+href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-insert-heading&amp;type=code">antlers/org-insert-heading</a></td>
+<td>nil</td>
 </tr>
 <tr class="even">
+<td><strong>Roam</strong></td>
+<td>133 lines</td>
+</tr>
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/org-node-helper-filename-%3Eymd&amp;type=code">antlers/org-node-helper-filename-&gt;ymd</a></td>
 <td>Process underscore-separated dates for <code
 class="verbatim">org-node</code>.</td>
 </tr>
-<tr class="odd">
-<td><strong>Eshell</strong></td>
-<td>103 lines</td>
-</tr>
 <tr class="even">
+<td><strong>Eshell</strong></td>
+<td>99 lines</td>
+</tr>
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/quit-to-eshell&amp;type=code">antlers/quit-to-eshell</a></td>
 <td>Close current window, maybe kill its buffer, maybe open eshell.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/quit-all-to-eshell&amp;type=code">antlers/quit-all-to-eshell</a></td>
 <td>Close all windows, maybe kill their buffers, and open eshell.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/save-and-quit-to-eshell&amp;type=code">antlers/save-and-quit-to-eshell</a></td>
 <td>Save and call <code
 class="verbatim">antlers/quit-to-eshell</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/save-and-quit-to-eshell*&amp;type=code">antlers/save-and-quit-to-eshell*</a></td>
 <td>Save and call <code class="verbatim">antlers/quit-to-eshell</code>
 (without asking).</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/save-and-quit-all-to-eshell&amp;type=code">antlers/save-and-quit-all-to-eshell</a></td>
 <td>Save all and call <code
 class="verbatim">antlers/quit-all-to-eshell</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/save-and-quit-all-to-eshell*&amp;type=code">antlers/save-and-quit-all-to-eshell*</a></td>
 <td>Save all and call <code
 class="verbatim">antlers/quit-all-to-eshell</code> (without
 asking).</td>
 </tr>
-<tr class="even">
-<td><strong>Minor Modes</strong></td>
-<td>130 lines</td>
-</tr>
 <tr class="odd">
+<td><strong>Minor Modes</strong></td>
+<td>153 lines</td>
+</tr>
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/keepass--update-mode-line&amp;type=code">antlers/keepass–update-mode-line</a></td>
 <td>Update mode line with DESC for <code
 class="verbatim">keepass--update-mode-line</code>.</td>
 </tr>
-<tr class="even">
-<td><strong>EAF</strong></td>
-<td>112 lines</td>
-</tr>
 <tr class="odd">
+<td><strong>EAF</strong></td>
+<td>105 lines</td>
+</tr>
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/eaf-install-and-update&amp;type=code">antlers/eaf-install-and-update</a></td>
 <td>Install and update <code class="verbatim">EAF Core</code> and the
 subset of modules that I use.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><strong>Un-categorized</strong></td>
 <td></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/symbol-to-section&amp;type=code">antlers/symbol-to-section</a></td>
 <td>Return the section under which <code class="verbatim">SYM</code> is
 defined.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/symbol-to-gh-search-link&amp;type=code">antlers/symbol-to-gh-search-link</a></td>
 <td>Return an Org-formatted link to a GitHub search for <code
 class="verbatim">SYM</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/all-the-icons-fileicon-jupyter&amp;type=code">antlers/all-the-icons-fileicon-jupyter</a></td>
 <td>Narrow <code class="verbatim">all-the-icons</code> shim powered by
 <code class="verbatim">nerd-icons</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/all-the-icons-alltheicon-html5&amp;type=code">antlers/all-the-icons-alltheicon-html5</a></td>
 <td>Narrow <code class="verbatim">all-the-icons</code> shim powered by
 <code class="verbatim">nerd-icons</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/restore-frame-title-format&amp;type=code">antlers/restore-frame-title-format</a></td>
 <td>Restore <code class="verbatim">frame-title-format</code> once Emacs
 has initialized.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/all-the-icons-fileicon-org&amp;type=code">antlers/all-the-icons-fileicon-org</a></td>
 <td>Narrow <code class="verbatim">all-the-icons</code> shim powered by
 <code class="verbatim">nerd-icons</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/symbol-to-synopsis&amp;type=code">antlers/symbol-to-synopsis</a></td>
 <td>Return a short description of <code
 class="verbatim">SYM</code>.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/format-table&amp;type=code">antlers/format-table</a></td>
 <td>Convert the last column of sorted custom-symbol <code
 class="verbatim">TABLE</code> into row-group dividers and labels.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a
 href="https://github.com/search?q=repo%3Aantler5%2F.emacs.d%20+NOT+path%3AREADME.md+antlers/collect-symbols&amp;type=code">antlers/collect-symbols</a></td>
 <td>Return a table of custom-symbols, sorted in definition order.</td>
