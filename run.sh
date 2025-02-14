@@ -28,7 +28,7 @@ if [[ ${1:-} == '-P' ]]; then
   guix shell ${ARGS[@]} \
     --root="$HOME"/.config/emacs/current \
     -L ~/.emacs.d/modules \
-    --with-input=emacs=emacs-next \
+    --with-input=emacs=emacs-next-pgtk \
     --with-input=emacs-minimal=emacs-next-minimal \
     --with-input=emacs-dirvish=emacs-dirvish-patched \
     --with-input=emacs-general=emacs-general-next \
