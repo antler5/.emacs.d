@@ -2039,6 +2039,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 
 ;;; EAF
 (use-package eaf
+  :defer
   :guix (alsa-lib
          at-spi2-core
          bzip2
@@ -2123,6 +2124,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
       '(derived-mode . eaf-mode))))
 
 (use-package eaf-browser
+  :defer
   :config
   ;; I tried to write a general.el definer for this, but it's a macro.
   ;; *Maybe* possible, but I don't have time for that.
@@ -2131,14 +2133,18 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (eaf-bind-key evil-ex ":" eaf-browser-keybinding))
 
 (use-package eaf-evil
+  :defer
   :after eaf-browser
   :config (eaf-enable-evil-intergration))
 
 (use-package eaf-all-the-icons
+  :defer
   :after nerd-icons)
 
-(use-package eaf-org-previewer)
+(use-package eaf-org-previewer
+  :defer)
 (use-package eaf-ocap-cad-viewer
+  :defer
   :load-path "~/0/1-project/eaf-ocap-cad-viewer")
 
 
