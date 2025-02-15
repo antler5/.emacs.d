@@ -202,6 +202,11 @@
   :gfhook ('minibuffer-setup-hook #'antlers/disable-indicate-buffer-boundaries)
 
   :config
+  ;; Mass unbinding
+  (general-unbind
+    "C-h g"  ; describe-gnu-project
+    )
+
   ;; Leader-key shortcuts
   (defun antlers/find-file (filename)
     "Edit file =FILENAME= (it's =find-file=, but a =command=)."
