@@ -1067,7 +1067,9 @@ targets."
   :gfhook ('dired-mode-hook #'dired-hide-details-mode))
 
 (use-package dired-avfs
-  :guix (emacs-dired-hacks avfs)
+  :guix (avfs
+         emacs-dired-hacks
+         util-linux-with-udev) ; for mountpoint
   :config
   (unless (and (file-readable-p (concat (getenv "HOME") "/.avfs"))
                (= 0 (call-process "mountpoint" nil nil nil (concat (getenv "HOME") "/.avfs"))))
