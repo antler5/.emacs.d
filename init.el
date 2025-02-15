@@ -1655,7 +1655,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :after   org org-roam
   :general ("M-s f" 'org-node-find
             "M-s i" 'org-node-insert-link
-            "M-s s" #'org-node-series-dispatch
+            "M-s s" #'org-node-seq-dispatch
             "M-s M-g" #'org-node-grep)
            ('eshell-hist-mode-map
             "M-s" nil)
@@ -1669,13 +1669,13 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
       (not (or (org-node-get-todo node) ;; Ignore headings with todo state
                (assoc "ROAM_EXCLUDE" (org-node-get-properties node))
                (string-search "archive" (org-node-get-file-path node))))))
-  (org-node-series-defs
+  (org-node-seq-defs
     (list
      '("d" :name "Daily-files"
        :version 2
        :classifier (lambda (node)
                      (let ((path (expand-file-name (org-node-get-file-path node))))
-                       (when (string-search (org-node--guess-daily-dir) path)
+                       (when (string-search (org-node-seq--guess-daily-dir) path)
                          (let ((ymd (org-node-helper-filename->ymd path)))
                            (when ymd
                              (cons ymd path))))))
@@ -1685,11 +1685,11 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
                    (let ((org-node-series-that-marks-calendar key))
                      (org-read-date)))
        :try-goto (lambda (item)
-                   (org-node-helper-try-visit-file (cdr item)))
+                   (org-node-seq-try-visit-file (cdr item)))
        :creator (lambda (sortstr key)
                   ;; XXX: Use some kind of macro for this.
                   (let ((org-node-datestamp-format "")
-                        (org-node-ask-directory (org-node--guess-daily-dir)))
+                        (org-node-ask-directory (org-node-seq--guess-daily-dir)))
                     (org-node-create sortstr (org-id-new) key))))))
   ;; Seek wide use
   :ghook ('org-open-at-point-functions #'org-node-try-visit-ref-node)
@@ -1724,9 +1724,9 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   ;; DB:
   (org-roam-db-update-on-save nil) ; don't update DB on save, not needed
   (org-roam-link-auto-replace nil) ; don't look for "roam:" links on save
+  (org-node-fakeroam-fast-render-mode t) ; build the Roam buffer faster
+  (org-node-fakeroam-fask-render-persist t) ; cache previews on-disk
   :config
-  (org-node-fakeroam-fast-render-mode)  ; build the Roam buffer faster
-  (org-node-fakeroam-setup-persistence) ; cache previews on-disk
   ;; DB:
   (unless org-roam-db-update-on-save
     (org-node-fakeroam-redisplay-mode))  ; auto-refresh the Roam buffer

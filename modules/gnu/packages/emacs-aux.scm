@@ -329,11 +329,11 @@ Roam.")
               (method git-fetch)
               (uri (git-reference
                     (url "https://github.com/meedstrom/org-node-fakeroam")
-                    (commit "3e84dee8641191c87cc5a9e74999b2396db92972")))
+                    (commit "125ef95cee77a19d59d8e071aa14049dd2bbd1e8")))
               (file-name (git-file-name name version))
               (sha256
                (base32
-                "13pkrzldbbn1n5hc967baqhd2ncdfh1fdcw8f4107mbvbfh3g3v9"))))
+                "1m0qpixf8mnrfrp8p8z4zz8lqnz541lz02b8wkw90ajb81s6k7b9"))))
     (build-system emacs-build-system)
     (propagated-inputs
       (list emacs-org-node
