@@ -1623,7 +1623,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :guix emacs-org-roam
   :custom
   (org-roam-directory "~/Sync/app/org")
-  (org-roam-dailies-directory "/journals")
+  (org-roam-dailies-directory "journals/")
   (org-roam-completion-everywhere nil)
   (org-roam-capture-templates
     '(("d" "default" plain "%?"
@@ -1632,6 +1632,8 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
       ("j" "journal" plain "%?"
        :target (file+head "journals/${slug}.org" "#+title: ${title}\n")
        :unnarrowed t)))
+  :general-config
+  (evil-leader-map "D" #'org-roam-dailies-goto-today)
   :config
   (org-roam-db-autosync-mode))
 
