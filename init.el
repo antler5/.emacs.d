@@ -1927,9 +1927,10 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :guix emacs-rainbow-mode
   :ghook 'prog-mode-hook)
 
-(use-package explain-pause-mode
-  :guix emacs-explain-pause-mode
-  :ghook ('after-init-hook #'explain-pause-mode))
+;; BORKED 2025-02-14: Issues with emacs-next and org-node.
+;; (use-package explain-pause-mode
+;;   :guix emacs-explain-pause-mode
+;;   :ghook ('after-init-hook #'explain-pause-mode))
 
 ;; XXX: Breaks `mode-line-format-right-align`, somehow
 (use-package keepass
@@ -2019,6 +2020,44 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          emacs-wgrep
          emacs-x509-mode
          emacs-yaml-mode))
+
+(use-package lsp-mode
+  :guix emacs-lsp-mode
+  :commands lsp
+  :custom (lsp-completion-provider :none) ; corfu
+  :init
+  (defun patrl/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless))) ;; Configure orderless
+  :gfhook #'lsp-enable-which-key-integration
+  :ghook ('lsp-completion-mode-hook #'patrl/lsp-mode-setup-completion))
+
+(use-package lsp-ui
+  :guix emacs-lsp-ui
+  :commands lsp-ui-mode
+  :general (lsp-ui-mode-map
+            [remap xref-find-definitions] #'lsp-ui-peek-find-definitions
+            [remap xref-find-references] #'lsp-ui-peek-find-references)
+  :after lsp-mode)
+
+(use-package eglot
+  :guix emacs-eglot
+  :commands eglot
+  :init
+  (setq completion-category-overrides
+    (cons '(eglot (styles orderless))
+          completion-category-overrides)))
+
+(use-package rustic
+  :guix (emacs-rustic
+	       rust
+	       rust:tools
+	       rust-analyzer
+	       rust-cargo
+         pkg-config)
+  :config
+  (with-eval-after-load 'evil
+    (evil-set-initial-state 'rustic-popup-mode 'emacs)))
 
 (use-package pdf-loader
   :guix emacs-pdf-tools
