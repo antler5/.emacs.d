@@ -12,6 +12,26 @@
   #:use-module (gnu packages password-utils)
   #:use-module ((guix licenses) #:prefix license:))
 
+(define-public emacs-lsp-mode-next
+  ;; lsp-rust: fix inlay hints
+  ;; https://github.com/emacs-lsp/lsp-mode/issues/3896
+  ;; https://github.com/emacs-lsp/lsp-mode/commit/6b01d49757994c09c90623bf67f072d02f00f8e9
+  (let ((commit "ad38daba2b5e272556ae493b4b6a4e18b86ef97d")
+        (revision "0"))
+    (package
+      (inherit emacs-lsp-mode)
+      (name "emacs-lsp-mode-next")
+      (version (git-version "0" revision commit))
+      (source
+       (origin
+         (method git-fetch)
+         (uri (git-reference
+               (url "https://github.com/emacs-lsp/lsp-mode")
+               (commit commit)))
+         (sha256
+          (base32 "05y1sa2gdvfn34xwr1s7sifkczlxvcypydz206qb4w56m6i1ss53"))
+         (file-name (git-file-name name version)))))))
+
 (define-public emacs-tabspaces
   (let ((commit "aef95c052a51fd27ebc996173b7ad866b28fa355")
         (revision "0"))

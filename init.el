@@ -2031,7 +2031,17 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 (use-package lsp-mode
   :guix emacs-lsp-mode
   :commands lsp
-  :custom (lsp-completion-provider :none) ; corfu
+  :custom
+  (lsp-headerline-breadcrumb-enable nil)
+  (lsp-completion-provider :none) ; corfu
+  (lsp-auto-guess-root t)
+  (lsp-keymap-prefix "C-l")
+  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+  (lsp-rust-analyzer-display-chaining-hints t)
+  (lsp-rust-analyzer-display-closure-return-type-hints t)
+  (lsp-inlay-hint-enable t)
+  (lsp-rust-analyzer-lens-run-enable nil) ; can't configure, just use dap-mode
+  (lsp-rust-analyzer-lens-debug-enable nil) ; can't configure, just use dap-mode
   :init
   (defun patrl/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
@@ -2041,12 +2051,31 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 
 (use-package lsp-ui
   :guix emacs-lsp-ui
+  :after lsp-mode
   :commands lsp-ui-mode
+  :init
   :general (lsp-ui-mode-map
             [remap xref-find-definitions] #'lsp-ui-peek-find-definitions
-            [remap xref-find-references] #'lsp-ui-peek-find-references)
-  :after lsp-mode)
+            [remap xref-find-references] #'lsp-ui-peek-find-references
+            "C-c u" #'lsp-ui-imenu)
+           (lsp-ui-mode-map
+            :states 'motion
+            ; "TAB" #'lsp-ui-doc-toggle-focus-frame)
+            "TAB" #'lsp-ui-doc-focus-frame)
+           (lsp-ui-doc-frame-mode-map
+            :states 'normal
+            [?q] #'lsp-ui-doc-unfocus-frame
+            "TAB" #'lsp-ui-doc-unfocus-frame)
+  :custom
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-doc-use-childframe t)
+  (lsp-ui-doc-position 'at-point)
+  (lsp-ui-doc-show-with-mouse nil)
+  (lsp-ui-doc-include-signature t))
 
+;; For future reference:
+;; Configuring rust-analyzer via eglo
+;; https://gist.github.com/casouri/0ad2c6e58965f6fd2498a91fc9c66501
 (use-package eglot
   :guix emacs-eglot
   :commands eglot
@@ -2055,14 +2084,117 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
     (cons '(eglot (styles orderless))
           completion-category-overrides)))
 
+(use-package dap-mode
+  :guix (emacs-dap-mode
+         gdb
+         lldb
+         patchelf)
+  :init
+  (defun antlers/dap-codelldb-setup ()
+    (let* ((sh-bin (shell-command-to-string "realpath $(which sh)"))
+           (interpreter (shell-command-to-string (concat "patchelf --print-interpreter " sh-bin)))
+           (interpreter (string-trim-right interpreter)))
+        (-map (lambda (file)
+                ;; XXX: No error handling
+                (start-process-shell-command "patchelf" nil
+                  (concat "patchelf --set-interpreter " interpreter " " (concat (getenv "HOME") file))))
+          '("~/.emacs.d/var/dap/extensions/vscode/codelldb/extension/adapter/codelldb"))))
+  (advice-add 'dap-codelldb-setup :after
+    #'antlers/dap-codelldb-setup)
+  :general-config
+  ('lsp-mode-map
+   :prefix lsp-keymap-prefix
+   "d" '(dap-hydra t :wk "debugger"))
+  :config
+  (dap-ui-mode)
+  (dap-ui-controls-mode 1)
+
+  (require 'dap-gdb-lldb)
+  (require 'dap-cpptools)
+  (require 'dap-codelldb)
+
+  ;; installs .extension/vscode
+  (dap-gdb-lldb-setup)
+  (dap-codelldb-setup)
+  (dap-cpptools-setup)
+
+  (mapc (lambda (configuration-name)
+          (setq dap-debug-template-configurations
+                (delq (assoc configuration-name dap-debug-template-configurations)
+                      dap-debug-template-configurations)))
+        '("GDBServer Connect Configuration"))
+  
+  (dap-register-debug-template
+    "cpptools::Run Configuration"
+    '(:type "cppdbg"
+      :request "launch"
+      :name "cpptools::Run"
+      :MIMode "gdb"
+      :MIDebuggerPath "gdb"
+      :program "${workspaceFolder}/target/debug/${workspaceFolderBasename}"
+      :cwd "${workspaceFolder}")))
+
 (use-package rustic
   :guix (emacs-rustic
-	       rust
-	       rust:tools
-	       rust-analyzer
-	       rust-cargo
+         fd ; doc
+         rust
+         rust-analyzer
+         rust-cargo
+         rust-rustup-toolchain ; doc
+         rust:rust-src
+         rust:tools
+         rust-cargo-makedocs ; doc
+         pandoc ; doc
          pkg-config)
+  :defer nil
+  :gfhook
+  ('rustic-mode-hook #'antlers/rustic-mode-set-dap-templates)
+  :general-config
+  (:states 'motion
+   :keymaps 'rustic-mode-map
+   "K" #'lsp-ui-doc-glance)
+  :custom
+  ;; playing with lsp-mode first, but i kinda like eglot.
+  ;; lsp-mode might have an edge if i package cargo-makedoc for
+  ;; rustic's org-mode docs setup.
+  ;; (rustic-lsp-client 'eglot)
+  (rustic-lsp-client 'lsp-mode)
   :config
+  ;; XXX: Should probably be fixed on package, but ideally this would
+  ;; have been a separate package that builds itself via rustup, and
+  ;; it's a graft via module reflection, so, whatever -- it's jank.
+  (defun antlers/rustic-doc--install-resources ()
+    (let ((old-path "\$RUSTUP_HOME/toolchains/\$TARGET/share/doc/rust/html/\$LIBRARY")
+          (new-path "$GUIX_ENVIRONMENT/share/doc/docs/html/\$LIBRARY"))
+      (shell-command
+        (concat "sed -i 's," old-path "," new-path ",' "
+                "~/.local/bin/rustic-doc-convert.sh"))))
+
+  (advice-add 'rustic-doc--install-resources :after
+    #'antlers/rustic-doc--install-resources)
+  (defun antlers/rustic-mode-set-dap-templates ()
+    (mapc (-lambda ((title . plist))
+            (dap-register-debug-template
+             title
+             (-cons* :request "launch"
+                     ;; :target nil
+                     :target "${workspaceFolder}/target/debug/${workspaceFolderBasename}"
+                     :program "${workspaceFolder}/target/debug/${workspaceFolderBasename}"
+                     :cwd "${workspaceFolder}"
+                     plist)))
+          '(("Rust::GDB Run Configuration" .
+             (:type "gdb"
+              :name "Rust::GDB::Run"
+              :gdbpath "rust-gdb"))
+            ("Rust::LLDB Run Configuration" .
+             (:type "lldb"
+              :name "Rust::LLDB::Run"
+              :gdbpath "rust-lldb"))
+            ("Rust::cpptools::Run Configuration" .
+             (:type "cppdbg"
+              :name "Rust::cpptools::Run"
+              :MIMode "gdb"
+              :MIDebuggerPath "rust-gdb")))))
   (with-eval-after-load 'evil
     (evil-set-initial-state 'rustic-popup-mode 'emacs)))
 
@@ -2208,6 +2340,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          ghostscript ; for ps2pdf, for org-agenda.el ; XXX: guix issue#50625
          git
          gnupg
+         grep ; prefer ripgrep, but can't fix everywhere
          gzip
          imagemagick ; for #'mpc
          net-tools ; for #'arp
