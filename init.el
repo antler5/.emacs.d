@@ -905,15 +905,16 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   (corfu-min-width 35)
   (corfu-preselect-first nil)
   (corfu-quit-no-match nil)
+  (corfu-popupinfo-delay 0.2)
   (global-corfu-mode t)
   :general-config
   (corfu-map
-    ;; XXX: Prevents tab-completion of a single candidate
-    ; "TAB"     #'corfu-next
-    ; [tab]     #'corfu-next
-    ; "S-TAB"   #'corfu-previous
-    ; [backtab] #'corfu-previous
-    "S-SPC" #'corfu-insert-separator)
+   ;; XXX: Prevents tab-completion of a single candidate
+   ; "TAB"     #'corfu-next
+   ; [tab]     #'corfu-next
+   ; "S-TAB"   #'corfu-previous
+   ; [backtab] #'corfu-previous
+   "S-SPC" #'corfu-insert-separator) ; XXX: not working in pgtk?
   :config
   ;; Move to Minibuffer
   ;; This is from the Corfu README, but pairs well with `embark-collect'
@@ -933,6 +934,10 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
   ;; Hook depth! Very fancy.
   (add-hook 'minibuffer-setup-hook
     'corfu-enable-always-in-minibuffer 1)
+
+  ;; Docs
+  (general-after-tty
+    (corfu-popupinfo-mode))
 
   ;; Enable in Eshell
   (add-hook 'eshell-mode-hook
