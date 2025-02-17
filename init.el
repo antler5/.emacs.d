@@ -247,8 +247,10 @@
 
 ;; Default Tabs & Indents
 (use-package emacs
+  :after evil
   :custom
   (tab-width 2)
+  (evil-shift-width 2)
   (indent-tabs-mode nil)
   ;; Must come last to use modified `tab-width'
   (tab-stop-list (number-sequence tab-width 120 tab-width))
@@ -258,7 +260,6 @@
   (-map (-cut defvaralias <> 'tab-width)
         '(c-basic-offset
           css-indent-offset
-          evil-shift-width
           lisp-indent-offset
           sh-basic-offset)))
 
@@ -748,7 +749,7 @@ Intern that symbol when leading plist key =:intern?= is non-nil.
 (use-package evil-org-mode
   :guix emacs-evil-org
   :after org
-  :ghook 'org-mode
+  :ghook 'org-mode-hook
   :config
   (evil-org-agenda-set-keys))
 
@@ -1507,7 +1508,6 @@ out.")
    "C-c [" nil
    "C-c ]" nil)
   :gfhook #'visual-line-mode
-          #'flyspell-mode
           #'antlers/org-setup-<>-syntax-fix
           #'(lambda () (setq-local tab-width 8))
   :config
@@ -1560,7 +1560,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 
 (use-package svg-tag-mode
   :guix emacs-svg-tag-mode
-  :ghook ('org-mode-hook #'svg-tag-mode)
+  :ghook 'org-mode-hook
   :after org-faces
   :custom-face
   (org-todo-tag      ((t :background ,(face-foreground 'org-todo nil t)
@@ -1879,31 +1879,25 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 ;                     (beacon--post-command)))))
 ;   (mapc #'beacon-do-blink-command beacon-do-blink-commands))
 
-(use-package flyspell
-  :guix hunspell hunspell-dict-en-us
-  :ghook ('prog-mode-hook #'flyspell-prog-mode)
-         'git-commit-mode-hook
+(use-package spell-fu
+  :guix (aspell
+         aspell-dict-en
+         emacs-spell-fu)
+  :ghook
+  'git-commit-mode-hook
+  'org-mode-hook
+  'prog-mode-hook
+  :gfhook #'antlers/spell-fu-set-dictionaries
   :custom
-  (ispell-alternate-dictionary "/tmp/words")
-  (ispell-personal-dictionary ; Keep `ispell' dictionary in .emacs.d
-    (concat (getenv "HOME") "/Sync/app/org/ispell-english.dict"))
-  (ispell-silently-savep t)   ; Don't ask before saving dict. updates
+  (text-mode-ispell-word-completion nil)
+  :general-config
+  (:states 'normal
+   "z i" #'spell-fu-word-add)
   :config
-  ;; TODO: Should be a Guix package instead of building into /tmp at
-  ;; runtime.
-  (unless (file-readable-p "/tmp/words")
-    (start-process-shell-command "unmunch" nil
-      (string-join
-        (list (concat (getenv "GUIX_ENVIRONMENT")
-                      "/bin/unmunch")
-              (shell-quote-argument
-                (concat (getenv "GUIX_ENVIRONMENT")
-                        "/share/hunspell/en_US.dic"))
-              (shell-quote-argument
-                (concat (getenv "GUIX_ENVIRONMENT")
-                        "/share/hunspell/en_US.aff"))
-              "> /tmp/words")
-        " "))))
+  (defun antlers/spell-fu-set-dictionaries ()
+    (spell-fu-dictionary-add (spell-fu-get-ispell-dictionary "en"))
+    (spell-fu-dictionary-add (spell-fu-get-personal-dictionary "en-personal"
+                               (concat (getenv "HOME") "/Sync/app/org/.en_US.dict")))))
 
 (use-package which-key
   :guix emacs-which-key
