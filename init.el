@@ -2029,25 +2029,59 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          emacs-yaml-mode))
 
 (use-package lsp-mode
-  :guix emacs-lsp-mode
+  :guix (emacs-lsp-mode
+         emacs-lsp-booster)
   :commands lsp
+  :gfhook #'lsp-enable-which-key-integration
+  :ghook ('lsp-completion-mode-hook #'patrl/lsp-mode-setup-completion)
   :custom
-  (lsp-headerline-breadcrumb-enable nil)
-  (lsp-completion-provider :none) ; corfu
   (lsp-auto-guess-root t)
+  (lsp-completion-provider :none) ; corfu
+  (lsp-enable-dap-auto-configure nil)
+  (lsp-enable-symbol-highlighting nil)
+  (lsp-headerline-breadcrumb-enable nil)
+  (lsp-inlay-hint-enable t)
+  (lsp-keep-workspace-alive nil)
   (lsp-keymap-prefix "C-l")
-  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
   (lsp-rust-analyzer-display-chaining-hints t)
   (lsp-rust-analyzer-display-closure-return-type-hints t)
-  (lsp-inlay-hint-enable t)
-  (lsp-rust-analyzer-lens-run-enable nil) ; can't configure, just use dap-mode
+  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
   (lsp-rust-analyzer-lens-debug-enable nil) ; can't configure, just use dap-mode
+  (lsp-rust-analyzer-lens-run-enable nil) ; can't configure, just use dap-mode
   :init
   (defun patrl/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless))) ;; Configure orderless
-  :gfhook #'lsp-enable-which-key-integration
-  :ghook ('lsp-completion-mode-hook #'patrl/lsp-mode-setup-completion))
+  :config
+  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+    "Try to parse bytecode instead of json."
+    (or (when (equal (following-char) ?#)
+          (let ((bytecode (read (current-buffer))))
+            (when (byte-code-function-p bytecode)
+              (funcall bytecode))))
+        (apply old-fn args)))
+  (advice-add (if (progn (require 'json)
+                         (fboundp 'json-parse-buffer))
+                  'json-parse-buffer
+                'json-read)
+              :around
+              #'lsp-booster--advice-json-parse)
+
+  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+    "Prepend emacs-lsp-booster command to lsp CMD."
+    (let ((orig-result (funcall old-fn cmd test?)))
+      (if (and (not test?)                             ;; for check lsp-server-present?
+               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+               lsp-use-plists
+               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+               (executable-find "emacs-lsp-booster"))
+          (progn
+            (when-let ((command-from-exec-path (executable-find (car orig-result))))  ;; resolve command from exec-path (in case not found in $PATH)
+              (setcar orig-result command-from-exec-path))
+            (message "Using emacs-lsp-booster for %s!" orig-result)
+            (cons "emacs-lsp-booster" orig-result))
+        orig-result)))
+  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command))
 
 (use-package lsp-ui
   :guix emacs-lsp-ui
@@ -2079,10 +2113,21 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 (use-package eglot
   :guix emacs-eglot
   :commands eglot
-  :init
+  :config
   (setq completion-category-overrides
     (cons '(eglot (styles orderless))
           completion-category-overrides)))
+
+(use-package eglot-booster
+  :guix emacs-eglot-booster
+	:after eglot
+	:config (eglot-booster-mode))
+
+(use-package dape
+  :guix emacs-dape
+  :after dap-mode
+  :custom
+  (dape-inlay-hints t))
 
 (use-package dap-mode
   :guix (emacs-dap-mode
@@ -2090,6 +2135,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          lldb
          patchelf)
   :init
+  ;; used by dape too
   (defun antlers/dap-codelldb-setup ()
     (let* ((sh-bin (shell-command-to-string "realpath $(which sh)"))
            (interpreter (shell-command-to-string (concat "patchelf --print-interpreter " sh-bin)))
@@ -2101,10 +2147,6 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
           '("~/.emacs.d/var/dap/extensions/vscode/codelldb/extension/adapter/codelldb"))))
   (advice-add 'dap-codelldb-setup :after
     #'antlers/dap-codelldb-setup)
-  :general-config
-  ('lsp-mode-map
-   :prefix lsp-keymap-prefix
-   "d" '(dap-hydra t :wk "debugger"))
   :config
   (dap-ui-mode)
   (dap-ui-controls-mode 1)
@@ -2123,7 +2165,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
                 (delq (assoc configuration-name dap-debug-template-configurations)
                       dap-debug-template-configurations)))
         '("GDBServer Connect Configuration"))
-  
+
   (dap-register-debug-template
     "cpptools::Run Configuration"
     '(:type "cppdbg"
@@ -2133,6 +2175,8 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
       :MIDebuggerPath "gdb"
       :program "${workspaceFolder}/target/debug/${workspaceFolderBasename}"
       :cwd "${workspaceFolder}")))
+
+(use-package rust-mode)
 
 (use-package rustic
   :guix (emacs-rustic
@@ -2146,19 +2190,21 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
          rust-cargo-makedocs ; doc
          pandoc ; doc
          pkg-config)
-  :defer nil
+  :demand t
+  :after rust-mode
   :gfhook
-  ('rustic-mode-hook #'antlers/rustic-mode-set-dap-templates)
+  #'antlers/rustic-mode-set-dap-templates
+  #'antlers/rustic-mode-set-dape-templates
   :general-config
   (:states 'motion
-   :keymaps 'rustic-mode-map
+   :keymaps 'lsp-mode-map
    "K" #'lsp-ui-doc-glance)
   :custom
   ;; playing with lsp-mode first, but i kinda like eglot.
   ;; lsp-mode might have an edge if i package cargo-makedoc for
   ;; rustic's org-mode docs setup.
-  ;; (rustic-lsp-client 'eglot)
-  (rustic-lsp-client 'lsp-mode)
+  (rustic-lsp-client 'eglot)
+  ;; (rustic-lsp-client 'lsp-mode)
   :config
   ;; XXX: Should probably be fixed on package, but ideally this would
   ;; have been a separate package that builds itself via rustup, and
@@ -2169,9 +2215,19 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
       (shell-command
         (concat "sed -i 's," old-path "," new-path ",' "
                 "~/.local/bin/rustic-doc-convert.sh"))))
-
   (advice-add 'rustic-doc--install-resources :after
     #'antlers/rustic-doc--install-resources)
+  (defun antlers/rustic-mode-set-dape-templates ()
+    (make-variable-buffer-local 'dape-configs)
+    (let ((lldb-rust (cdr (assq 'codelldb-cc dape-configs))))
+      (setq lldb-rust (plist-put lldb-rust 'command
+        "/home/antlers/.emacs.d/var/dap/extensions/vscode/codelldb/extension/adapter/codelldb"))
+      (setq lldb-rust (plist-put lldb-rust :program
+        (file-name-concat "target" "debug"
+                          (car (last (file-name-split
+                                      (directory-file-name (dape-cwd))))))))
+      (setq-local dape-configs (assq-delete-all 'lldb-rust dape-configs))
+      (setq-local dape-configs (cons `(lldb-rust ,@lldb-rust) dape-configs))))
   (defun antlers/rustic-mode-set-dap-templates ()
     (mapc (-lambda ((title . plist))
             (dap-register-debug-template
