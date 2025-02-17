@@ -1673,7 +1673,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (org-node-ask-directory (concat (getenv "HOME") "/Sync/app/org/pages"))
   (org-node-filter-fn
     (lambda (node)
-      (not (or (org-node-get-todo node) ;; Ignore headings with todo state
+      (not (or ;; (org-node-get-todo node) ; BORKED 2025/02/17: cl arg type dispatch error?
                (assoc "ROAM_EXCLUDE" (org-node-get-properties node))
                (string-search "archive" (org-node-get-file-path node))))))
   (org-node-seq-defs
@@ -2108,11 +2108,14 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (lsp-ui-doc-include-signature t))
 
 ;; For future reference:
-;; Configuring rust-analyzer via eglo
+;; Configuring rust-analyzer via eglot
 ;; https://gist.github.com/casouri/0ad2c6e58965f6fd2498a91fc9c66501
 (use-package eglot
   :guix emacs-eglot
   :commands eglot
+  :custom
+  (eglot-ignored-server-capabilities
+    '(:documentHighlightProvider))
   :config
   (setq completion-category-overrides
     (cons '(eglot (styles orderless))
