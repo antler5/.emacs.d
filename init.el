@@ -1678,7 +1678,11 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (org-node-ask-directory (concat (getenv "HOME") "/Sync/app/org/pages"))
   (org-node-filter-fn
     (lambda (node)
-      (not (or ;; (org-node-get-todo node) ; BORKED 2025/02/17: cl arg type dispatch error?
+      ;; BORKED 2025/02/17: cl arg type dispatch error?
+      ;; Debugger entered--Lisp error: (cl-no-applicable-method comp--spill-lap-function #f(lambda (node) :dynbind (not (or (assoc "ROAM_EXCLUDE" (org-node-get-properties node)) (string-search "archive" (org-node-get-file-path node))))))
+      ;; signal(cl-no-applicable-method (comp--spill-lap-function #f(lambda (node) :dynbind (not (or (assoc "ROAM_EXCLUDE" (org-node-get-properties node)) (string-search "archive" (org-node-get-file-path node)))))))
+      ;; cl-no-applicable-method(#s(cl--generic :name comp--spill-lap-function :dispatches ((0 #s(cl--generic-generalizer :name cl--generic-typeof-generalizer :priority 10 :tagcode-function #f(compiled-function (name &rest _) #<bytecode 0x11623d39777641a1>) :specializers-function cl--generic-type-specializers) #s(cl--generic-generalizer :name cl--generic-t-generalizer :priority 0 :tagcode-function #f(compiled-function (name &rest _) #<bytecode 0x111a2082463a1535>) :specializers-function #f(compiled-function (tag &rest _) #<bytecode -0x1a05678245d32db5>)))) :method-table (#s(cl--generic-method :specializers (string) :qualifiers nil :call-con nil :function #f(compiled-function (filename) "Byte-compile FILENAME, spilling data from the byte compiler." #<bytecode 0xcfe38f4ed1a6a7>)) #s(cl--generic-method :specializers (list) :qualifiers nil :call-con nil :function #f(compiled-function (form) "Byte-compile FORM, spilling data from the byte compiler." #<bytecode 0x7fb1ef53e1b567a>)) #s(cl--generic-method :specializers (symbol) :qualifiers nil :call-con nil :function #f(compiled-function (function-name) "Byte-compile FUNCTION-NAME, spilling data from the byte compiler." #<bytecode -0xf105c3a5aab6047>))) :options nil) #f(lambda (node) :dynbind (not (or (assoc "ROAM_EXCLUDE" (org-node-get-properties node)) (string-search "archive" (org-node-get-file-path node))))))
+      (not (or (org-node-get-todo node)
                (assoc "ROAM_EXCLUDE" (org-node-get-properties node))
                (string-search "archive" (org-node-get-file-path node))))))
   (org-node-seq-defs
