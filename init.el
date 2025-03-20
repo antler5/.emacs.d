@@ -1084,12 +1084,11 @@ targets."
   :gfhook ('dired-mode-hook #'dired-hide-details-mode))
 
 (use-package dired-avfs
-  :guix (emacs-dired-hacks avfs)
-  :after eshell
+  :guix (avfs
+         emacs-dired-hacks
+         util-linux-with-udev) ; for mountpoint
   :config
   (unless (and (file-readable-p (concat (getenv "HOME") "/.avfs"))
-               ;; XXX: Should be in path?
-               (eshell-search-path "avfs")
                (= 0 (call-process "mountpoint" nil nil nil (concat (getenv "HOME") "/.avfs"))))
     (start-process-shell-command "mountavfs" nil "mountavfs")))
 
