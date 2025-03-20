@@ -163,6 +163,8 @@
   (cursor-in-non-selected-windows nil) ; Hide inactive window's cursor
   (help-window-select t)               ; Focus new help windows when opened
   (highlight-nonselected-windows nil)  ; Hide inactive window's active region
+  (window-divider-mode t)
+  (window-divider-default-right-width 4)
 
   ;; Preferences
   (recenter-positions '(5 top bottom)) ; Set re-centering positions
@@ -193,6 +195,10 @@
   ;; Debug, Warnings, and Errors
   (native-comp-async-report-warnings-errors nil)
 
+  :custom-face
+  (window-divider ((t (:foreground "#555"))))
+  (window-divider-first-pixel ((t (:inherit window-divider))))
+  (window-divider-last-pixel ((t (:inherit window-divider))))
   :general ("<wheel-left>" #'(lambda () (interactive) (scroll-left 1))
             "<wheel-right>" #'(lambda () (interactive) (scroll-right 1)))
            (evil-leader-map
@@ -256,7 +262,7 @@
   (tab-stop-list (number-sequence tab-width 120 tab-width))
   :config
   (add-to-list 'warning-suppress-types
-    '(defvaralias losing-value lisp-indent-offset))
+    '(defvaralias))
   (-map (-cut defvaralias <> 'tab-width)
         '(c-basic-offset
           css-indent-offset
@@ -1079,8 +1085,11 @@ targets."
 
 (use-package dired-avfs
   :guix (emacs-dired-hacks avfs)
+  :after eshell
   :config
   (unless (and (file-readable-p (concat (getenv "HOME") "/.avfs"))
+               ;; XXX: Should be in path?
+               (eshell-search-path "avfs")
                (= 0 (call-process "mountpoint" nil nil nil (concat (getenv "HOME") "/.avfs"))))
     (start-process-shell-command "mountavfs" nil "mountavfs")))
 
@@ -1679,18 +1688,18 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   (org-node-filter-fn
     (lambda (node)
       ;; BORKED 2025/02/17: cl arg type dispatch error?
-      ;; Debugger entered--Lisp error: (cl-no-applicable-method comp--spill-lap-function #f(lambda (node) :dynbind (not (or (assoc "ROAM_EXCLUDE" (org-node-get-properties node)) (string-search "archive" (org-node-get-file-path node))))))
-      ;; signal(cl-no-applicable-method (comp--spill-lap-function #f(lambda (node) :dynbind (not (or (assoc "ROAM_EXCLUDE" (org-node-get-properties node)) (string-search "archive" (org-node-get-file-path node)))))))
-      ;; cl-no-applicable-method(#s(cl--generic :name comp--spill-lap-function :dispatches ((0 #s(cl--generic-generalizer :name cl--generic-typeof-generalizer :priority 10 :tagcode-function #f(compiled-function (name &rest _) #<bytecode 0x11623d39777641a1>) :specializers-function cl--generic-type-specializers) #s(cl--generic-generalizer :name cl--generic-t-generalizer :priority 0 :tagcode-function #f(compiled-function (name &rest _) #<bytecode 0x111a2082463a1535>) :specializers-function #f(compiled-function (tag &rest _) #<bytecode -0x1a05678245d32db5>)))) :method-table (#s(cl--generic-method :specializers (string) :qualifiers nil :call-con nil :function #f(compiled-function (filename) "Byte-compile FILENAME, spilling data from the byte compiler." #<bytecode 0xcfe38f4ed1a6a7>)) #s(cl--generic-method :specializers (list) :qualifiers nil :call-con nil :function #f(compiled-function (form) "Byte-compile FORM, spilling data from the byte compiler." #<bytecode 0x7fb1ef53e1b567a>)) #s(cl--generic-method :specializers (symbol) :qualifiers nil :call-con nil :function #f(compiled-function (function-name) "Byte-compile FUNCTION-NAME, spilling data from the byte compiler." #<bytecode -0xf105c3a5aab6047>))) :options nil) #f(lambda (node) :dynbind (not (or (assoc "ROAM_EXCLUDE" (org-node-get-properties node)) (string-search "archive" (org-node-get-file-path node))))))
+      ;; Debugger entered--Lisp error: (cl-no-applicable-method comp--spill-lap-function #f(lambda (node) :dynbind (not (or (assoc "ROAM_EXCLUDE" (org-node-get-properties node)) (string-search "archive" (org-node-get-file node))))))
+      ;; signal(cl-no-applicable-method (comp--spill-lap-function #f(lambda (node) :dynbind (not (or (assoc "ROAM_EXCLUDE" (org-node-get-properties node)) (string-search "archive" (org-node-get-file node)))))))
+      ;; cl-no-applicable-method(#s(cl--generic :name comp--spill-lap-function :dispatches ((0 #s(cl--generic-generalizer :name cl--generic-typeof-generalizer :priority 10 :tagcode-function #f(compiled-function (name &rest _) #<bytecode 0x11623d39777641a1>) :specializers-function cl--generic-type-specializers) #s(cl--generic-generalizer :name cl--generic-t-generalizer :priority 0 :tagcode-function #f(compiled-function (name &rest _) #<bytecode 0x111a2082463a1535>) :specializers-function #f(compiled-function (tag &rest _) #<bytecode -0x1a05678245d32db5>)))) :method-table (#s(cl--generic-method :specializers (string) :qualifiers nil :call-con nil :function #f(compiled-function (filename) "Byte-compile FILENAME, spilling data from the byte compiler." #<bytecode 0xcfe38f4ed1a6a7>)) #s(cl--generic-method :specializers (list) :qualifiers nil :call-con nil :function #f(compiled-function (form) "Byte-compile FORM, spilling data from the byte compiler." #<bytecode 0x7fb1ef53e1b567a>)) #s(cl--generic-method :specializers (symbol) :qualifiers nil :call-con nil :function #f(compiled-function (function-name) "Byte-compile FUNCTION-NAME, spilling data from the byte compiler." #<bytecode -0xf105c3a5aab6047>))) :options nil) #f(lambda (node) :dynbind (not (or (assoc "ROAM_EXCLUDE" (org-node-get-properties node)) (string-search "archive" (org-node-get-file node))))))
       (not (or (org-node-get-todo node)
                (assoc "ROAM_EXCLUDE" (org-node-get-properties node))
-               (string-search "archive" (org-node-get-file-path node))))))
+               (string-search "archive" (org-node-get-file node))))))
   (org-node-seq-defs
     (list
      '("d" :name "Daily-files"
        :version 2
        :classifier (lambda (node)
-                     (let ((path (expand-file-name (org-node-get-file-path node))))
+                     (let ((path (expand-file-name (org-node-get-file node))))
                        (when (string-search (org-node-seq--guess-daily-dir) path)
                          (let ((ymd (org-node-helper-filename->ymd path)))
                            (when ymd
@@ -1942,46 +1951,47 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
 ;;   :guix emacs-explain-pause-mode
 ;;   :ghook ('after-init-hook #'explain-pause-mode))
 
-;; XXX: Breaks `mode-line-format-right-align`, somehow
-(use-package keepass
-  :guix emacs-keepass
-  :custom
-  (keepass-db (concat (getenv "HOME") "/Sync/passwords.kdbx"))
-  (keepass-yubikey "2:20604081")
-  (password-cache-expiry 35)
-  :config
-  (defun antlers/keepass--update-mode-line (desc)
-    "Update mode line with DESC for =keepass--update-mode-line=."
-    (setq keepass--mode-line-string
-      `(:eval
-        (propertize
-          ,(format " KP: %s (%d) " desc keepass--time)
-          'face
-          (list :inherit    (if (moody-window-active-p)
-                                'mode-line-active
-                              'mode-line-inactive)
-                :background (face-background 'default)
-                :overline   (if (moody-window-active-p)
-                                (face-attribute 'mode-line :overline nil t)
-                              (face-attribute 'mode-line-inactive :background nil t))
-                :underline  (if (moody-window-active-p)
-                                (face-attribute 'mode-line :underline nil t)
-                              (face-attribute 'mode-line-inactive :background nil t))))))
-    (walk-windows
-     (lambda (win)
-       (with-selected-window win
-         (when (and mode-line-format
-                    (not (and (listp mode-line-format)
-                              (assq 'keepass--mode-line-string mode-line-format))))
-           (setq mode-line-format (list "" '(keepass--mode-line-string
-                                             (" " keepass--mode-line-string))
-                                        mode-line-format))))))
-    (force-mode-line-update t))
-  (advice-add 'keepass--update-mode-line :override
-    #'antlers/keepass--update-mode-line)
-
-  (keepass-global "C-c p")
-  (keepass-register "s" "Google" :name "Google"))
+;; ;; XXX: Breaks `mode-line-format-right-align`, somehow
+;; ;; BORKED 2024-03-20: `emacs-keepass` checkout fails, probably bc i deleted my fork
+;; (use-package keepass
+;;   :guix emacs-keepass
+;;   :custom
+;;   (keepass-db (concat (getenv "HOME") "/Sync/passwords.kdbx"))
+;;   (keepass-yubikey "2:20604081")
+;;   (password-cache-expiry 35)
+;;   :config
+;;   (defun antlers/keepass--update-mode-line (desc)
+;;     "Update mode line with DESC for =keepass--update-mode-line=."
+;;     (setq keepass--mode-line-string
+;;       `(:eval
+;;         (propertize
+;;           ,(format " KP: %s (%d) " desc keepass--time)
+;;           'face
+;;           (list :inherit    (if (moody-window-active-p)
+;;                                 'mode-line-active
+;;                               'mode-line-inactive)
+;;                 :background (face-background 'default)
+;;                 :overline   (if (moody-window-active-p)
+;;                                 (face-attribute 'mode-line :overline nil t)
+;;                               (face-attribute 'mode-line-inactive :background nil t))
+;;                 :underline  (if (moody-window-active-p)
+;;                                 (face-attribute 'mode-line :underline nil t)
+;;                               (face-attribute 'mode-line-inactive :background nil t))))))
+;;     (walk-windows
+;;      (lambda (win)
+;;        (with-selected-window win
+;;          (when (and mode-line-format
+;;                     (not (and (listp mode-line-format)
+;;                               (assq 'keepass--mode-line-string mode-line-format))))
+;;            (setq mode-line-format (list "" '(keepass--mode-line-string
+;;                                              (" " keepass--mode-line-string))
+;;                                         mode-line-format))))))
+;;     (force-mode-line-update t))
+;;   (advice-add 'keepass--update-mode-line :override
+;;     #'antlers/keepass--update-mode-line)
+;;
+;;   (keepass-global "C-c p")
+;;   (keepass-register "s" "Google" :name "Google"))
 
 (use-package tabspaces
   :guix emacs-tabspaces
@@ -2097,13 +2107,14 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
             "C-c u" #'lsp-ui-imenu)
            (lsp-ui-mode-map
             :states 'motion
-            ; "TAB" #'lsp-ui-doc-toggle-focus-frame)
+            ;; "TAB" #'lsp-ui-doc-toggle-focus-frame)
             "TAB" #'lsp-ui-doc-focus-frame)
            (lsp-ui-doc-frame-mode-map
             :states 'normal
             [?q] #'lsp-ui-doc-unfocus-frame
             "TAB" #'lsp-ui-doc-unfocus-frame)
   :custom
+  (lsp-ui-doc-mode t)
   (lsp-ui-peek-always-show t)
   (lsp-ui-doc-use-childframe t)
   (lsp-ui-doc-position 'at-point)
@@ -2209,8 +2220,8 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   ;; playing with lsp-mode first, but i kinda like eglot.
   ;; lsp-mode might have an edge if i package cargo-makedoc for
   ;; rustic's org-mode docs setup.
-  (rustic-lsp-client 'eglot)
-  ;; (rustic-lsp-client 'lsp-mode)
+  ;; (rustic-lsp-client 'eglot)
+  (rustic-lsp-client 'lsp-mode)
   :config
   ;; XXX: Should probably be fixed on package, but ideally this would
   ;; have been a separate package that builds itself via rustup, and

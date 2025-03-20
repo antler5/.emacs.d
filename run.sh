@@ -10,6 +10,7 @@ CONTAINER_ARGS=(
   --share="$HOME"
   --share="/tmp"
   --share="$XDG_RUNTIME_DIR"
+  --share="/media"
   --preserve='^DISPLAY$' --preserve='^XAUTHORITY$' --expose="$XAUTHORITY"
   --preserve='^XDG_' --preserve='^WAYLAND_'
   --preserve='^DBUS_' --expose=/var/run/dbus
