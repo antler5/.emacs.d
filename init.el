@@ -338,10 +338,12 @@ Supports both Emacs and Evil cursor conventions."
     "Return a =nerd-icon= representing the state of the current buffer."
     (cl-flet ((icon (lambda (i)
                       (nerd-icons-faicon i))))
-      (pcase (format-mode-line "%*")
-        ("*"   (icon "nf-fa-chain_broken"))
-        ("-"   (icon "nf-fa-link"))
-        ("%"   (icon "nf-fa-lock")))))
+      (if (eq major-mode #'eshell-mode)
+          (icon "nf-fa-terminal")
+        (pcase (format-mode-line "%*")
+          ("*"   (icon "nf-fa-chain_broken"))
+          ("-"   (icon "nf-fa-link"))
+          ("%"   (icon "nf-fa-lock"))))))
   (defun antlers/mode-line-percent (&optional buffer)
     "Return =point= position (as a percentage) and buffer length (in lines)."
     (format "%-7s "
@@ -1788,6 +1790,7 @@ Credit to John Kitchin @ https://emacs.stackexchange.com/a/52209 "
   :custom
   (eshell-scroll-to-bottom-on-output nil)
   (eshell-scroll-show-maximum-output nil)
+  (eshell-status-in-mode-line nil)
   :config
   (defun antlers/clear ()
     "Clear =eshell= (=eshell/clear= errors out)."
